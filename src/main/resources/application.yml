@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(FB7REH9ivhDanwT9tAAGMQ+vmHedMpRjbqI/WcpFnldEh3BwDUXVfspSQi5C4oVuQtAQqCexD/K81b0CYkeJHTo7GIdFk/rjZd0X/EZ4svWjdREwBEsKJ8UGMmjsMLPJT0Qemjit7cKRvTvRfo9qis4r64G+Zuvgl+lofrSUbn8=)
+    username: ENC(Ay5DwL21B0Z0dy2r5TkexrD7ncfUp5L49AF0G6Fo1qPfwOGhWORIPxly7EDHFAUW)
+    password: ENC(wYREFiBZU6XZp0pvg2J9R5RhSYpn4vdmhrRuffOlV/TgkCIuZ2Zvy0yd8uM8hVz2)
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+jasypt:
+  encryptor:
+    bean: jasyptEncryptorAES
+    password: ${JASYPT_ENCRYPTOR_PASSWORD}
