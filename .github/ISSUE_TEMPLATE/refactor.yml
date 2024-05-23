@@ -1,0 +1,57 @@
+name: "🛠️ 리팩터링"
+description: 코드 개선이 필요한가요?
+title: "[REFACTOR] "
+labels: ["🛠️ refactor"]
+body:
+  - type: textarea
+    attributes:
+      label: 📝 리팩터링 설명
+      description: "리팩터링 작업에 대한 설명을 입력해주세요. 설명은 구체적일수록 좋습니다."
+      placeholder: "예: 기존 사용자 관리 모듈의 코드 품질을 개선하고 성능을 최적화하기 위해 리팩터링을 진행합니다."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🎯 리팩터링 목표
+      description: "리팩터링 작업의 목표를 구체적으로 작성해주세요."
+      placeholder: "예: 코드 중복 제거, 성능 개선, 가독성 향상"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 🔨 작업 내용
+      description: "리팩터링을 위해 필요한 작업 내용을 구체적으로 작성해주세요."
+      placeholder: |
+        - [ ] 코드 중복 제거
+        - [ ] 변수 및 함수명 의미 있게 변경
+        - [ ] 오래된 라이브러리 최신 버전으로 업데이트
+        - [ ] 불필요한 주석 제거
+        - [ ] 단위 테스트 추가 및 수정
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: ⏳ 추정 시간
+      description: "리팩터링 작업에 예상되는 소요 시간을 입력해주세요."
+      placeholder: "예: 5시간"
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: ⌛ 소요 시간
+      description: "리팩터링 작업에 실제로 소요된 시간을 입력해주세요."
+      placeholder: "예: 6시간"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: 📚 참고 자료
+      description: "참고할 수 있는 자료나 링크가 있다면 작성해주세요."
+      placeholder: "관련 자료나 링크를 입력해주세요."
+    validations:
+      required: false
