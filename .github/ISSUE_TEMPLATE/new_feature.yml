@@ -1,0 +1,49 @@
+name: ✨ 기능 추가
+description: 추가할 새로운 기능이 있나요?
+title: "[FEAT] "
+labels: ["✨ feature"]
+body:
+  - type: textarea
+    attributes:
+      label: 📝 기능 설명
+      description: "추가하고자 하는 새로운 기능에 대해 설명해주세요."
+      placeholder: "제안하시는 기능을 자세히 설명해주세요."
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 작업 내용
+      description: 해당 기능을 구현하기 위해 필요한 작업 내용을 구체적으로 작성해주세요.
+      placeholder: |
+        - [ ] 로그인 엔드포인트 추가 (POST /api/v1/login)
+        - [ ] UserService.java에 로그인 로직 추가
+        - [ ] UserRepository.java에 사용자 인증 쿼리 추가
+        - [ ] JWT 토큰 생성 및 검증 로직 추가
+        - [ ] 로그인 요청 및 응답 DTO 작성
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 📚 참고 자료
+      description: "참고할 수 있는 자료나 링크가 있다면 작성해주세요."
+      placeholder: "관련 자료나 링크를 입력해주세요."
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: ⏳ 추정 시간
+      description: "해당 기능을 구현하는데 걸릴 것으로 예상되는 시간을 입력해주세요."
+      placeholder: "예: 10시간"
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: ⌛ 소요 시간
+      description: "해당 기능을 구현하는데 실제로 소요된 시간을 입력해주세요."
+      placeholder: "예: 8시간"
+    validations:
+      required: false
