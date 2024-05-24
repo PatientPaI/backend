@@ -2,6 +2,7 @@ name: "🛠️ 리팩터링"
 description: 코드 개선이 필요한가요?
 title: "[REFACTOR] "
 labels: ["🛠️ refactor"]
+projects: ["goaheadgogo/1"]
 body:
   - type: textarea
     attributes:
