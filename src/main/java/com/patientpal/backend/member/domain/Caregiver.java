@@ -29,7 +29,7 @@ public class Caregiver {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용
+    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용 (암호화 로직 추가 필요)
 
     @Embedded
     private Address address;
