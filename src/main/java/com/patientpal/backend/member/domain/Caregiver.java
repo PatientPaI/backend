@@ -29,30 +29,30 @@ public class Caregiver {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String ssn; // 주민등록번호, 중복 검사용
+    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용
 
     @Embedded
     private Address address;
 
     private float rating;
 
-    private int experience_years; //경력
+    private int experienceYears;
 
     private String specialization; //간병 전문분야
 
     @Lob
-    private String caregiver_significant; //간병인 특이사항
+    private String caregiverSignificant; //간병인 특이사항
 
     @Builder
-    public Caregiver(@NonNull Member member, @NonNull String name, @NonNull String ssn, Address address,
-                     float rating, int experience_years, String specialization, String caregiver_significant) {
+    public Caregiver(@NonNull Member member, @NonNull String name, @NonNull String residentRegistrationNumber, Address address,
+                     float rating, int experienceYears, String specialization, String caregiverSignificant) {
         this.member = member;
         this.name = name;
-        this.ssn = ssn;
+        this.residentRegistrationNumber = residentRegistrationNumber;
         this.address = address;
         this.rating = rating;
-        this.experience_years = experience_years;
+        this.experienceYears = experienceYears;
         this.specialization = specialization;
-        this.caregiver_significant = caregiver_significant;
+        this.caregiverSignificant = caregiverSignificant;
     }
 }

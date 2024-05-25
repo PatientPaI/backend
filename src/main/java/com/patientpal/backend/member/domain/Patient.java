@@ -29,31 +29,31 @@ public class Patient {
     private String name;
 
     @Column(unique = true, nullable = false)
-    private String ssn; // 주민등록번호, 중복 검사용
+    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용
 
     @Embedded
     private Address address;
 
-    private String nok_name; //보호자 이름
+    private String nokName; //보호자 이름
 
-    private String nok_contact;
-
-    @Lob
-    private String patient_significant; //환자 특이사항
+    private String nokContact;
 
     @Lob
-    private String care_requirements; //간병 요구사항
+    private String patientSignificant; //환자 특이사항
+
+    @Lob
+    private String careRequirements; //간병 요구사항
 
     @Builder
-    public Patient(@NonNull Member member, @NonNull String name, @NonNull String ssn, Address address,
-                   String nok_name, String nok_contact, String patient_significant, String care_requirements) {
+    public Patient(@NonNull Member member, @NonNull String name, @NonNull String residentRegistrationNumber, Address address,
+                   String nokName, String nokContact, String patientSignificant, String careRequirements) {
         this.member = member;
         this.name = name;
-        this.ssn = ssn;
+        this.residentRegistrationNumber = residentRegistrationNumber;
         this.address = address;
-        this.nok_name = nok_name;
-        this.nok_contact = nok_contact;
-        this.patient_significant = patient_significant;
-        this.care_requirements = care_requirements;
+        this.nokName = nokName;
+        this.nokContact = nokContact;
+        this.patientSignificant = patientSignificant;
+        this.careRequirements = careRequirements;
     }
 }

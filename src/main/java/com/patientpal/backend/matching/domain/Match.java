@@ -17,6 +17,7 @@ import static jakarta.persistence.FetchType.*;
 public class Match {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "match_id")
     private Long id;
 
     @ManyToOne(fetch = LAZY)
@@ -42,4 +43,3 @@ public class Match {
         this.status = status;
     }
 }
-
