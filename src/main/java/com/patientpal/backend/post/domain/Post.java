@@ -1,4 +1,4 @@
-package com.patientpal.backend.noticecommunity.domain;
+package com.patientpal.backend.post.domain;
 
 import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.*;
@@ -40,9 +40,20 @@ public class Post {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    private PostType postType;
+
     @Builder
-    public Post(Member member, @NonNull String title, @NonNull String content) {
+    public Post(Member member, @NonNull String title, @NonNull String content, PostType postType) {
         this.member = member;
+        this.title = title;
+        this.content = content;
+        this.postType = postType;
+    }
+
+
+
+    public void update(String title, String content) {
         this.title = title;
         this.content = content;
     }
