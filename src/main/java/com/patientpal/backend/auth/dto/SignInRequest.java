@@ -1,6 +1,5 @@
 package com.patientpal.backend.auth.dto;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,13 +9,11 @@ import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SignInRequest {
-    @NotEmpty
     @Length(max = 20)
     private String username;
 
-    @NotEmpty
     @Length(min = 8, max = 20)
     private String password;
 
