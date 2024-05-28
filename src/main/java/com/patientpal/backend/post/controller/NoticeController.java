@@ -20,34 +20,34 @@ public class NoticeController {
     // TODO: wjdwwidz paging 처리
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<PostListResponseDto> list() {
+    public List<PostListResponse> list() {
         List<Post> posts = postService.getNotices();
         return posts.stream()
-                .map(PostListResponseDto::new)
+                .map(PostListResponse::new)
                 .toList();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostResponseDto get(@PathVariable("id") Long id) {
+    public PostResponse get(@PathVariable("id") Long id) {
         Post post = postService.getPost(id);
-        return new PostResponseDto(post);
+        return new PostResponse(post);
     }
 
     // TODO: wjdwwidz member 추가
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PostCreateResponseDto create(@RequestBody PostCreateRequestDto createRequest) {
+    public PostCreateResponse create(@RequestBody PostCreateRequest createRequest) {
         Post post = postService.createPost(createRequest);
-        return new PostCreateResponseDto(post);
+        return new PostCreateResponse(post);
     }
 
     // TODO: wjdwwidz member 추가
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostResponseDto update(@PathVariable("id") Long id, @RequestBody PostUpdateRequestDto updateRequest) {
+    public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest) {
         Post post = postService.updatePost(id, updateRequest);
-        return new PostResponseDto(post);
+        return new PostResponse(post);
     }
 
     // TODO: wjdwwidz member 추가
