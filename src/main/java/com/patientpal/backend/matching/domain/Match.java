@@ -35,13 +35,27 @@ public class Match {
     private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
-    private MatchStatus status;
+    private MatchStatus matchStatus;
+
+    @Enumerated(EnumType.STRING)
+    private ReadStatus readStatus;
+
+    @Lob
+    @Column(nullable = false)
+    private String patientProfileSnapshot;
+
+    @Lob
+    @Column(nullable = false)
+    private String caregiverProfileSnapshot;
 
     @Builder
-    public Match(@NonNull Patient patient, @NonNull Caregiver caregiver, @NonNull LocalDateTime createdDate, @NonNull MatchStatus status) {
+    public Match(@NonNull Patient patient, @NonNull Caregiver caregiver, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
+                 String patientProfileSnapshot, String caregiverProfileSnapshot) {
         this.patient = patient;
         this.caregiver = caregiver;
-        this.createdDate = createdDate;
-        this.status = status;
+        this.matchStatus = matchStatus;
+        this.readStatus = readStatus;
+        this.patientProfileSnapshot = patientProfileSnapshot;
+        this.caregiverProfileSnapshot = caregiverProfileSnapshot;
     }
 }
