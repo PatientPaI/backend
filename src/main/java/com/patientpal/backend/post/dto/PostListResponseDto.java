@@ -1,6 +1,6 @@
-package com.patientpal.backend.noticecommunity.dto;
+package com.patientpal.backend.post.dto;
 
-import com.patientpal.backend.noticecommunity.domain.Post;
+import com.patientpal.backend.post.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
