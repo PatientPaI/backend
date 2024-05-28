@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDate;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,16 +48,13 @@ public class Member {
 
     private LocalDate birthDate;
 
+    @Builder
     public Member(String username, String password, Provider provider, Role role, String contact) {
         this.username = username;
         this.password = password;
         this.provider = provider;
         this.role = role;
         this.contact = contact;
-    }
-
-    public Member(String username, String password, Role role, String contact) {
-        this(username, password, Provider.LOCAL, role, contact);
     }
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
