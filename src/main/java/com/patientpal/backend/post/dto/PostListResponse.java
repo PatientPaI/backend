@@ -8,14 +8,14 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class PostListResponseDto {
+public class PostListResponse {
     private Long id;
     private Long memberId;
     private String title;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public PostListResponseDto(Post post) {
+    public PostListResponse(Post post) {
         this.id = post.getId();
         this.memberId = post.getMember().getId();
         this.title = post.getTitle();

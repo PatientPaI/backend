@@ -4,8 +4,8 @@ import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.domain.PostType;
-import com.patientpal.backend.post.dto.PostCreateRequestDto;
-import com.patientpal.backend.post.dto.PostUpdateRequestDto;
+import com.patientpal.backend.post.dto.PostCreateRequest;
+import com.patientpal.backend.post.dto.PostUpdateRequest;
 import com.patientpal.backend.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post createPost(PostCreateRequestDto createRequest) {
+    public Post createPost(PostCreateRequest createRequest) {
         Post post = Post.builder()
                 .title(createRequest.getTitle())
                 .content(createRequest.getContent())
@@ -48,7 +48,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long id, PostUpdateRequestDto updateRequest) {
+    public Post updatePost(Long id, PostUpdateRequest updateRequest) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
 

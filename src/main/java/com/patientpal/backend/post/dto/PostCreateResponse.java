@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class PostCreateResponseDto {
+public class PostCreateResponse {
 
     private Long id;
     private String title;
@@ -16,7 +16,7 @@ public class PostCreateResponseDto {
     private String createdAt;
     private String updatedAt;
 
-    public PostCreateResponseDto(Post post) {
+    public PostCreateResponse(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
