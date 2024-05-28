@@ -34,9 +34,8 @@ public class SecurityConfig {
         return http
                 .securityMatcher("/api/**")
                     .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/v1/auth/**", "/api/v1/docs/**").permitAll()
-                            .anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
                     .exceptionHandling(handler -> handler
                             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                             .accessDeniedHandler(jwtAccessDeniedHandler))
