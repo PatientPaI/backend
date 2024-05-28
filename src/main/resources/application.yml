@@ -19,6 +19,17 @@ jasypt:
     bean: jasyptEncryptorAES
     password: ${JASYPT_ENCRYPTOR_PASSWORD}
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+patientpal:
+  openapi:
+    dev-url: http://localhost:8080
+    prod-url: https://prod-api.patientpal.com
+
 ---
 spring:
   config:
