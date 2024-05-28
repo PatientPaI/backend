@@ -19,6 +19,23 @@ jasypt:
     bean: jasyptEncryptorAES
     password: ${JASYPT_ENCRYPTOR_PASSWORD}
 
+security:
+  jwt:
+    base64-secret: ENC(1GNNUxVCM5+Bdl4dwgzuJSkKrKsfQA9+7cTXnd1QCK2oEJKaoF2Z2U/BRqNRDd6C0NLtTpCImGTaXWsFAXNfIpgO4Qg5j1aIKbSxPuCkTfkfgoDGd/kImPKDYGW8XwgbFJsIZsLzFIXbWAC6M0uGTiewFXlel9LX2e3V6Fy9UVU=)
+    access-expiration-time: 86400000
+    refresh-expiration-time: 604800000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs
+
+patientpal:
+  openapi:
+    dev-url: http://localhost:8080
+    prod-url: https://prod-api.patientpal.com
+
 ---
 spring:
   config:
