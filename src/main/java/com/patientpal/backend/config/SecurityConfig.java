@@ -33,16 +33,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/api/**")
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/api/v1/auth/**", "/api/v1/docs/**").permitAll()
-                            .anyRequest().authenticated())
-                    .exceptionHandling(handler -> handler
-                            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                            .accessDeniedHandler(jwtAccessDeniedHandler))
-                    .sessionManagement(session -> session
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
+                .exceptionHandling(handler -> handler
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .addFilterBefore(new JwtAuthTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.patientpal.backend.matching.application;
 
 import com.patientpal.backend.matching.domain.*;
 import com.patientpal.backend.member.domain.*;
+import com.patientpal.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

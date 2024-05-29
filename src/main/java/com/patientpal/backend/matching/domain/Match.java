@@ -1,5 +1,7 @@
 package com.patientpal.backend.matching.domain;
 
+import com.patientpal.backend.common.BaseEntity;
+import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.member.domain.Caregiver;
 import com.patientpal.backend.member.domain.Patient;
 import jakarta.persistence.*;
@@ -16,7 +18,7 @@ import static jakarta.persistence.FetchType.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "matches")
-public class Match {
+public class Match extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "match_id")

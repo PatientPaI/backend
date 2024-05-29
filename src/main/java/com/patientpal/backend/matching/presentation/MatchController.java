@@ -1,5 +1,6 @@
 package com.patientpal.backend.matching.presentation;
 
+import com.patientpal.backend.auth.dto.LoginMember;
 import com.patientpal.backend.matching.application.MatchService;
 
 import com.patientpal.backend.matching.domain.Match;
@@ -7,6 +8,7 @@ import com.patientpal.backend.matching.dto.response.CreateMatchResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.member.domain.Member;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/matches")
 @RequiredArgsConstructor
+@Slf4j
 public class MatchController {
 
     private final MatchService matchService;
@@ -27,7 +30,8 @@ public class MatchController {
     }
 
     @GetMapping
-    public List<MatchResponse> getMatchList(@AuthenticationPrincipal Member currentMember) {
+    public List<MatchResponse> getMatchList(@AuthenticationPrincipal Member currentMember) { //이후 requestDTO로 변경
+        log.info("member= {} {}", currentMember.getId(), currentMember.getUsername());
         List<Match> matchList = matchService.findAllByUserId(currentMember.getId()); //추후 예외 처리
         List<MatchResponse> list = new ArrayList<>();
         for (Match m : matchList) {
