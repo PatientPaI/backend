@@ -1,6 +1,6 @@
 package com.patientpal.backend.post.domain;
 
-import com.patientpal.backend.common.BaseTimeEntity;
+import com.patientpal.backend.common.BaseEntity;
 import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Table(name = "posts")
 @RequiredArgsConstructor
-public class Post extends BaseTimeEntity {
+public class Post extends BaseEntity {
 
     @Id
     @Column(name = "post_id")

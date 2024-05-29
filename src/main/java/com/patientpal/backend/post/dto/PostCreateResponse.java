@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -13,14 +15,14 @@ public class PostCreateResponse {
     private Long id;
     private String title;
     private String content;
-    private String createdAt;
-    private String updatedAt;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 
     public PostCreateResponse(Post post) {
         this.id = post.getId();
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.createdAt = post.getCreatedAt().toString();
-        this.updatedAt = post.getUpdatedAt().toString();
+        this.createdDate = post.getCreatedDate();
+        this.updatedDate = post.getLastModifiedDate();
     }
 }

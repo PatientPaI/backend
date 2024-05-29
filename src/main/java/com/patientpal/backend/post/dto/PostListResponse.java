@@ -19,7 +19,7 @@ public class PostListResponse {
         this.id = post.getId();
         this.memberId = post.getMember().getId();
         this.title = post.getTitle();
-        this.createdAt = post.getCreatedAt();
-        this.updatedAt = post.getUpdatedAt();
+        this.createdAt = post.getCreatedDate();
+        this.updatedAt = post.getLastModifiedDate();
     }
 }
