@@ -1,18 +1,15 @@
 package com.patientpal.backend.post.domain;
 
-import com.patientpal.backend.common.BaseEntity;
+import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "posts")
-@RequiredArgsConstructor
-public class Post extends BaseEntity {
+public class Post extends BaseTimeEntity {
 
     @Id
     @Column(name = "post_id")
@@ -39,8 +36,6 @@ public class Post extends BaseEntity {
         this.content = content;
         this.postType = postType;
     }
-
-
 
     public void update(String title, String content) {
         this.title = title;
