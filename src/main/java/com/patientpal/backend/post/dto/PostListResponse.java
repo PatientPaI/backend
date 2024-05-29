@@ -1,13 +1,15 @@
 package com.patientpal.backend.post.dto;
 
 import com.patientpal.backend.post.domain.Post;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostListResponse {
     private Long id;
     private Long memberId;
@@ -19,7 +21,7 @@ public class PostListResponse {
         this.id = post.getId();
         this.memberId = post.getMember().getId();
         this.title = post.getTitle();
-        this.createdAt = post.getCreatedAt();
-        this.updatedAt = post.getUpdatedAt();
+        this.createdAt = post.getCreatedDate();
+        this.updatedAt = post.getLastModifiedDate();
     }
 }
