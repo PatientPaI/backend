@@ -1,12 +1,7 @@
 package com.patientpal.backend.member.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -31,6 +26,12 @@ public class Member {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Provider provider;
+
+    @OneToOne(mappedBy = "member")
+    private Patient patient;
+
+    @OneToOne(mappedBy = "member")
+    private Caregiver caregiver;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

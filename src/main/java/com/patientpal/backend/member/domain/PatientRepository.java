@@ -2,8 +2,9 @@ package com.patientpal.backend.member.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PatientRepository extends JpaRepository<Patient, Long> {
-    Patient findByName(String username);
+import java.util.Optional;
 
-    Patient findByMember(Member member);
+public interface PatientRepository extends JpaRepository<Patient, Long> {
+
+    Optional<Patient> findByMember(Member member);
 }

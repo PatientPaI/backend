@@ -4,15 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum MatchStatus {
-    //신청 보낸 사람
-    COMPLETED("신청 완료"),
-
-    //신청 받은 사람
     PENDING("대기중"),
-
-    //공통
-    CANCELED("취소 완료"),
-    ACCEPTED("수락됨");
+    CANCELED("중도 취소"),
+    ACCEPTED("수락됨"),
+    COMPLETED("완료");
 
     private final String description;
 

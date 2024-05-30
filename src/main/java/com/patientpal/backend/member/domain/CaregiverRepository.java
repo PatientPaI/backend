@@ -2,8 +2,8 @@ package com.patientpal.backend.member.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CaregiverRepository extends JpaRepository<Caregiver, Long> {
-    Caregiver findByName(String username);
+import java.util.Optional;
 
-    Caregiver findByMember(Member member);
+public interface CaregiverRepository extends JpaRepository<Caregiver, Long> {
+    Optional<Caregiver> findByMember(Member member);
 }
