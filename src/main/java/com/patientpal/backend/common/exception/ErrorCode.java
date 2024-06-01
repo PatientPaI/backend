@@ -17,8 +17,19 @@ public enum ErrorCode {
 
     MEMBER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "M_001", "이미 가입된 계정이 존재합니다."),
     MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M_002", "해당 멤버는 존재하지 않습니다."),
+    NOT_COMPLETE_PROFILE(HttpStatus.NOT_FOUND, "PA_002", "프로필이 등록되어 있지 않습니다."),
 
-    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P_001", "해당 게시글을 찾을 수 없습니다.");
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P_001", "해당 게시글을 찾을 수 없습니다."),
+
+    DUPLICATED_REQUEST(HttpStatus.CONFLICT, "MT_001", "이미 매칭 요청이 진행 중입니다."),
+    MATCH_ALREADY_ACCEPTED(HttpStatus.CONFLICT, "MT_002", "이미 매칭 수락이 완료되었습니다."),
+    MATCH_ALREADY_CANCELED(HttpStatus.CONFLICT, "MT_003", "이미 매칭 취소가 처리되었습니다."),
+    MATCH_NOT_EXIST(HttpStatus.NOT_FOUND, "MT_004", "매칭을 찾을 수 없습니다."),
+    CAN_NOT_REQUEST_TO(HttpStatus.NOT_FOUND, "MT_005", "매칭 요청을 보낼 수 없는 상대입니다."),
+    CAN_NOT_READ(HttpStatus.NOT_FOUND, "MT_006", "취소된 요청은 조회가 불가능합니다."),
+
+    PATIENT_NOT_EXIST(HttpStatus.NOT_FOUND, "PA_001", "해당 환자는 존재하지 않습니다."),
+    CAREGIVER_NOT_EXIST(HttpStatus.NOT_FOUND, "CA_001", "해당 간병인은 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

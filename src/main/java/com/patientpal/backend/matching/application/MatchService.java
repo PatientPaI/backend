@@ -1,18 +1,20 @@
 package com.patientpal.backend.matching.application;
 
-import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
+import org.springframework.security.core.userdetails.User;
 
 public interface MatchService {
 
-    MatchResponse create(Long requestMemberId, Long responseMemberId);
+    MatchResponse createForPatient(User currentMember, Long responseMemberId);
+    MatchResponse createForCaregiver(User currentMember, Long responseMemberId);
 
-    MatchResponse getMatch(Long matchId);
+    MatchResponse getMatch(Long matchId, String username);
 
     MatchListResponse getMatchList(String username, Pageable pageable);
 
+    void cancelMatch(Long matchId, String username);
+
+    void acceptMatch(Long matchId, String username);
 }

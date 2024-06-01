@@ -5,9 +5,7 @@ import com.patientpal.backend.matching.application.MatchService;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -18,38 +16,51 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 @RequestMapping("api/v1/matches")
 @RequiredArgsConstructor
-@Slf4j
 public class MatchController {
 
     private final MatchService matchService;
 
-    @PostMapping
-    public ResponseEntity<MatchResponse> createMatch(
-            @RequestParam(name = "requestMemberId") Long requestMemberId,
-            @RequestParam(name = "responseMemberId") Long responseMemberId) {
-        final MatchResponse response = matchService.create(requestMemberId, responseMemberId);
-        return ResponseEntity.status(CREATED).body(response);
+    /**
+     * TODO
+     *  - createMatch()시, createdBy 에 null 들어가는 문제
+     *  - Matching 신청 할 때, 프로필을 등록했는지 확인하는 기능 필수. 현재 Patient, Caregiver 엔티티는 회원 가입 시, ID만 가진 빈껍데기로 생성이 됨.
+     *  그 안에 세부 내용들을 채워넣어야 매칭 신청, 등록 가능. -> 프로필 세부 내용을 작성해야 매칭 신청 or 매칭 리스트에 등록 가능하게 해야함.
+     */
+    @PostMapping("/patient/{responseMemberId}")
+    public MatchResponse createMatchForPatient(@AuthenticationPrincipal User currentMember,
+                                               @PathVariable Long responseMemberId) {
+        return matchService.createForPatient(currentMember, responseMemberId);
     }
 
-    @GetMapping
-    public ResponseEntity<MatchResponse> getMatch(@RequestParam(name = "matchId") Long matchId) {
-        MatchResponse match = matchService.getMatch(matchId);
+    @PostMapping("/caregiver/{responseMemberId}")
+    public MatchResponse createMatchForCaregiver(@AuthenticationPrincipal User currentMember,
+                                                 @PathVariable Long responseMemberId) {
+        return matchService.createForCaregiver(currentMember, responseMemberId);
+    }
+
+    @GetMapping("/{matchId}")
+    public ResponseEntity<MatchResponse> getMatch(@AuthenticationPrincipal User currentMember, @PathVariable Long matchId) {
+        final MatchResponse match = matchService.getMatch(matchId, currentMember.getUsername());
         return ResponseEntity.status(OK).body(match);
     }
 
-    /**
-     * TODO
-     * 페이징 처리 안됨
-     * 2024-05-30T18:25:49.894+09:00  INFO 34732 --- [backend] [nio-8080-exec-1] c.p.b.m.application.MatchServiceImpl     : matchList.size=10
-     * 2024-05-30T18:25:49.895+09:00  INFO 34732 --- [backend] [nio-8080-exec-1] c.p.b.m.application.MatchServiceImpl     : matchResponseList.size=1
-     */
     @GetMapping("/all")
     public ResponseEntity<MatchListResponse> getMatchList(@AuthenticationPrincipal User currentMember,
-                                                          @RequestParam(defaultValue = "0", name = "page") int page,
-                                                          @RequestParam(defaultValue = "10", name = "size") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        MatchListResponse matchList = matchService.getMatchList(currentMember.getUsername(), pageable);
+                                                          @RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
+        final MatchListResponse matchList = matchService.getMatchList(currentMember.getUsername(), PageRequest.of(page, size));
         return ResponseEntity.status(OK).body(matchList);
     }
 
+    @PostMapping("/{matchId}/cancel")
+    public ResponseEntity<Void> cancelMatch(@PathVariable Long matchId, @AuthenticationPrincipal User currentMember) {
+        matchService.cancelMatch(matchId, currentMember.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("{matchId}/accept")
+    public ResponseEntity<Void> acceptMatch(@PathVariable Long matchId, @AuthenticationPrincipal User currentMember) {
+        matchService.acceptMatch(matchId, currentMember.getUsername());
+        return ResponseEntity.ok().build();
+    }
 }

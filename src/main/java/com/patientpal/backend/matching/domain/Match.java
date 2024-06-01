@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+import static com.patientpal.backend.matching.domain.MatchStatus.*;
+import static com.patientpal.backend.matching.domain.ReadStatus.*;
 import static jakarta.persistence.FetchType.*;
 
 @Entity
@@ -31,18 +33,22 @@ public class Match extends BaseEntity {
     private Caregiver caregiver;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private MatchStatus matchStatus;
 
     @Enumerated(EnumType.STRING)
+    @Setter
     private ReadStatus readStatus;
 
     @Enumerated(EnumType.STRING)
     private FirstRequest firstRequest;
 
     @Lob
+    @Setter
     private String patientProfileSnapshot;
 
     @Lob
+    @Setter
     private String caregiverProfileSnapshot;
 
     @Builder
