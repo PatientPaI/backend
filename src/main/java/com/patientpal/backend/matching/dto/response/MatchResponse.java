@@ -56,25 +56,25 @@ public class MatchResponse {
                 .build();
     }
 
-    public Match toEntityFirstPatient(Patient patient, Caregiver caregiver) {
+    public Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)
                 .matchStatus(MatchStatus.PENDING)
                 .readStatus(ReadStatus.UNREAD)
                 .firstRequest(FirstRequest.PATIENT_FIRST)
-                .patientProfileSnapshot(patient.getPatientSignificant())
+                .patientProfileSnapshot(generatedPatientProfileSnapshot)
                 .build();
     }
 
-    public Match toEntityFirstCaregiver(Patient patient, Caregiver caregiver) {
+    public Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)
                 .matchStatus(MatchStatus.PENDING)
                 .readStatus(ReadStatus.UNREAD)
                 .firstRequest(FirstRequest.CAREGIVER_FIRST)
-                .caregiverProfileSnapshot(caregiver.getCaregiverSignificant())
+                .caregiverProfileSnapshot(generatedCaregiverProfileSnapshot)
                 .build();
     }
 

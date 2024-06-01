@@ -96,20 +96,6 @@ public class MatchServiceImpl implements MatchService {
         return matchResponse;
     }
 
-    private MatchResponse createMatchResponse(Match findMatch) {
-        return MatchResponse.builder()
-                .id(findMatch.getId())
-                .patientId(findMatch.getPatient().getId())
-                .caregiverId(findMatch.getCaregiver().getId())
-                .matchStatus(findMatch.getMatchStatus())
-                .readStatus(findMatch.getReadStatus())
-                .firstRequest(findMatch.getFirstRequest())
-                .createdDate(findMatch.getCreatedDate())
-                .patientProfileSnapshot(findMatch.getPatientProfileSnapshot())
-                .caregiverProfileSnapshot(findMatch.getCaregiverProfileSnapshot())
-                .build();
-    }
-
     private Member getMember(String username) {
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_EXIST, username));
@@ -128,7 +114,7 @@ public class MatchServiceImpl implements MatchService {
         validateMatchAuthorization(findMatch, username);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
-        return createMatchResponse(findMatch);
+        return MatchResponse.of(findMatch); //여기 수정했음 다시 테스트해봐야함.
     }
 
     private Match getMatchById(Long matchId) {
@@ -170,6 +156,8 @@ public class MatchServiceImpl implements MatchService {
     public void acceptMatch(Long matchId, String username) {
         Match match = getMatchById(matchId);
         Member currentMember = getMember(username);
+        //TODO
+        //- 현재 회원의 프로필 세부 등록이 완료 되어야 요청을 승인할 수 있다.
 //        validateIsCompletedProfile(currentMember);
         validateAcceptance(match);
         match.setReadStatus(READ);
