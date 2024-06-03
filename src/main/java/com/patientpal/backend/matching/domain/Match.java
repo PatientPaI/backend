@@ -1,14 +1,16 @@
 package com.patientpal.backend.matching.domain;
 
+import com.patientpal.backend.common.BaseEntity;
 import com.patientpal.backend.member.domain.Caregiver;
 import com.patientpal.backend.member.domain.Patient;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+import static com.patientpal.backend.matching.domain.MatchStatus.*;
+import static com.patientpal.backend.matching.domain.ReadStatus.*;
 import static jakarta.persistence.FetchType.*;
 
 @Entity
@@ -16,7 +18,7 @@ import static jakarta.persistence.FetchType.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "matches")
-public class Match {
+public class Match extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "match_id")
@@ -30,18 +32,34 @@ public class Match {
     @JoinColumn(name = "caregiver_id")
     private Caregiver caregiver;
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdDate;
+    @Enumerated(EnumType.STRING)
+    @Setter
+    private MatchStatus matchStatus;
 
     @Enumerated(EnumType.STRING)
-    private MatchStatus status;
+    @Setter
+    private ReadStatus readStatus;
+
+    @Enumerated(EnumType.STRING)
+    private FirstRequest firstRequest;
+
+    @Lob
+    @Setter
+    private String patientProfileSnapshot;
+
+    @Lob
+    @Setter
+    private String caregiverProfileSnapshot;
 
     @Builder
-    public Match(@NonNull Patient patient, @NonNull Caregiver caregiver, @NonNull LocalDateTime createdDate, @NonNull MatchStatus status) {
+    public Match(@NonNull Patient patient, @NonNull Caregiver caregiver, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
+                 FirstRequest firstRequest, String patientProfileSnapshot, String caregiverProfileSnapshot) {
         this.patient = patient;
         this.caregiver = caregiver;
-        this.createdDate = createdDate;
-        this.status = status;
+        this.matchStatus = matchStatus;
+        this.readStatus = readStatus;
+        this.firstRequest = firstRequest;
+        this.patientProfileSnapshot = patientProfileSnapshot;
+        this.caregiverProfileSnapshot = caregiverProfileSnapshot;
     }
 }

@@ -25,10 +25,9 @@ public class Caregiver {
     @OneToMany(mappedBy = "caregiver")
     private List<Match> matches = new ArrayList<>();
 
-    @Column(nullable = false)
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String residentRegistrationNumber; // 주민등록번호, 중복 검사용 (암호화 로직 추가 필요)
 
     @Embedded
@@ -44,7 +43,7 @@ public class Caregiver {
     private String caregiverSignificant; //간병인 특이사항
 
     @Builder
-    public Caregiver(@NonNull Member member, @NonNull String name, @NonNull String residentRegistrationNumber, Address address,
+    public Caregiver(Member member, String name, String residentRegistrationNumber, Address address,
                      float rating, int experienceYears, String specialization, String caregiverSignificant) {
         this.member = member;
         this.name = name;

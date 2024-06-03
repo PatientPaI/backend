@@ -1,12 +1,7 @@
 package com.patientpal.backend.member.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -32,12 +27,23 @@ public class Member {
     @Column(nullable = false)
     private Provider provider;
 
+    @OneToOne(mappedBy = "member")
+    private Patient patient;
+
+    @OneToOne(mappedBy = "member")
+    private Caregiver caregiver;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
     @Column(nullable = false, length = 20)
     private String contact;
+
+    //프로필 세부 등록 완료 시, true로 변경. -> 이후 매칭 요청 전송 or 리스트에 등록 가능.
+    private Boolean isCompletedProfile;
+
+    private Boolean isInMatchList;
 
     private String name;
 

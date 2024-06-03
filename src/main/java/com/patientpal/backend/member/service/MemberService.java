@@ -3,7 +3,7 @@ package com.patientpal.backend.member.service;
 import com.patientpal.backend.auth.dto.SignUpRequest;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.member.domain.*;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PatientRepository patientRepository;
+    private final CaregiverRepository caregiverRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * TODO
+     *  - Member 가입 시, ROLE에 따라 Patient 또는 Caregiver 엔티티 자동 생성. -> 이후 프로필 설정에서 추가 설정 필요.
+     *
+     */
     public Long save(SignUpRequest request) {
         try {
             var member = SignUpRequest.of(request);
             member.encodePassword(passwordEncoder);
-            return memberRepository.save(member).getId();
+            Long id = memberRepository.save(member).getId();
+            if (member.getRole() == Role.USER) {
+                Patient patient = Patient.builder()
+                        .member(member)
+                        .build();
+                patientRepository.save(patient);
+            } else if (member.getRole() == Role.CAREGIVER) {
+                Caregiver caregiver = Caregiver.builder()
+                        .member(member)
+                        .build();
+                caregiverRepository.save(caregiver);
+            }
+            return id;
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }
