@@ -2,6 +2,7 @@ package com.patientpal.backend.post.service;
 
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.domain.PostType;
 import com.patientpal.backend.post.dto.PostCreateRequest;
@@ -37,8 +38,9 @@ public class PostService {
     }
 
     @Transactional
-    public Post createPost(PostCreateRequest createRequest) {
+    public Post createPost(Member member, PostCreateRequest createRequest) {
         Post post = Post.builder()
+                .member(member)
                 .title(createRequest.getTitle())
                 .content(createRequest.getContent())
                 .postType(PostType.NOTICE)

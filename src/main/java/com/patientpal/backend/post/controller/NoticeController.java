@@ -1,13 +1,21 @@
 package com.patientpal.backend.post.controller;
 
 
+import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.member.domain.Role;
+import com.patientpal.backend.member.dto.MemberResponse;
+import com.patientpal.backend.member.service.MemberService;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.dto.*;
 import com.patientpal.backend.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @RestController
@@ -16,6 +24,7 @@ import java.util.List;
 public class NoticeController {
 
     private final PostService postService;
+    private final MemberService memberService;
 
     // TODO: wjdwwidz paging 처리
     @GetMapping
@@ -37,8 +46,13 @@ public class NoticeController {
     // TODO: wjdwwidz member 추가
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PostCreateResponse create(@RequestBody PostCreateRequest createRequest) {
-        Post post = postService.createPost(createRequest);
+    public PostCreateResponse create(@RequestBody PostCreateRequest createRequest, @AuthenticationPrincipal User currentMember) {
+        Member member = memberService.getUserByUsername(currentMember.getUsername());
+        Role role = member.getRole();
+        if (role != Role.ADMIN) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+        Post post = postService.createPost(member, createRequest);
         return new PostCreateResponse(post);
     }
 
