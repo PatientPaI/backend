@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local # [local, prod]
+    active: prod # [local, prod]
 
   application:
     name: backend
@@ -34,7 +34,7 @@ springdoc:
 patientpal:
   openapi:
     dev-url: http://localhost:8080
-    prod-url: https://prod-api.patientpal.com
+    prod-url: http://43.201.129.48:8080
 
 ---
 spring:
