@@ -59,7 +59,12 @@ public class NoticeController {
     // TODO: wjdwwidz member 추가
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest) {
+    public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest,@AuthenticationPrincipal User currentMember) {
+        Member member = memberService.getUserByUsername(currentMember.getUsername());
+        Role role = member.getRole();
+        if (role != Role.ADMIN) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
         Post post = postService.updatePost(id, updateRequest);
         return new PostResponse(post);
     }
@@ -67,7 +72,12 @@ public class NoticeController {
     // TODO: wjdwwidz member 추가
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable("id") Long id, @AuthenticationPrincipal User currentMember) {
+        Member member = memberService.getUserByUsername(currentMember.getUsername());
+        Role role = member.getRole();
+        if (role != Role.ADMIN) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
         postService.deletePost(id);
     }
 }
