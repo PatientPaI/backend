@@ -1,16 +1,12 @@
 package com.patientpal.backend.matching.domain;
 
 import com.patientpal.backend.common.BaseEntity;
-import com.patientpal.backend.member.domain.Caregiver;
-import com.patientpal.backend.member.domain.Patient;
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.patient.domain.Patient;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-
-import static com.patientpal.backend.matching.domain.MatchStatus.*;
-import static com.patientpal.backend.matching.domain.ReadStatus.*;
 import static jakarta.persistence.FetchType.*;
 
 @Entity

@@ -1,5 +1,7 @@
-package com.patientpal.backend.matching.application;
+package com.patientpal.backend.matching.service;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -8,6 +10,8 @@ import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.member.domain.*;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.patientpal.backend.common.exception.ErrorCode.*;
-import static com.patientpal.backend.matching.application.MatchValidation.*;
+import static com.patientpal.backend.matching.service.MatchValidation.*;
 import static com.patientpal.backend.matching.domain.FirstRequest.*;
 import static com.patientpal.backend.matching.domain.MatchStatus.*;
 import static com.patientpal.backend.matching.domain.ReadStatus.*;

@@ -1,5 +1,7 @@
 package com.patientpal.backend.member.domain;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.patient.domain.Patient;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;

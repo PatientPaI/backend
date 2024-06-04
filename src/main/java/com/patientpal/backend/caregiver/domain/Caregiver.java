@@ -1,6 +1,8 @@
-package com.patientpal.backend.member.domain;
+package com.patientpal.backend.caregiver.domain;
 
 import com.patientpal.backend.matching.domain.Match;
+import com.patientpal.backend.member.domain.Address;
+import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 

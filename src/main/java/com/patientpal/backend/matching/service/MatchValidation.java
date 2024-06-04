@@ -1,4 +1,4 @@
-package com.patientpal.backend.matching.application;
+package com.patientpal.backend.matching.service;
 
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;

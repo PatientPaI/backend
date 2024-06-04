@@ -8,11 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
-@RestControllerAdvice
+@RestControllerAdvice(annotations = RestController.class, basePackages = "com.patientpal.backend")
 public class RestApiExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {

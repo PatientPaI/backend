@@ -1,11 +1,15 @@
 package com.patientpal.backend.member.service;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.*;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
