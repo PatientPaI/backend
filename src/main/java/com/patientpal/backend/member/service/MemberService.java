@@ -55,6 +55,11 @@ public class MemberService {
         return MemberResponse.of(foundMember);
     }
 
+    @Transactional(readOnly = true)
+    public Member getUserByUsername(String username) {
+        return memberRepository.findByUsernameOrThrow(username);
+    }
+
     public void deleteByUsername(String username) {
         memberRepository.deleteByUsername(username);
     }
