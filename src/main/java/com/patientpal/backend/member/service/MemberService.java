@@ -1,15 +1,11 @@
 package com.patientpal.backend.member.service;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
-import com.patientpal.backend.caregiver.domain.Caregiver;
-import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.*;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.patient.domain.Patient;
-import com.patientpal.backend.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,8 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final PatientRepository patientRepository;
-    private final CaregiverRepository caregiverRepository;
     private final PasswordEncoder passwordEncoder;
 
     /**
@@ -35,19 +29,7 @@ public class MemberService {
         try {
             var member = SignUpRequest.of(request);
             member.encodePassword(passwordEncoder);
-            Long id = memberRepository.save(member).getId();
-            if (member.getRole() == Role.USER) {
-                Patient patient = Patient.builder()
-                        .member(member)
-                        .build();
-                patientRepository.save(patient);
-            } else if (member.getRole() == Role.CAREGIVER) {
-                Caregiver caregiver = Caregiver.builder()
-                        .member(member)
-                        .build();
-                caregiverRepository.save(caregiver);
-            }
-            return id;
+            return memberRepository.save(member).getId();
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }
