@@ -3,7 +3,7 @@ package com.patientpal.backend.patient.domain;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.patient.dto.PatientProfileRequest;
+import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +25,7 @@ public class Patient {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "patient")
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> matches = new ArrayList<>();
 
     private String name;
@@ -59,13 +59,12 @@ public class Patient {
         this.careRequirements = careRequirements;
     }
 
-    public void registerDetailProfile(PatientProfileRequest patientProfileRequest) {
-        this.name = patientProfileRequest.getName();
-        this.residentRegistrationNumber = patientProfileRequest.getResidentRegistrationNumber();
-        this.address = patientProfileRequest.getAddress();
-        this.nokName = patientProfileRequest.getNokName();
-        this.nokContact = patientProfileRequest.getNokContact();
-        this.patientSignificant = patientProfileRequest.getPatientSignificant();
-        this.careRequirements = patientProfileRequest.getCareRequirements();
+    public void updateDetailProfile(final PatientProfileUpdateRequest patientProfileUpdateRequest) {
+        //validate추가
+        this.address = patientProfileUpdateRequest.getAddress();
+        this.nokName = patientProfileUpdateRequest.getNokName();
+        this.nokContact = patientProfileUpdateRequest.getNokContact();
+        this.patientSignificant = patientProfileUpdateRequest.getPatientSignificant();
+        this.careRequirements = patientProfileUpdateRequest.getCareRequirements();
     }
 }
