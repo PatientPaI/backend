@@ -1,5 +1,6 @@
 package com.patientpal.backend.caregiver.domain;
 
+import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
@@ -24,7 +25,7 @@ public class Caregiver {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "caregiver")
+    @OneToMany(mappedBy = "caregiver", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> matches = new ArrayList<>();
 
     private String name;
@@ -55,5 +56,14 @@ public class Caregiver {
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
+    }
+
+    public void updateDetailProfile(final CaregiverProfileUpdateRequest caregiverProfileUpdateRequest) {
+        //validate추가
+        this.address = caregiverProfileUpdateRequest.getAddress();
+        this.rating = caregiverProfileUpdateRequest.getRating();
+        this.experienceYears = caregiverProfileUpdateRequest.getExperienceYears();
+        this.specialization = caregiverProfileUpdateRequest.getSpecialization();
+        this.caregiverSignificant = caregiverProfileUpdateRequest.getCaregiverSignificant();
     }
 }
