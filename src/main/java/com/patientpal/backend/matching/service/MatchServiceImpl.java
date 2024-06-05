@@ -78,8 +78,9 @@ public class MatchServiceImpl implements MatchService {
                 .firstRequest(PATIENT_FIRST)
                 .patientProfileSnapshot(generatedPatientProfileSnapshot)
                 .build();
-        matchRepository.save(matchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
-        return matchResponse;
+        Match match = matchRepository.save(matchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestPatient.getName(), responseCaregiver.getName());
+        return MatchResponse.of(match);
     }
 
     private MatchResponse createMatchForCaregiver(Member requestMember, Member responseMember) {
@@ -96,8 +97,9 @@ public class MatchServiceImpl implements MatchService {
                 .firstRequest(CAREGIVER_FIRST)
                 .caregiverProfileSnapshot(generatedCaregiverProfileSnapshot)
                 .build();
-        matchRepository.save(matchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
-        return matchResponse;
+        Match match = matchRepository.save(matchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestCaregiver.getName(), responsePatient.getName());
+        return MatchResponse.of(match);
     }
 
     private Member getMember(String username) {

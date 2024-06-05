@@ -8,6 +8,7 @@ import com.patientpal.backend.matching.exception.CanNotRequestException;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.matching.exception.NotCompleteProfileException;
 import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.common.exception.ProfileNotCompletedException;
 
 import static com.patientpal.backend.common.exception.ErrorCode.*;
 import static com.patientpal.backend.matching.domain.FirstRequest.CAREGIVER_FIRST;
@@ -19,7 +20,6 @@ import static com.patientpal.backend.member.domain.Role.USER;
 
 /**
  * TODO
- *  - 세부 프로필 등록 완료하면, -> isCompleteProfile 을 true 로 변경해야 함.
  *  - 매칭 리스트에 등록하기 선택하면 -> isInMatchList 를 true 로 변경해야 함.
  *  이후 밑 주석 해제
  */
@@ -33,8 +33,8 @@ public final class MatchValidation {
         if (responseMember.getCaregiver() == null) {
             throw new EntityNotFoundException(CAREGIVER_NOT_EXIST);
         }
-//        validateMemberProfile(requestMember);
-//        validateMemberProfile(responseMember);
+        validateIsCompletedProfile(requestMember);
+//        상대 세부 프로필은 등록되어 있음을 보장 (리스트에 올리려면 세부 프로필 등록 해야 하기 때문)
 //        validateIsInMatchList(responseMember);
     }
 
@@ -45,8 +45,8 @@ public final class MatchValidation {
         if (responseMember.getPatient() == null) {
             throw new EntityNotFoundException(PATIENT_NOT_EXIST);
         }
-//        validateIsCompletedProfile(requestMember);
-//        validateIsCompletedProfile(responseMember);
+        validateIsCompletedProfile(requestMember);
+//        상대 세부 프로필은 등록되어 있음을 보장 (리스트에 올리려면 세부 프로필 등록 해야 하기 때문)
 //        validateIsInMatchList(responseMember);
     }
 
@@ -77,7 +77,7 @@ public final class MatchValidation {
             throw new DuplicateRequestException(MATCH_ALREADY_CANCELED);
         }
         if (match.getMatchStatus() == ACCEPTED) {
-            throw new DuplicateRequestException(MATCH_ALREADY_ACCEPTED);
+            throw new DuplicateRequestException(CAN_NOT_CANCEL_ALREADY_ACCEPTED_MATCH);
         }
         if (currentMember.getRole() == USER) {
             validatePatientCancellation(match, currentMember);
