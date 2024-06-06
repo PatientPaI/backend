@@ -17,6 +17,8 @@ public class PatientProfileResponse {
 
     private String residentRegistrationNumber;
 
+    private String phoneNumber;
+
     private Address address;
 
     private String nokName;
@@ -28,10 +30,11 @@ public class PatientProfileResponse {
     private String careRequirements;
 
     @Builder
-    public PatientProfileResponse(Long memberId, String name, String residentRegistrationNumber, Address address, String nokName, String nokContact, String patientSignificant, String careRequirements) {
+    public PatientProfileResponse(Long memberId, String name, String residentRegistrationNumber, String phoneNumber, Address address, String nokName, String nokContact, String patientSignificant, String careRequirements) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.nokName = nokName;
         this.nokContact = nokContact;
@@ -44,6 +47,7 @@ public class PatientProfileResponse {
                 .memberId(patient.getMember().getId())
                 .name(patient.getName())
                 .residentRegistrationNumber(patient.getResidentRegistrationNumber())
+                .phoneNumber(patient.getPhoneNumber())
                 .address(patient.getAddress())
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())

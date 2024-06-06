@@ -17,12 +17,12 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/caregiver")
-public class CaregiverController {
+public class CaregiverControllerV1 {
 
     private final CaregiverService caregiverService;
 
     @PostMapping
-    public ResponseEntity<CaregiverProfileResponse> createPatientProfile(@AuthenticationPrincipal User currentMember,
+    public ResponseEntity<CaregiverProfileResponse> createCaregiverProfile(@AuthenticationPrincipal User currentMember,
                                                      @RequestBody @Valid CaregiverProfileCreateRequest CaregiverProfileCreateRequest) {
         CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), CaregiverProfileCreateRequest);
         return ResponseEntity.status(CREATED).body(caregiverProfileResponse);

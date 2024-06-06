@@ -20,11 +20,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * TODO
-     *  - Member 가입 시, ROLE에 따라 Patient 또는 Caregiver 엔티티 자동 생성. -> 이후 프로필 설정에서 추가 설정 필요.
-     *
-     */
     public Long save(SignUpRequest request) {
         try {
             var member = SignUpRequest.of(request);

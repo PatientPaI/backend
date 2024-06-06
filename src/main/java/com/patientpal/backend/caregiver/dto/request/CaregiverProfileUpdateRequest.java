@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CaregiverProfileUpdateRequest {
 
-    @NotNull(message = "주소는 필수 입력 사항입니다.")
+    @NotNull
     private Address address;
 
     private float rating;

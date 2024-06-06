@@ -12,20 +12,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PatientProfileCreateRequest {
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    @NotNull
     private String name;
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    @NotNull
     private String residentRegistrationNumber;
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    //TODO 인증
+    @NotNull
+    private String phoneNumber;
+
+    @NotNull
     private Address address;
 
     private String nokName;
 
     private String nokContact;
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    @NotNull
     private String patientSignificant;
 
     private String careRequirements;
@@ -35,6 +39,7 @@ public class PatientProfileCreateRequest {
                 .name(this.name)
                 .residentRegistrationNumber(this.residentRegistrationNumber)
                 .member(member)
+                .phoneNumber(this.phoneNumber)
                 .address(this.address)
                 .nokName(this.nokName)
                 .nokContact(this.nokContact)

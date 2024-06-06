@@ -12,13 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CaregiverProfileCreateRequest {
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    @NotNull
     private String name;
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    @NotNull
     private String residentRegistrationNumber;
 
-    @NotNull(message = "필수 입력 사항입니다.")
+    //TODO 인증
+    @NotNull
+    private String phoneNumber;
+
+    @NotNull
     private Address address;
 
     private float rating;
@@ -35,6 +39,7 @@ public class CaregiverProfileCreateRequest {
                 .residentRegistrationNumber(this.residentRegistrationNumber)
                 .member(member)
                 .address(this.address)
+                .phoneNumber(this.phoneNumber)
                 .rating(this.rating)
                 .experienceYears(this.experienceYears)
                 .specialization(this.specialization)

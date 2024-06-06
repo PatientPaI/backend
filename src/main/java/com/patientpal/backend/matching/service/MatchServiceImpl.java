@@ -138,6 +138,11 @@ public class MatchServiceImpl implements MatchService {
         return MatchListResponse.from(matchPage, matchListResponse);
     }
 
+    /**
+     * TODO
+     *  - 현재는 본인이 신청했거나 신청 받은거 구분 없이 자신이 속한 모든 매칭들을 가져오는데,
+     *  이후 본인이 요청한 매칭과 요청받은 매칭을 따로 페이징해서 가져올 필요가 있겠다.
+     */
     private Page<Match> getMatchPage(Member currentMember, Pageable pageable) {
         if (currentMember.getRole() == USER) {
             return matchRepository.findAllByPatientId(currentMember.getPatient().getId(), pageable);
