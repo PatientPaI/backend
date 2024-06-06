@@ -55,10 +55,6 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest,@AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Role role = member.getRole();
-        if (role != Role.ADMIN) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
         Post post = postService.updatePost(id, updateRequest);
         return new PostResponse(post);
     }
@@ -68,10 +64,6 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Role role = member.getRole();
-        if (role != Role.ADMIN) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
         postService.deletePost(id);
     }
 }
