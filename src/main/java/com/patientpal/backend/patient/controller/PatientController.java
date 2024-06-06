@@ -39,7 +39,12 @@ public class PatientController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping //TODO 프로필 삭제 후에는 매칭 시스템 이용 불가.
+    /**
+     * TODO
+     *  - 프로필 삭제 후에는 매칭 시스템 이용 불가.
+     *  - 유저가 매칭 중일때 프로필 삭제가 불가능하게("PENDING")하나라도 존재 시 프로필 삭제 불가능
+     */
+    @DeleteMapping //TODO
     public ResponseEntity<Void> deletePatientProfile(@AuthenticationPrincipal User currentMember) {
         patientService.deletePatientProfile(currentMember.getUsername());
         return ResponseEntity.noContent().build();

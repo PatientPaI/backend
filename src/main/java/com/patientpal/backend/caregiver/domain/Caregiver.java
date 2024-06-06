@@ -1,11 +1,13 @@
 package com.patientpal.backend.caregiver.domain;
 
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
+import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,8 @@ import static jakarta.persistence.FetchType.LAZY;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Caregiver {
+@EntityListeners(AuditingEntityListener.class)
+public class Caregiver extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "caregiver_id")
@@ -31,7 +34,10 @@ public class Caregiver {
     private String name;
 
     @Column(unique = true)
-    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용 (암호화 로직 추가 필요)
+    private String residentRegistrationNumber; // 주민등록번호
+
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
 
     @Embedded
     private Address address;
@@ -46,11 +52,12 @@ public class Caregiver {
     private String caregiverSignificant; //간병인 특이사항
 
     @Builder
-    public Caregiver(Member member, String name, String residentRegistrationNumber, Address address,
+    public Caregiver(Member member, String name, String residentRegistrationNumber, String phoneNumber, Address address,
                      float rating, int experienceYears, String specialization, String caregiverSignificant) {
         this.member = member;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.rating = rating;
         this.experienceYears = experienceYears;
@@ -59,7 +66,6 @@ public class Caregiver {
     }
 
     public void updateDetailProfile(final CaregiverProfileUpdateRequest caregiverProfileUpdateRequest) {
-        //validate추가
         this.address = caregiverProfileUpdateRequest.getAddress();
         this.rating = caregiverProfileUpdateRequest.getRating();
         this.experienceYears = caregiverProfileUpdateRequest.getExperienceYears();

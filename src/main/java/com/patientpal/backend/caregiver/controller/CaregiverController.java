@@ -22,7 +22,7 @@ public class CaregiverController {
     private final CaregiverService caregiverService;
 
     @PostMapping
-    public ResponseEntity<CaregiverProfileResponse> createPatientProfile(@AuthenticationPrincipal User currentMember,
+    public ResponseEntity<CaregiverProfileResponse> createCaregiverProfile(@AuthenticationPrincipal User currentMember,
                                                      @RequestBody @Valid CaregiverProfileCreateRequest CaregiverProfileCreateRequest) {
         CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), CaregiverProfileCreateRequest);
         return ResponseEntity.status(CREATED).body(caregiverProfileResponse);

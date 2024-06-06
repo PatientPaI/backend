@@ -18,6 +18,10 @@ public class PatientProfileCreateRequest {
     @NotNull(message = "필수 입력 사항입니다.")
     private String residentRegistrationNumber;
 
+    //TODO 인증
+    @NotNull(message = "필수 입력 사항입니다.")
+    private String phoneNumber;
+
     @NotNull(message = "필수 입력 사항입니다.")
     private Address address;
 
@@ -35,6 +39,7 @@ public class PatientProfileCreateRequest {
                 .name(this.name)
                 .residentRegistrationNumber(this.residentRegistrationNumber)
                 .member(member)
+                .phoneNumber(this.phoneNumber)
                 .address(this.address)
                 .nokName(this.nokName)
                 .nokContact(this.nokContact)

@@ -18,6 +18,10 @@ public class CaregiverProfileCreateRequest {
     @NotNull(message = "필수 입력 사항입니다.")
     private String residentRegistrationNumber;
 
+    //TODO 인증
+    @NotNull(message = "필수 입력 사항입니다.")
+    private String phoneNumber;
+
     @NotNull(message = "필수 입력 사항입니다.")
     private Address address;
 
@@ -35,6 +39,7 @@ public class CaregiverProfileCreateRequest {
                 .residentRegistrationNumber(this.residentRegistrationNumber)
                 .member(member)
                 .address(this.address)
+                .phoneNumber(this.phoneNumber)
                 .rating(this.rating)
                 .experienceYears(this.experienceYears)
                 .specialization(this.specialization)

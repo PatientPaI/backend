@@ -1,11 +1,13 @@
 package com.patientpal.backend.patient.domain;
 
+import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,8 @@ import static jakarta.persistence.FetchType.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Patient {
+@EntityListeners(AuditingEntityListener.class)
+public class Patient extends BaseTimeEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "patient_id")
@@ -31,7 +34,10 @@ public class Patient {
     private String name;
 
     @Column(unique = true)
-    private String residentRegistrationNumber; // 주민등록번호, 중복 검사용, (암호화 로직 추가 필요)
+    private String residentRegistrationNumber; // 주민등록번호
+
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
 
     @Embedded
     private Address address;
@@ -47,11 +53,12 @@ public class Patient {
     private String careRequirements; //간병 요구사항
 
     @Builder
-    public Patient(Member member, String name, String residentRegistrationNumber, Address address,
+    public Patient(Member member, String name, String residentRegistrationNumber, String phoneNumber, Address address,
                    String nokName, String nokContact, String patientSignificant, String careRequirements) {
         this.member = member;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.nokName = nokName;
         this.nokContact = nokContact;
@@ -60,7 +67,6 @@ public class Patient {
     }
 
     public void updateDetailProfile(final PatientProfileUpdateRequest patientProfileUpdateRequest) {
-        //validate추가
         this.address = patientProfileUpdateRequest.getAddress();
         this.nokName = patientProfileUpdateRequest.getNokName();
         this.nokContact = patientProfileUpdateRequest.getNokContact();

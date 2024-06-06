@@ -40,10 +40,6 @@ public class Member {
     @Column(nullable = false, length = 20)
     private String contact;
 
-    //프로필 세부 등록 완료 시, true로 변경. -> 이후 매칭 요청 전송 or 리스트에 등록 가능.
-    @Setter
-    private Boolean isCompletedProfile;
-
     private Boolean isInMatchList;
 
     private String name;

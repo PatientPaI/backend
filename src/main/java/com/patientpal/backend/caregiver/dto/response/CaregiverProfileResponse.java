@@ -17,6 +17,8 @@ public class CaregiverProfileResponse {
 
     private String residentRegistrationNumber;
 
+    private String phoneNumber;
+
     private Address address;
 
     private float rating;
@@ -28,10 +30,11 @@ public class CaregiverProfileResponse {
     private String caregiverSignificant;
 
     @Builder
-    public CaregiverProfileResponse(Long memberId, String name, String residentRegistrationNumber, Address address, float rating, int experienceYears, String specialization, String caregiverSignificant) {
+    public CaregiverProfileResponse(Long memberId, String name, String residentRegistrationNumber, String phoneNumber, Address address, float rating, int experienceYears, String specialization, String caregiverSignificant) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.rating = rating;
         this.experienceYears = experienceYears;
@@ -44,6 +47,7 @@ public class CaregiverProfileResponse {
                 .memberId(caregiver.getMember().getId())
                 .name(caregiver.getName())
                 .residentRegistrationNumber(caregiver.getResidentRegistrationNumber())
+                .phoneNumber(caregiver.getPhoneNumber())
                 .address(caregiver.getAddress())
                 .rating(caregiver.getRating())
                 .experienceYears(caregiver.getExperienceYears())
