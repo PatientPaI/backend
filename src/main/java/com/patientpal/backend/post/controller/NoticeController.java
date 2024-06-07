@@ -3,19 +3,17 @@ package com.patientpal.backend.post.controller;
 
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Role;
-import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.service.MemberService;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.dto.*;
+import com.patientpal.backend.post.libs.RoleType;
 import com.patientpal.backend.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.List;
 
 @RestController
@@ -43,41 +41,29 @@ public class NoticeController {
         return new PostResponse(post);
     }
 
-    // TODO: wjdwwidz member 추가
+    @RoleType(Role.ADMIN)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PostCreateResponse create(@RequestBody PostCreateRequest createRequest, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Role role = member.getRole();
-        if (role != Role.ADMIN) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
         Post post = postService.createPost(member, createRequest);
         return new PostCreateResponse(post);
     }
 
-    // TODO: wjdwwidz member 추가
+    @RoleType(Role.ADMIN)
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest,@AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Role role = member.getRole();
-        if (role != Role.ADMIN) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
         Post post = postService.updatePost(id, updateRequest);
         return new PostResponse(post);
     }
 
-    // TODO: wjdwwidz member 추가
+    @RoleType(Role.ADMIN)
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Role role = member.getRole();
-        if (role != Role.ADMIN) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
         postService.deletePost(id);
     }
 }
