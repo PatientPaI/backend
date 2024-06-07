@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RoleType {
-    // ADMIN, USER, CAREGIVER, PATIENT
+    // ADMIN, USER, CAREGIVER
     Role value();
 
 }
