@@ -1,4 +1,4 @@
-package com.patientpal.backend.matching.application;
+package com.patientpal.backend.matching.service;
 
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -19,42 +19,35 @@ import static com.patientpal.backend.member.domain.Role.USER;
 
 /**
  * TODO
- *  - 세부 프로필 등록 완료하면, -> isCompleteProfile 을 true 로 변경해야 함.
  *  - 매칭 리스트에 등록하기 선택하면 -> isInMatchList 를 true 로 변경해야 함.
  *  이후 밑 주석 해제
+ *  - validate 리팩토링 진행
  */
 
 public final class MatchValidation {
 
     public static void validatePatientRequest(Member requestMember, Member responseMember) {
         if (requestMember.getPatient() == null) {
-            throw new EntityNotFoundException(PATIENT_NOT_EXIST, requestMember.getUsername());
+            throw new NotCompleteProfileException(NOT_COMPLETE_PROFILE, requestMember.getUsername());
         }
         if (responseMember.getCaregiver() == null) {
             throw new EntityNotFoundException(CAREGIVER_NOT_EXIST);
         }
-//        validateMemberProfile(requestMember);
-//        validateMemberProfile(responseMember);
+//        상대 세부 프로필은 등록되어 있음을 보장 (리스트에 올리려면 세부 프로필 등록 해야 하기 때문)
 //        validateIsInMatchList(responseMember);
     }
 
     public static void validateCaregiverRequest(Member requestMember, Member responseMember) {
         if (requestMember.getCaregiver() == null) {
-            throw new EntityNotFoundException(CAREGIVER_NOT_EXIST, requestMember.getUsername());
+            throw new NotCompleteProfileException(NOT_COMPLETE_PROFILE, requestMember.getUsername());
         }
         if (responseMember.getPatient() == null) {
             throw new EntityNotFoundException(PATIENT_NOT_EXIST);
         }
-//        validateIsCompletedProfile(requestMember);
-//        validateIsCompletedProfile(responseMember);
+//        상대 세부 프로필은 등록되어 있음을 보장 (리스트에 올리려면 세부 프로필 등록 해야 하기 때문)
 //        validateIsInMatchList(responseMember);
     }
 
-    public static void validateIsCompletedProfile(Member member) {
-        if (!member.getIsCompletedProfile()) {
-            throw new NotCompleteProfileException(NOT_COMPLETE_PROFILE);
-        }
-    }
     private static void validateIsInMatchList(Member member) {
         if (!member.getIsInMatchList()) {
             throw new CanNotRequestException(CAN_NOT_REQUEST_TO);
@@ -77,7 +70,7 @@ public final class MatchValidation {
             throw new DuplicateRequestException(MATCH_ALREADY_CANCELED);
         }
         if (match.getMatchStatus() == ACCEPTED) {
-            throw new DuplicateRequestException(MATCH_ALREADY_ACCEPTED);
+            throw new DuplicateRequestException(CAN_NOT_CANCEL_ALREADY_ACCEPTED_MATCH);
         }
         if (currentMember.getRole() == USER) {
             validatePatientCancellation(match, currentMember);

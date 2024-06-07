@@ -1,12 +1,12 @@
 package com.patientpal.backend.member.domain;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.patient.domain.Patient;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
@@ -39,9 +39,6 @@ public class Member {
 
     @Column(nullable = false, length = 20)
     private String contact;
-
-    //프로필 세부 등록 완료 시, true로 변경. -> 이후 매칭 요청 전송 or 리스트에 등록 가능.
-    private Boolean isCompletedProfile;
 
     private Boolean isInMatchList;
 

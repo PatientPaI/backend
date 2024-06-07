@@ -1,5 +1,7 @@
-package com.patientpal.backend.matching.application;
+package com.patientpal.backend.matching.service;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -8,6 +10,8 @@ import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.member.domain.*;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.patientpal.backend.common.exception.ErrorCode.*;
-import static com.patientpal.backend.matching.application.MatchValidation.*;
+import static com.patientpal.backend.matching.service.MatchValidation.*;
 import static com.patientpal.backend.matching.domain.FirstRequest.*;
 import static com.patientpal.backend.matching.domain.MatchStatus.*;
 import static com.patientpal.backend.matching.domain.ReadStatus.*;
@@ -74,8 +78,9 @@ public class MatchServiceImpl implements MatchService {
                 .firstRequest(PATIENT_FIRST)
                 .patientProfileSnapshot(generatedPatientProfileSnapshot)
                 .build();
-        matchRepository.save(matchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
-        return matchResponse;
+        Match match = matchRepository.save(matchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestPatient.getName(), responseCaregiver.getName());
+        return MatchResponse.of(match);
     }
 
     private MatchResponse createMatchForCaregiver(Member requestMember, Member responseMember) {
@@ -92,8 +97,9 @@ public class MatchServiceImpl implements MatchService {
                 .firstRequest(CAREGIVER_FIRST)
                 .caregiverProfileSnapshot(generatedCaregiverProfileSnapshot)
                 .build();
-        matchRepository.save(matchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
-        return matchResponse;
+        Match match = matchRepository.save(matchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestCaregiver.getName(), responsePatient.getName());
+        return MatchResponse.of(match);
     }
 
     private Member getMember(String username) {
@@ -132,6 +138,11 @@ public class MatchServiceImpl implements MatchService {
         return MatchListResponse.from(matchPage, matchListResponse);
     }
 
+    /**
+     * TODO
+     *  - 현재는 본인이 신청했거나 신청 받은거 구분 없이 자신이 속한 모든 매칭들을 가져오는데,
+     *  이후 본인이 요청한 매칭과 요청받은 매칭을 따로 페이징해서 가져올 필요가 있겠다.
+     */
     private Page<Match> getMatchPage(Member currentMember, Pageable pageable) {
         if (currentMember.getRole() == USER) {
             return matchRepository.findAllByPatientId(currentMember.getPatient().getId(), pageable);

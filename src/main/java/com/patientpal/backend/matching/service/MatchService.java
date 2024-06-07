@@ -1,4 +1,4 @@
-package com.patientpal.backend.matching.application;
+package com.patientpal.backend.matching.service;
 
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;

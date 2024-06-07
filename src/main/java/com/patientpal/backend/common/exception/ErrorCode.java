@@ -27,9 +27,13 @@ public enum ErrorCode {
     MATCH_NOT_EXIST(HttpStatus.NOT_FOUND, "MT_004", "매칭을 찾을 수 없습니다."),
     CAN_NOT_REQUEST_TO(HttpStatus.NOT_FOUND, "MT_005", "매칭 요청을 보낼 수 없는 상대입니다."),
     CAN_NOT_READ(HttpStatus.NOT_FOUND, "MT_006", "취소된 요청은 조회가 불가능합니다."),
+    CAN_NOT_CANCEL_ALREADY_ACCEPTED_MATCH(HttpStatus.CONFLICT, "MT_007", "이미 진행중인 매칭은 취소가 불가능합니다."),
 
     PATIENT_NOT_EXIST(HttpStatus.NOT_FOUND, "PA_001", "해당 환자는 존재하지 않습니다."),
-    CAREGIVER_NOT_EXIST(HttpStatus.NOT_FOUND, "CA_001", "해당 간병인은 존재하지 않습니다.");
+    CAREGIVER_NOT_EXIST(HttpStatus.NOT_FOUND, "CA_001", "해당 간병인은 존재하지 않습니다."),
+
+    PROFILE_NOT_COMPLETED(HttpStatus.NOT_FOUND, "PR_001", "프로필 작성이 완성되지 않았습니다."),
+    ;
 
     private final HttpStatus status;
     private final String code;

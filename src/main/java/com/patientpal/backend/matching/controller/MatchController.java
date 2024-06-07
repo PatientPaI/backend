@@ -1,7 +1,7 @@
-package com.patientpal.backend.matching.presentation;
+package com.patientpal.backend.matching.controller;
 
 import com.patientpal.backend.common.exception.ErrorResponse;
-import com.patientpal.backend.matching.application.MatchService;
+import com.patientpal.backend.matching.service.MatchService;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import io.swagger.v3.oas.annotations.Operation;
