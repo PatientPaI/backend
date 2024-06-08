@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod # [local, prod]
+    active: local # [local, prod]
 
   application:
     name: backend
@@ -75,4 +75,4 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
