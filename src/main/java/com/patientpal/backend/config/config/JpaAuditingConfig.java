@@ -1,4 +1,4 @@
-package com.patientpal.backend.shared.config;
+package com.patientpal.backend.config.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
