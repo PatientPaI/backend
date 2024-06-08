@@ -5,6 +5,7 @@ import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.patient.domain.Patient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -33,6 +34,18 @@ public class PatientProfileCreateRequest {
     private String patientSignificant;
 
     private String careRequirements;
+
+    @Builder
+    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, String phoneNumber, Address address, String nokName, String nokContact, String patientSignificant, String careRequirements) {
+        this.name = name;
+        this.residentRegistrationNumber = residentRegistrationNumber;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.nokName = nokName;
+        this.nokContact = nokContact;
+        this.patientSignificant = patientSignificant;
+        this.careRequirements = careRequirements;
+    }
 
     public Patient toEntity(Member member) {
         return Patient.builder()
