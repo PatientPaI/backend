@@ -1,8 +1,8 @@
 package com.patientpal.backend.caregiver.controller;
 
-import static com.patientpal.backend.common.setup.CaregiverSetUpCommon.setUpCaregiverProfileCreateRequest;
-import static com.patientpal.backend.common.setup.CaregiverSetUpCommon.setUpCaregiverProfileResponse;
-import static com.patientpal.backend.common.setup.CaregiverSetUpCommon.setUpCaregiverProfileUpdateRequest;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.createCaregiverProfileRequest;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.createCaregiverProfileResponse;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.updateCaregiverProfileRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
+import com.patientpal.backend.common.custommockuser.WithCustomMockUserCaregiver;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.service.MemberService;
@@ -27,12 +29,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -60,36 +60,38 @@ public class CaregiverControllerV1Test {
 
     @BeforeEach
     void setUp(WebApplicationContext context) {
-        MockitoAnnotations.openMocks(this);
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        given(jwtTokenProvider.getUsernameFromToken(any())).willReturn("1");
-        this.objectMapper = new ObjectMapper();
     }
 
     @Test
     @DisplayName("간병인 프로필을 성공적으로 생성한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void successCreateCaregiverProfile() throws Exception {
         // given
-        CaregiverProfileCreateRequest request = setUpCaregiverProfileCreateRequest();
-        CaregiverProfileResponse response = setUpCaregiverProfileResponse();
+        CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
+        CaregiverProfileResponse response = createCaregiverProfileResponse();
         given(caregiverService.saveCaregiverProfile(any(String.class), any(CaregiverProfileCreateRequest.class))).willReturn(response);
 
         // when & then
         mockMvc.perform(post("/api/v1/caregiver")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
+                        .characterEncoding("UTF-8")
                 )
                 .andDo(print())
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value(response.getName()))
+                .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
+                .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()))
+                .andExpect(jsonPath("$.address.street").value(response.getAddress().getStreet()));
     }
 
     @Test
     @DisplayName("간병인 프로필을 성공적으로 조회한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void successGetCaregiverProfile() throws Exception {
         // given
-        CaregiverProfileResponse response = setUpCaregiverProfileResponse();
+        CaregiverProfileResponse response = createCaregiverProfileResponse();
         given(caregiverService.getProfile(any(String.class))).willReturn(response);
 
         // when & then
@@ -98,12 +100,13 @@ public class CaregiverControllerV1Test {
                 .andExpect(status().isOk());
     }
 
+    // 기능 검증: 프로필 수정
     @Test
     @DisplayName("간병인 프로필을 성공적으로 수정한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void successUpdateCaregiverProfile() throws Exception {
         // given
-        CaregiverProfileUpdateRequest request = setUpCaregiverProfileUpdateRequest();
+        CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
         willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
 
         // when & then
@@ -116,7 +119,7 @@ public class CaregiverControllerV1Test {
 
     @Test
     @DisplayName("간병인 프로필을 성공적으로 삭제한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void successDeleteCaregiverProfile() throws Exception {
         // given
         willDoNothing().given(caregiverService).deleteCaregiverProfile(any(String.class));
@@ -129,7 +132,7 @@ public class CaregiverControllerV1Test {
 
     @Test
     @DisplayName("간병인 프로필을 등록할 때 잘못된 요청이면 예외가 발생한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void failCreateCaregiverProfileBadRequest() throws Exception {
         // given
         CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, 0, 1, "", "");
@@ -144,7 +147,7 @@ public class CaregiverControllerV1Test {
 
     @Test
     @DisplayName("간병인 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void failGetCaregiverProfileNotFound() throws Exception {
         // given
         given(caregiverService.getProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
@@ -157,10 +160,10 @@ public class CaregiverControllerV1Test {
 
     @Test
     @DisplayName("간병인 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void failUpdateCaregiverProfileNotFound() throws Exception {
         // given
-        CaregiverProfileUpdateRequest request = setUpCaregiverProfileUpdateRequest();
+        CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
         willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
 
         // when & then
@@ -173,7 +176,7 @@ public class CaregiverControllerV1Test {
 
     @Test
     @DisplayName("간병인 프로필을 삭제할 때 프로필이 없으면 예외가 발생한다.")
-    @WithMockUser(username = "lhs")
+    @WithCustomMockUserCaregiver
     void failDeleteCaregiverProfileNotFound() throws Exception {
         // given
         willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).deleteCaregiverProfile(any(String.class));

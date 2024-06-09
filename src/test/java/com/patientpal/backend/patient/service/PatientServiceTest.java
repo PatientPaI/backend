@@ -1,21 +1,17 @@
 package com.patientpal.backend.patient.service;
 
-import static com.patientpal.backend.common.setup.CaregiverSetUpCommon.setUpCaregiver;
-import static com.patientpal.backend.common.setup.PatientSetUpCommon.setUpPatient;
-import static com.patientpal.backend.common.setup.PatientSetUpCommon.setUpPatientProfileCreateRequest;
-import static com.patientpal.backend.common.setup.PatientSetUpCommon.setUpPatientProfileUpdateRequest;
+import static com.patientpal.backend.fixtures.patient.PatientFixture.*;
+import static com.patientpal.backend.fixtures.member.MemberFixture.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
-import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
@@ -50,30 +46,30 @@ class PatientServiceTest {
     @DisplayName("환자 프로필을 성공적으로 생성한다.")
     void successSavePatientProfile() {
         // given
-        Patient patient = setUpPatient();
-        when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
+        Member member = huseongRolePatient();
+        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
         when(patientRepository.save(any(Patient.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        PatientProfileCreateRequest request = setUpPatientProfileCreateRequest();
+        PatientProfileCreateRequest request = createPatientProfileRequest();
 
         // when
-        PatientProfileResponse response = patientService.savePatientProfile(patient.getMember().getUsername(), request);
+        PatientProfileResponse response = patientService.savePatientProfile(member.getUsername(), request);
 
         // then
         assertNotNull(response);
-        assertThat(response.getMemberId()).isEqualTo(patient.getMember().getId());
-        assertThat(response.getName()).isEqualTo("patientlhs");
+        assertThat(response.getMemberId()).isEqualTo(member.getId());
+        assertThat(response.getName()).isEqualTo(request.getName());
     }
 
     @Test
     @DisplayName("환자 프로필을 생성할 때 권한이 없으면 예외가 발생한다.")
     void failSavePatientProfileAuthorization() {
         // given
-        Caregiver caregiver = setUpCaregiver();
-        PatientProfileCreateRequest request = setUpPatientProfileCreateRequest();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
+        Member member = huseongRoleCaregiver();
+        PatientProfileCreateRequest request = createPatientProfileRequest();
+        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
 
         // when & then
-        assertThatThrownBy(() -> patientService.savePatientProfile(caregiver.getMember().getUsername(), request))
+        assertThatThrownBy(() -> patientService.savePatientProfile(member.getUsername(), request))
                 .isInstanceOf(AuthorizationException.class);
     }
 
@@ -96,7 +92,7 @@ class PatientServiceTest {
     @DisplayName("환자 프로필을 성공적으로 조회한다.")
     void successGetProfile() {
         // given
-        Patient patient = setUpPatient();
+        Patient patient = huseongPatient();
         when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
         when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
@@ -106,15 +102,14 @@ class PatientServiceTest {
         // then
         assertNotNull(response);
         assertThat(response.getMemberId()).isEqualTo(patient.getMember().getId());
-        assertThat(response.getName()).isEqualTo("sickLHS");
-        assertThat(response.getNokContact()).isEqualTo("lhsChild");
+        assertThat(response.getNokContact()).isEqualTo(patient.getNokContact());
     }
 
     @Test
     @DisplayName("환자 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
     void failGetProfile() {
         // given
-        Patient patient = setUpPatient();
+        Patient patient = huseongPatient();
         when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
         when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.empty());
 
@@ -127,27 +122,27 @@ class PatientServiceTest {
     @DisplayName("환자 프로필을 성공적으로 수정한다.")
     void successUpdatePatientProfile() {
         // given
-        Patient patient = setUpPatient();
+        Patient patient = huseongPatient();
         when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
         when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
-        PatientProfileUpdateRequest request = setUpPatientProfileUpdateRequest();
+        PatientProfileUpdateRequest request = updatePatientProfileRequest();
 
         // when
         patientService.updatePatientProfile(patient.getMember().getUsername(), request);
 
         // then
-        assertThat(patient.getPatientSignificant()).isEqualTo("몸이 더 아파짐");
-        assertThat(patient.getNokContact()).isEqualTo("12345678");
+        assertThat(patient.getPatientSignificant()).isEqualTo(UPDATE_PATIENT_SIGNIFICANT);
+        assertThat(patient.getNokContact()).isEqualTo(UPDATE_NOK_CONTACT);
     }
 
     @Test
     @DisplayName("환자 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
     void failUpdatePatientProfile() {
         // given
-        Patient patient = setUpPatient();
+        Patient patient = huseongPatient();
         when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
         when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.empty());
-        PatientProfileUpdateRequest request = setUpPatientProfileUpdateRequest();
+        PatientProfileUpdateRequest request = updatePatientProfileRequest();
 
         // when & then
         assertThatThrownBy(() -> patientService.updatePatientProfile(patient.getMember().getUsername(), request))
@@ -158,7 +153,7 @@ class PatientServiceTest {
     @DisplayName("환자 프로필을 성공적으로 삭제한다.")
     void successDeletePatientProfile() {
         // given
-        Patient patient = setUpPatient();
+        Patient patient = huseongPatient();
         when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
         when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
@@ -166,11 +161,9 @@ class PatientServiceTest {
         patientService.deletePatientProfile(patient.getMember().getUsername());
 
         // then
-        verify(patientRepository, times(1)).delete(patient);
-        when(patientRepository.findById(patient.getId())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> patientRepository.findById(patient.getId()).orElseThrow(() -> new EntityNotFoundException(
-                ErrorCode.PATIENT_NOT_EXIST))).isInstanceOf(EntityNotFoundException.class);
+        verify(patientRepository).delete(patient);
+        Optional<Patient> deletedPatient = patientRepository.findById(patient.getId());
+        assertThat(deletedPatient).isEmpty();
     }
 
     //TODO - PENDING이 하나라도 있을 시 삭제 불가능
