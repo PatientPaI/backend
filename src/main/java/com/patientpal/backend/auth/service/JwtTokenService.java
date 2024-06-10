@@ -1,7 +1,6 @@
 package com.patientpal.backend.auth.service;
 
-import com.patientpal.backend.auth.dto.RefreshTokenRequest;
-import com.patientpal.backend.auth.dto.TokenResponse;
+import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
@@ -15,17 +14,16 @@ public class JwtTokenService {
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
-    public TokenResponse refreshJwtTokens(RefreshTokenRequest request) {
-        String currentRefreshToken = request.getRefreshToken();
-        validateRefreshToken(currentRefreshToken);
-        var authentication = tokenProvider.getAuthentication(currentRefreshToken);
+    public TokenDto refreshJwtTokens(String requestToken) {
+        validateRefreshToken(requestToken);
+        var authentication = tokenProvider.getAuthentication(requestToken);
         return generateJwtTokens(authentication.getName(), authentication);
     }
 
-    public TokenResponse generateJwtTokens(String username, Authentication authentication) {
+    public TokenDto generateJwtTokens(String username, Authentication authentication) {
         String accessToken = tokenProvider.createAccessToken(authentication);
         String refreshToken = createAndSaveRefreshToken(username, authentication);
-        return new TokenResponse(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken);
     }
 
     private String createAndSaveRefreshToken(String username, Authentication authentication) {
@@ -42,5 +40,4 @@ public class JwtTokenService {
             throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
         }
     }
-
 }
