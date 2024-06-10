@@ -23,13 +23,14 @@ import com.patientpal.backend.common.custommockuser.WithCustomMockUserCaregiver;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.test.CommonControllerSliceTest;
-import org.junit.jupiter.api.DisplayName;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@AutoKoreanDisplayName
 class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
     @Autowired
@@ -39,9 +40,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     class 간병인_프로필_생성 {
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 생성한다.")
         @WithCustomMockUserCaregiver
-        void successCreateCaregiverProfile() throws Exception {
+        void 간병인_프로필을_성공적으로_생성한다() throws Exception {
             // given
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
             CaregiverProfileResponse response = createCaregiverProfileResponse();
@@ -60,9 +60,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 생성할 때 잘못된 요청이면 예외가 발생한다.")
         @WithCustomMockUserCaregiver
-        void failCreateCaregiverProfileBadRequest() throws Exception {
+        void 간병인_프로필을_생성할_때_잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
             CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, 0, 1, "", "");
 
@@ -79,9 +78,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     class 간병인_프로필_조회 {
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 조회한다.")
         @WithCustomMockUserCaregiver
-        void successGetCaregiverProfile() throws Exception {
+        void 간병인_프로필을_성공적으로_조회한다() throws Exception {
             // given
             CaregiverProfileResponse response = createCaregiverProfileResponse();
             given(caregiverService.getProfile(any(String.class))).willReturn(response);
@@ -97,9 +95,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserCaregiver
-        void failGetCaregiverProfileNotFound() throws Exception {
+        void 간병인_프로필을_조회할_때_프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             given(caregiverService.getProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
 
@@ -114,9 +111,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     class 간병인_프로필_수정 {
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 수정한다.")
         @WithCustomMockUserCaregiver
-        void successUpdateCaregiverProfile() throws Exception {
+        void 간병인_프로필을_성공적으로_수정한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
             willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
@@ -130,9 +126,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserCaregiver
-        void failUpdateCaregiverProfileNotFound() throws Exception {
+        void 간병인_프로필을_수정할_때_프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
             willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
@@ -150,9 +145,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     class 간병인_프로필_삭제 {
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 삭제한다.")
         @WithCustomMockUserCaregiver
-        void successDeleteCaregiverProfile() throws Exception {
+        void 간병인_프로필을_성공적으로_삭제한다() throws Exception {
             // given
             willDoNothing().given(caregiverService).deleteCaregiverProfile(any(String.class));
 
@@ -163,9 +157,8 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 삭제할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserCaregiver
-        void failDeleteCaregiverProfileNotFound() throws Exception {
+        void 간병인_프로필을_삭제할_때_프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).deleteCaregiverProfile(any(String.class));
 

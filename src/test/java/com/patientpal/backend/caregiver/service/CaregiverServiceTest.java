@@ -23,9 +23,9 @@ import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
+@AutoKoreanDisplayName
 class CaregiverServiceTest {
 
     @Mock
@@ -47,11 +48,10 @@ class CaregiverServiceTest {
     private CaregiverService caregiverService;
 
     @Nested
-    class 간병인_프로필_생성 {
+    class 간병인_프로필_생성시에 {
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 생성한다.")
-        void successSaveCaregiverProfile() {
+        void 성공한다() {
             // given
             Member member = huseongRoleCaregiver();
             when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
@@ -68,8 +68,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 생성할 때 권한이 없으면 예외가 발생한다.")
-        void failSaveCaregiverProfileAuthorization() {
+        void 권한이_없으면_예외가_발생한다() {
             // given
             Member member = huseongRolePatient();
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
@@ -82,8 +81,7 @@ class CaregiverServiceTest {
 
         //TODO
 //    @Test
-//    @DisplayName("간병인 프로필을 생성할 때 중복 가입이면 예외가 발생한다.")
-//    void failSaveCaregiverProfileDuplicate() {
+//    void 중복_가입이면_예외가_발생한다() {
 //        // given
 //        Member member = huseongRoleCaregiver();
 //        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
@@ -97,7 +95,7 @@ class CaregiverServiceTest {
     }
 
     @Nested
-    class 간병인_프로필_조회_수정_삭제 {
+    class 간병인_프로필_조회_수정_삭제시에 {
 
         Caregiver caregiver;
 
@@ -109,8 +107,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 조회한다.")
-        void successGetProfile() {
+        void 조회를_성공한다() {
             // given
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 
@@ -125,8 +122,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
-        void failGetProfile() {
+        void 조회할_때_프로필이_없으면_예외가_발생한다() {
             // given
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
 
@@ -136,8 +132,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 수정한다.")
-        void successUpdateCaregiverProfile() {
+        void 수정을_성공한다() {
             // given
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
@@ -151,8 +146,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
-        void failUpdateCaregiverProfile() {
+        void 수정할_때_프로필이_없으면_예외가_발생한다() {
             // given
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
@@ -164,8 +158,7 @@ class CaregiverServiceTest {
         }
 
         @Test
-        @DisplayName("간병인 프로필을 성공적으로 삭제한다.")
-        void successDeleteCaregiverProfile() {
+        void 삭제를_성공한다() {
             // given
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 
@@ -180,8 +173,7 @@ class CaregiverServiceTest {
 
         //TODO 진행중 매칭 있을 시 삭제 불가능 구현 후 수정
 //    @Test
-//    @DisplayName("간병인 프로필을 삭제할 때 진행 중인 매칭이 있으면 예외가 발생한다.")
-//    void failDeleteCaregiverProfile() {
+//    void 삭제할_때_진행_중인_매칭이_있으면_예외가_발생한다() {
 //        // given
 //        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 //        // 진행 중인 매칭 존재 시 예외 발생하도록 설정

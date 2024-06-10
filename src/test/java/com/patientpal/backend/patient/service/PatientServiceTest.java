@@ -23,9 +23,9 @@ import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
+@AutoKoreanDisplayName
 class PatientServiceTest {
 
     @Mock
@@ -47,11 +48,10 @@ class PatientServiceTest {
     private PatientService patientService;
 
     @Nested
-    class 간병인_프로필_생성 {
+    class 간병인_프로필_생성시에 {
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 생성한다.")
-        void successSavePatientProfile() {
+        void 성공적으로_생성한다() {
             // given
             Member member = huseongRolePatient();
             when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
@@ -68,8 +68,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 생성할 때 권한이 없으면 예외가 발생한다.")
-        void failSavePatientProfileAuthorization() {
+        void 권한이_없으면_예외가_발생한다() {
             // given
             Member member = huseongRoleCaregiver();
             PatientProfileCreateRequest request = createPatientProfileRequest();
@@ -80,10 +79,9 @@ class PatientServiceTest {
                     .isInstanceOf(AuthorizationException.class);
         }
 
-        //TODO 중복 가입 구현 후 테스트 완성
+        //TODO 휴대폰 인증 진행 & 중복 가입 구현 후 테스트 완성
 //    @Test
-//    @DisplayName("환자 프로필을 생성할 때 중복 가입이면 예외가 발생한다.")
-//    void failSavePatientProfileDuplicate() {
+//    void 중복가입이면_예외가_발생한다() {
 //        // given
 //        Patient patient = huseongRolePatient();
 //        when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
@@ -97,7 +95,7 @@ class PatientServiceTest {
     }
 
     @Nested
-    class 환자_프로필_조회_수정_삭제 {
+    class 환자_프로필_조회_수정_삭제시에 {
 
         Patient patient;
 
@@ -109,8 +107,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 조회한다.")
-        void successGetProfile() {
+        void 성공적으로_조회한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
@@ -124,8 +121,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
-        void failGetProfile() {
+        void 조회할_때_프로필이_없으면_예외가_발생한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.empty());
 
@@ -135,8 +131,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 수정한다.")
-        void successUpdatePatientProfile() {
+        void 성공적으로_수정한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
@@ -150,8 +145,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
-        void failUpdatePatientProfile() {
+        void 수정할_때_프로필이_없으면_예외가_발생한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.empty());
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
@@ -162,8 +156,7 @@ class PatientServiceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 삭제한다.")
-        void successDeletePatientProfile() {
+        void 성공적으로_삭제한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
@@ -178,8 +171,7 @@ class PatientServiceTest {
 
         //TODO - PENDING이 하나라도 있을 시 삭제 불가능
 //    @Test
-//    @DisplayName("환자 프로필을 삭제할 때 진행 중인 매칭이 있으면 예외가 발생한다.")
-//    void failDeletePatientProfile() {
+//    void 삭제할_때_진행중인_매칭이_있으면_예외가_발생한다() {
 //        // given
 //        when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 //        // 진행 중인 매칭 존재 시 예외 발생하도록 설정

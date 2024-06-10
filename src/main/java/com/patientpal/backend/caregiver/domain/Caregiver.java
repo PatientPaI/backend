@@ -1,21 +1,35 @@
 package com.patientpal.backend.caregiver.domain;
 
-import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
-import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-
-import static jakarta.persistence.FetchType.LAZY;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Getter
+@Table(name = "caregivers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
 public class Caregiver extends BaseTimeEntity {

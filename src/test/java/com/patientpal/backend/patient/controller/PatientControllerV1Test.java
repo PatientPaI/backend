@@ -23,25 +23,25 @@ import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
 import com.patientpal.backend.patient.service.PatientService;
 import com.patientpal.backend.test.CommonControllerSliceTest;
-import org.junit.jupiter.api.DisplayName;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 @SuppressWarnings("NonAsciiCharacters")
+@AutoKoreanDisplayName
 public class PatientControllerV1Test extends CommonControllerSliceTest {
 
     @Autowired
     private PatientService patientService;
 
     @Nested
-    class 환자_프로필_생성 {
+    class 환자_프로필_생성시에 {
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 생성한다.")
         @WithCustomMockUserPatient
-        void successCreatePatientProfile() throws Exception {
+        void 성공한다() throws Exception {
             // given
             PatientProfileCreateRequest request = createPatientProfileRequest();
             PatientProfileResponse response = createPatientProfileResponse();
@@ -60,9 +60,8 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 생성할 때 잘못된 요청이면 예외가 발생한다.")
         @WithCustomMockUserPatient
-        void failCreatePatientProfileBadRequest() throws Exception {
+        void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
             PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", "", null, "", "", "", "");
 
@@ -76,12 +75,11 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 환자_프로필_조회 {
+    class 환자_프로필_조회시에 {
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 조회한다.")
         @WithCustomMockUserPatient
-        void successGetPatientProfile() throws Exception {
+        void 성공한다() throws Exception {
             // given
             PatientProfileResponse response = createPatientProfileResponse();
             given(patientService.getProfile(any(String.class))).willReturn(response);
@@ -97,9 +95,8 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserPatient
-        void failGetPatientProfileNotFound() throws Exception {
+        void 프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             given(patientService.getProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
 
@@ -111,12 +108,11 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 환자_프로필_수정 {
+    class 환자_프로필_수정시에 {
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 수정한다.")
         @WithCustomMockUserPatient
-        void successUpdatePatientProfile() throws Exception {
+        void 성공한다() throws Exception {
             // given
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
             willDoNothing().given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class));
@@ -130,9 +126,8 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserPatient
-        void failUpdatePatientProfileNotFound() throws Exception {
+        void 프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
             willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST)).given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class));
@@ -147,12 +142,11 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 환자_프로필_삭제 {
+    class 환자_프로필_삭제시에 {
 
         @Test
-        @DisplayName("환자 프로필을 성공적으로 삭제한다.")
         @WithCustomMockUserPatient
-        void successDeletePatientProfile() throws Exception {
+        void 성공한다() throws Exception {
             // given
             willDoNothing().given(patientService).deletePatientProfile(any(String.class));
 
@@ -163,9 +157,8 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         }
 
         @Test
-        @DisplayName("환자 프로필을 삭제할 때 프로필이 없으면 예외가 발생한다.")
         @WithCustomMockUserPatient
-        void failDeletePatientProfileNotFound() throws Exception {
+        void 프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST)).given(patientService).deletePatientProfile(any(String.class));
 
