@@ -26,11 +26,15 @@ import com.patientpal.backend.member.repository.MemberRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings("NonAsciiCharacters")
 class CaregiverServiceTest {
 
     @Mock
@@ -42,143 +46,143 @@ class CaregiverServiceTest {
     @InjectMocks
     private CaregiverService caregiverService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+    @Nested
+    class 간병인_프로필_생성 {
 
-    @Test
-    @DisplayName("간병인 프로필을 성공적으로 생성한다.")
-    void successSaveCaregiverProfile() {
-        // given
-        Member member = huseongRoleCaregiver();
-        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
-        when(caregiverRepository.save(any(Caregiver.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
+        @Test
+        @DisplayName("간병인 프로필을 성공적으로 생성한다.")
+        void successSaveCaregiverProfile() {
+            // given
+            Member member = huseongRoleCaregiver();
+            when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
+            when(caregiverRepository.save(any(Caregiver.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
 
-        // when
-        CaregiverProfileResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request);
+            // when
+            CaregiverProfileResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request);
 
-        // then
-        assertNotNull(response);
-        assertThat(response.getMemberId()).isEqualTo(member.getId());
-        assertThat(response.getName()).isEqualTo(request.getName());
-    }
+            // then
+            assertNotNull(response);
+            assertThat(response.getMemberId()).isEqualTo(member.getId());
+            assertThat(response.getName()).isEqualTo(request.getName());
+        }
 
-    @Test
-    @DisplayName("간병인 프로필을 생성할 때 권한이 없으면 예외가 발생한다.")
-    void failSaveCaregiverProfileAuthorization() {
-        // given
-        Member member = huseongRolePatient();
-        CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
-        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
+        @Test
+        @DisplayName("간병인 프로필을 생성할 때 권한이 없으면 예외가 발생한다.")
+        void failSaveCaregiverProfileAuthorization() {
+            // given
+            Member member = huseongRolePatient();
+            CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
+            when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
 
-        // when & then
-        assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
-                .isInstanceOf(AuthorizationException.class);
-    }
+            // when & then
+            assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
+                    .isInstanceOf(AuthorizationException.class);
+        }
 
-    //TODO
+        //TODO
 //    @Test
 //    @DisplayName("간병인 프로필을 생성할 때 중복 가입이면 예외가 발생한다.")
 //    void failSaveCaregiverProfileDuplicate() {
 //        // given
-//        Member member = setUpMemberForCaregiver();
+//        Member member = huseongRoleCaregiver();
 //        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
 //        when(caregiverRepository.findByMember(member)).thenReturn(Optional.of(caregiver));
-//        CaregiverProfileCreateRequest request = setUpCaregiverProfileCreateRequest();
+//        CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
 //
 //        // when, then
 //        assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
 //                .isInstanceOf(EntityNotFoundException.class);
 //    }
-
-    @Test
-    @DisplayName("간병인 프로필을 성공적으로 조회한다.")
-    void successGetProfile() {
-        // given
-        Caregiver caregiver = huseongCaregiver();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
-        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
-
-        // when
-        CaregiverProfileResponse response = caregiverService.getProfile(caregiver.getMember().getUsername());
-
-        // then
-        assertNotNull(response);
-        assertThat(response.getMemberId()).isEqualTo(caregiver.getMember().getId());
-        assertThat(response.getName()).isEqualTo(caregiver.getName());
-        assertThat(response.getSpecialization()).isEqualTo(caregiver.getSpecialization());
     }
 
-    @Test
-    @DisplayName("간병인 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
-    void failGetProfile() {
-        // given
-        Caregiver caregiver = huseongCaregiver();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
-        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
+    @Nested
+    class 간병인_프로필_조회_수정_삭제 {
 
-        // when & then
-        assertThatThrownBy(() -> caregiverService.getProfile(caregiver.getMember().getUsername()))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
+        Caregiver caregiver;
 
-    @Test
-    @DisplayName("간병인 프로필을 성공적으로 수정한다.")
-    void successUpdateCaregiverProfile() {
-        // given
-        Caregiver caregiver = huseongCaregiver();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
-        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
-        CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
+        @BeforeEach
+        void setUp() {
+            caregiver = huseongCaregiver();
+            when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(
+                    Optional.of(caregiver.getMember()));
+        }
 
-        // when
-        caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request);
+        @Test
+        @DisplayName("간병인 프로필을 성공적으로 조회한다.")
+        void successGetProfile() {
+            // given
+            when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 
-        // then
-        assertThat(caregiver.getCaregiverSignificant()).isEqualTo(UPDATE_CAREGIVER_SIGNIFICANT);
-        assertThat(caregiver.getExperienceYears()).isEqualTo(UPDATE_EXPERIENCE_YEARS);
-    }
+            // when
+            CaregiverProfileResponse response = caregiverService.getProfile(caregiver.getMember().getUsername());
 
-    @Test
-    @DisplayName("간병인 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
-    void failUpdateCaregiverProfile() {
-        // given
-        Caregiver caregiver = huseongCaregiver();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
-        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
-        CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
+            // then
+            assertNotNull(response);
+            assertThat(response.getMemberId()).isEqualTo(caregiver.getMember().getId());
+            assertThat(response.getName()).isEqualTo(caregiver.getName());
+            assertThat(response.getSpecialization()).isEqualTo(caregiver.getSpecialization());
+        }
 
-        // when, then
-        assertThatThrownBy(() -> caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request))
-                .isInstanceOf(EntityNotFoundException.class);
-    }
+        @Test
+        @DisplayName("간병인 프로필을 조회할 때 프로필이 없으면 예외가 발생한다.")
+        void failGetProfile() {
+            // given
+            when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("간병인 프로필을 성공적으로 삭제한다.")
-    void successDeleteCaregiverProfile() {
-        // given
-        Caregiver caregiver = huseongCaregiver();
-        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
-        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
+            // when & then
+            assertThatThrownBy(() -> caregiverService.getProfile(caregiver.getMember().getUsername()))
+                    .isInstanceOf(EntityNotFoundException.class);
+        }
 
-        // when
-        caregiverService.deleteCaregiverProfile(caregiver.getMember().getUsername());
+        @Test
+        @DisplayName("간병인 프로필을 성공적으로 수정한다.")
+        void successUpdateCaregiverProfile() {
+            // given
+            when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
+            CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
 
-        // then
-        verify(caregiverRepository).delete(caregiver);
-        Optional<Caregiver> deletedCaregiver = caregiverRepository.findById(caregiver.getId());
-        assertThat(deletedCaregiver).isEmpty();
-    }
+            // when
+            caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request);
 
-    //TODO 진행중 매칭 있을 시 삭제 불가능 구현 후 수정
+            // then
+            assertThat(caregiver.getCaregiverSignificant()).isEqualTo(UPDATE_CAREGIVER_SIGNIFICANT);
+            assertThat(caregiver.getExperienceYears()).isEqualTo(UPDATE_EXPERIENCE_YEARS);
+        }
+
+        @Test
+        @DisplayName("간병인 프로필을 수정할 때 프로필이 없으면 예외가 발생한다.")
+        void failUpdateCaregiverProfile() {
+            // given
+            when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.empty());
+            CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
+
+            // when, then
+            assertThatThrownBy(
+                    () -> caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request))
+                    .isInstanceOf(EntityNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("간병인 프로필을 성공적으로 삭제한다.")
+        void successDeleteCaregiverProfile() {
+            // given
+            when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
+
+            // when
+            caregiverService.deleteCaregiverProfile(caregiver.getMember().getUsername());
+
+            // then
+            verify(caregiverRepository).delete(caregiver);
+            Optional<Caregiver> deletedCaregiver = caregiverRepository.findById(caregiver.getId());
+            assertThat(deletedCaregiver).isEmpty();
+        }
+
+        //TODO 진행중 매칭 있을 시 삭제 불가능 구현 후 수정
 //    @Test
 //    @DisplayName("간병인 프로필을 삭제할 때 진행 중인 매칭이 있으면 예외가 발생한다.")
 //    void failDeleteCaregiverProfile() {
 //        // given
-//        Caregiver caregiver = setUpCaregiver();
-//        when(memberRepository.findByUsername(caregiver.getMember().getUsername())).thenReturn(Optional.of(caregiver.getMember()));
 //        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 //        // 진행 중인 매칭 존재 시 예외 발생하도록 설정
 //        doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
@@ -189,4 +193,5 @@ class CaregiverServiceTest {
 //                .isInstanceOf(IllegalStateException.class)
 //                .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
 //    }
+    }
 }

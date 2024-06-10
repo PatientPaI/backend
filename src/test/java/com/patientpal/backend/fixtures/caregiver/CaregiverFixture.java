@@ -20,6 +20,7 @@ public class CaregiverFixture {
 
     public static final float RATING = 4.5f;
     public static final int EXPERIENCE_YEARS = 5;
+    public static final String RESIDENT_REGISTRATION_NUMBER = "121212-121212";
     public static final String SPECIALIZATION = "노인 간병";
     public static final String CAREGIVER_SIGNIFICANT = "다양한 경험 보유";
 
@@ -33,7 +34,7 @@ public class CaregiverFixture {
         return Caregiver.builder()
                 .member(huseongRoleCaregiver())
                 .name(HUSEONG_NAME)
-                .residentRegistrationNumber("123456-1234567")
+                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -47,7 +48,7 @@ public class CaregiverFixture {
         return Caregiver.builder()
                 .member(dohyunRoleCaregiver())
                 .name(DOHYUN_NAME)
-                .residentRegistrationNumber("234567-2345678")
+                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -61,7 +62,7 @@ public class CaregiverFixture {
         return Caregiver.builder()
                 .member(jeonghyeRoleCaregiver())
                 .name(JEONGHYE_NAME)
-                .residentRegistrationNumber("345678-3456789")
+                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -74,7 +75,7 @@ public class CaregiverFixture {
     public static CaregiverProfileCreateRequest createCaregiverProfileRequest() {
         return CaregiverProfileCreateRequest.builder()
                 .name(HUSEONG_NAME)
-                .residentRegistrationNumber("123456-1234567")
+                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -98,7 +99,7 @@ public class CaregiverFixture {
         return CaregiverProfileResponse.builder()
                 .memberId(1L)
                 .name(HUSEONG_NAME)
-                .residentRegistrationNumber("123456-1234567")
+                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
