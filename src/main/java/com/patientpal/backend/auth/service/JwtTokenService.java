@@ -14,9 +14,9 @@ public class JwtTokenService {
     private final JwtTokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
-    public TokenDto refreshJwtTokens(String requestToken) {
-        validateRefreshToken(requestToken);
-        var authentication = tokenProvider.getAuthentication(requestToken);
+    public TokenDto refreshJwtTokens(String refreshToken) {
+        validateRefreshToken(refreshToken);
+        var authentication = tokenProvider.getAuthentication(refreshToken);
         return generateJwtTokens(authentication.getName(), authentication);
     }
 
