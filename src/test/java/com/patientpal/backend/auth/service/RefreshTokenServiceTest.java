@@ -109,7 +109,7 @@ class RefreshTokenServiceTest {
     }
 
     @Test
-    void DB에_리프레시_토큰이_존재하지_않는_경우_검증에_실패한다() {
+    void Db에_리프레시_토큰이_존재하지_않는_경우_검증에_실패한다() {
         // given
         boolean expectedResult = false;
         Member member = MemberFixture.createDefaultMember();
