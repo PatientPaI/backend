@@ -56,7 +56,7 @@ public class RefreshTokenService {
         }
 
         Optional<RefreshToken> storedRefreshToken = getStoredRefreshToken(token);
-        return storedRefreshToken.isPresent() && isTokenNotExpired(storedRefreshToken.get());
+        return storedRefreshToken.isPresent() && !isTokenExpired(storedRefreshToken.get());
     }
 
     private Optional<RefreshToken> getStoredRefreshToken(String token) {
@@ -65,7 +65,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByMemberAndToken(member, hashToken(token));
     }
 
-    public boolean isTokenNotExpired(RefreshToken token) {
-        return !token.getExpiryDate().isBefore(Instant.now());
+    public boolean isTokenExpired(RefreshToken token) {
+        return token.getExpiryDate().isBefore(Instant.now());
     }
 }
