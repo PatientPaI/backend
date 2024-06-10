@@ -39,8 +39,8 @@ public class AuthenticationApiV1Controller {
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "로그인을 한다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공",
-        content = @Content(schema = @Schema(implementation = AccessTokenResponse.class)),
-        headers = @Header(name = "Set-Cookie", description = "리프레시 토큰 쿠키 설정", schema = @Schema(type = "string")))
+            content = @Content(schema = @Schema(implementation = AccessTokenResponse.class)),
+            headers = @Header(name = "Set-Cookie", description = "리프레시 토큰 쿠키 설정", schema = @Schema(type = "string")))
     public ResponseEntity<AccessTokenResponse> authorize(@Valid @RequestBody SignInRequest request, HttpServletResponse response) {
         TokenDto tokenDto = loginService.authenticateUser(request);
         setRefreshTokenCookie(response, tokenDto.refreshToken());
