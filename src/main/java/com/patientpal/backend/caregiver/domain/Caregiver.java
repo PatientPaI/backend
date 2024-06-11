@@ -25,6 +25,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -60,14 +61,17 @@ public class Caregiver extends BaseTimeEntity {
 
     private int experienceYears;
 
-    private String specialization; //간병 전문분야
+    private String specialization;
 
     @Lob
-    private String caregiverSignificant; //간병인 특이사항
+    private String caregiverSignificant;
+
+    @Setter
+    private Boolean isInMatchList;
 
     @Builder
     public Caregiver(Member member, String name, String residentRegistrationNumber, String phoneNumber, Address address,
-                     float rating, int experienceYears, String specialization, String caregiverSignificant) {
+                     float rating, int experienceYears, String specialization, String caregiverSignificant, Boolean isInMatchList) {
         this.member = member;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
@@ -77,6 +81,7 @@ public class Caregiver extends BaseTimeEntity {
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
+        this.isInMatchList = isInMatchList;
     }
 
     public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final String caregiverSignificant) {
