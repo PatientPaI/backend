@@ -79,19 +79,19 @@ class PatientServiceTest {
                     .isInstanceOf(AuthorizationException.class);
         }
 
-        //TODO 휴대폰 인증 진행 & 중복 가입 구현 후 테스트 완성
-//    @Test
-//    void 중복가입이면_예외가_발생한다() {
-//        // given
-//        Patient patient = huseongRolePatient();
-//        when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
-//        when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
-//        PatientProfileCreateRequest request = createPatientProfileRequest();
-//
-//        // when & then
-//        assertThatThrownBy(() -> patientService.savePatientProfile(patient.getMember().getUsername(), request))
-//                .isInstanceOf(EntityNotFoundException.class);
-//    }
+        // TODO 휴대폰 인증 진행 & 중복 가입 구현 후 테스트 완성
+        // @Test
+        // void 중복가입이면_예외가_발생한다() {
+        //     // given
+        //     Patient patient = huseongRolePatient();
+        //     when(memberRepository.findByUsername(patient.getMember().getUsername())).thenReturn(Optional.of(patient.getMember()));
+        //     when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
+        //     PatientProfileCreateRequest request = createPatientProfileRequest();
+        //
+        //     // when & then
+        //     assertThatThrownBy(() -> patientService.savePatientProfile(patient.getMember().getUsername(), request))
+        //             .isInstanceOf(EntityNotFoundException.class);
+        // }
     }
 
     @Nested
@@ -169,19 +169,19 @@ class PatientServiceTest {
             assertThat(deletedPatient).isEmpty();
         }
 
-        //TODO - PENDING이 하나라도 있을 시 삭제 불가능
-//    @Test
-//    void 삭제할_때_진행중인_매칭이_있으면_예외가_발생한다() {
-//        // given
-//        when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
-//        // 진행 중인 매칭 존재 시 예외 발생하도록 설정
-//        doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
-//                .when(patientRepository).delete(any(Patient.class));
-//
-//        // when, then
-//        assertThatThrownBy(() -> patientService.deletePatientProfile(patient.getMember().getUsername()))
-//                .isInstanceOf(IllegalStateException.class)
-//                .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
-//    }
+        // TODO - PENDING이 하나라도 있을 시 삭제 불가능
+        // @Test
+        // void 삭제할_때_진행중인_매칭이_있으면_예외가_발생한다() {
+        //     // given
+        //     when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
+        //     // 진행 중인 매칭 존재 시 예외 발생하도록 설정
+        //     doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
+        //             .when(patientRepository).delete(any(Patient.class));
+        //
+        //     // when, then
+        //     assertThatThrownBy(() -> patientService.deletePatientProfile(patient.getMember().getUsername()))
+        //             .isInstanceOf(IllegalStateException.class)
+        //             .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
+        // }
     }
 }

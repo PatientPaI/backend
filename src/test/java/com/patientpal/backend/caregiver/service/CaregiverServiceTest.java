@@ -79,19 +79,19 @@ class CaregiverServiceTest {
                     .isInstanceOf(AuthorizationException.class);
         }
 
-        //TODO
-//    @Test
-//    void 중복_가입이면_예외가_발생한다() {
-//        // given
-//        Member member = huseongRoleCaregiver();
-//        when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
-//        when(caregiverRepository.findByMember(member)).thenReturn(Optional.of(caregiver));
-//        CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
-//
-//        // when, then
-//        assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
-//                .isInstanceOf(EntityNotFoundException.class);
-//    }
+        // TODO
+        // @Test
+        // void 중복_가입이면_예외가_발생한다() {
+        //     // given
+        //     Member member = huseongRoleCaregiver();
+        //     when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
+        //     when(caregiverRepository.findByMember(member)).thenReturn(Optional.of(caregiver));
+        //     CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
+        //
+        //     // when, then
+        //     assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
+        //             .isInstanceOf(EntityNotFoundException.class);
+        // }
     }
 
     @Nested
@@ -171,19 +171,19 @@ class CaregiverServiceTest {
             assertThat(deletedCaregiver).isEmpty();
         }
 
-        //TODO 진행중 매칭 있을 시 삭제 불가능 구현 후 수정
-//    @Test
-//    void 삭제할_때_진행_중인_매칭이_있으면_예외가_발생한다() {
-//        // given
-//        when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
-//        // 진행 중인 매칭 존재 시 예외 발생하도록 설정
-//        doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
-//                .when(caregiverRepository).delete(any(Caregiver.class));
-//
-//        // when, then
-//        assertThatThrownBy(() -> caregiverService.deleteCaregiverProfile(caregiver.getMember().getUsername()))
-//                .isInstanceOf(IllegalStateException.class)
-//                .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
-//    }
+        // TODO 진행중 매칭 있을 시 삭제 불가능 구현 후 수정
+        // @Test
+        // void 삭제할_때_진행_중인_매칭이_있으면_예외가_발생한다() {
+        //     // given
+        //     when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
+        //     // 진행 중인 매칭 존재 시 예외 발생하도록 설정
+        //     doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
+        //             .when(caregiverRepository).delete(any(Caregiver.class));
+        //
+        //     // when, then
+        //     assertThatThrownBy(() -> caregiverService.deleteCaregiverProfile(caregiver.getMember().getUsername()))
+        //             .isInstanceOf(IllegalStateException.class)
+        //             .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
+        // }
     }
 }
