@@ -62,4 +62,15 @@ public class PostService {
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<Post> getFreePosts() {
+        return postRepository.findAllByPostType(PostType.FREE);
+    }
+
+
 }
+
+
+
+
