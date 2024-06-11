@@ -14,14 +14,6 @@ body:
 
   - type: textarea
     attributes:
-      label: 🎯 리팩터링 목표
-      description: "리팩터링 작업의 목표를 구체적으로 작성해주세요."
-      placeholder: "예: 코드 중복 제거, 성능 개선, 가독성 향상"
-    validations:
-      required: true
-
-  - type: textarea
-    attributes:
       label: 🔨 작업 내용
       description: "리팩터링을 위해 필요한 작업 내용을 구체적으로 작성해주세요."
       placeholder: |
