@@ -59,6 +59,7 @@ public class CaregiverProfileCreateRequest {
                 .experienceYears(this.experienceYears)
                 .specialization(this.specialization)
                 .caregiverSignificant(this.caregiverSignificant)
+                .isInMatchList(false)
                 .build();
     }
 }

@@ -1,5 +1,8 @@
 package com.patientpal.backend.caregiver.controller;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
@@ -10,9 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,10 +40,22 @@ public class CaregiverControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping //TODO 프로필 삭제 후에는 매칭 시스템 이용 불가.
+    @DeleteMapping
     public ResponseEntity<Void> deleteCaregiverProfile(@AuthenticationPrincipal User currentMember) {
         caregiverService.deleteCaregiverProfile(currentMember.getUsername());
         return ResponseEntity.noContent().build();
     }
 
+
+    @PostMapping("register/toMatchList")
+    public ResponseEntity<Void> registerCaregiverProfileToMatchList(@AuthenticationPrincipal User currentMember) {
+        caregiverService.registerCaregiverProfileToMatchList(currentMember.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("unregister/toMatchList")
+    public ResponseEntity<Void> unregisterCaregiverProfileToMatchList(@AuthenticationPrincipal User currentMember) {
+        caregiverService.unregisterCaregiverProfileToMatchList(currentMember.getUsername());
+        return ResponseEntity.noContent().build();
+    }
 }

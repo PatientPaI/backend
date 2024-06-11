@@ -58,6 +58,7 @@ public class PatientProfileCreateRequest {
                 .nokContact(this.nokContact)
                 .patientSignificant(this.patientSignificant)
                 .careRequirements(this.careRequirements)
+                .isInMatchList(false)
                 .build();
     }
 }
