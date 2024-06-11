@@ -1,7 +1,7 @@
 name: "🙋 회의"
 description: 팀원들과 논의할 사항이 있으신가요?
 title: "[MEET] "
-labels: ["🙋 meeting"]
+labels: ["🙋 회의"]
 body:
   - type: input
     attributes:

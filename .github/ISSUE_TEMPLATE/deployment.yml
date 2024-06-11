@@ -1,7 +1,7 @@
 name: 🚀 배포
 description: 배포와 관련된 작업이 필요한가요?
 title: "[DEPLOYMENT] "
-labels: ["⚙️ devops"]
+labels: ["⚙️ 데브옵스"]
 projects: ["goaheadgogo/1"]
 body:
   - type: textarea
