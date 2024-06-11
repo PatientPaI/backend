@@ -3,6 +3,9 @@ package com.patientpal.backend.patient.service;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.exception.CanNotDeleteException;
+import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
@@ -22,20 +25,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PatientService {
 
-    /**
-     * TODO
-     *  - 사진 업로드 (간병인만? 환자도? 선택? 필수?)
-     *  - 프로필 등록시, 휴대폰 본인 인증 구현해야함.
-     */
-
     private final PatientRepository patientRepository;
     private final MemberRepository memberRepository;
+    private final MatchRepository matchRepository;
 
     @Transactional
     public PatientProfileResponse savePatientProfile(String username, PatientProfileCreateRequest patientProfileCreateRequest) {
         Member currentMember = getMember(username);
-        validateAuthorization(currentMember);
         // TODO 본인 인증 시, 중복 가입이면 throw
+        validateAuthorization(currentMember);
+        validateDuplicateCaregiver(currentMember);
         Patient savedPatient = patientRepository.save(patientProfileCreateRequest.toEntity(currentMember));
         log.info("프로필 등록 성공: ID={}, NAME={}", savedPatient.getId(), savedPatient.getName());
         return PatientProfileResponse.of(savedPatient);
@@ -45,6 +44,12 @@ public class PatientService {
         if (currentMember.getRole() == Role.CAREGIVER) {
             throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED, currentMember.getUsername());
         }
+    }
+
+    private void validateDuplicateCaregiver(Member currentMember) {
+        patientRepository.findByMember(currentMember).ifPresent(patient -> {
+            throw new DuplicateRequestException(ErrorCode.PATIENT_ALREADY_EXIST);
+        });
     }
 
     public PatientProfileResponse getProfile(String username) {
@@ -64,10 +69,31 @@ public class PatientService {
     public void deletePatientProfile(String username) {
         Member currentMember = getMember(username);
         Patient patient = getPatient(currentMember);
-//        if (hasOnGoingMatches(patient)) {
-//            throw new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
-//        }
+        if (hasOnGoingMatches(patient.getId())) {
+            throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
+        }
         patientRepository.delete(patient);
+    }
+
+    private boolean hasOnGoingMatches(Long patientId) {
+        if (matchRepository.existsInProgressMatchingForPatient(patientId)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public void registerPatientProfileToMatchList(String username) {
+        Member member = getMember(username);
+        Patient patient = getPatient(member);
+        patient.setIsInMatchList(true);
+    }
+
+    @Transactional
+    public void unregisterPatientProfileToMatchList(String username) {
+        Member member = getMember(username);
+        Patient patient = getPatient(member);
+        patient.setIsInMatchList(false);
     }
 
     private Member getMember(String username) {
@@ -77,4 +103,5 @@ public class PatientService {
     private Patient getPatient(Member currentMember) {
         return patientRepository.findByMember(currentMember).orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
+
 }
