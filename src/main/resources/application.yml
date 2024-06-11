@@ -76,3 +76,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+discord:
+  webhook:
+    url: ENC(AUhCvT7uJKRCPYfebsMsLeMHNUstLvecz0yQcALuILcf14HWfoVD/+r1m/fc0T2ANdD7sIGc0/d/wstGqmNA62SLmzEScNcvjBYaRyz4HyYb2UBkoqxUix5ZXXfTwSIrPf/1CI1GfkqoDNSqihY01E2+4gaKG4tb4CzEi9Au+HhIOHGUSsyxROPE3Eyzie4LdHoD6di5APTDSxMtROL2fQ==)
