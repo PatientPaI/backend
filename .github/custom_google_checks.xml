@@ -171,6 +171,12 @@
             <message key="name.invalidPattern"
                      value="패키지 이름 ''{0}''은 패턴 ''{1}''을 따라야 합니다."/>
         </module>
+        <module name="TypeName">
+            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                    ANNOTATION_DEF, RECORD_DEF"/>
+            <message key="name.invalidPattern"
+                     value="타입 이름 ''{0}''은 패턴 ''{1}''을 따라야 합니다."/>
+        </module>
         <module name="MemberName">
             <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
             <message key="name.invalidPattern"
@@ -264,6 +270,8 @@
             <property name="separateLineBetweenGroups" value="true"/>
             <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
             <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+            <message key="custom.import.order.lex"
+                     value="import 문장 ''{0}''의 사전순서가 잘못되었습니다. ''{1}'' 앞에 있어야 합니다."/>
         </module>
         <module name="MethodParamPad">
             <property name="tokens"
@@ -323,12 +331,23 @@
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
         </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-z0-9]\w*$"/>
+            <message key="name.invalidPattern"
+                     value="메서드 이름 ''{0}''은 패턴 ''{1}''을 따라야 합니다."/>
+        </module>
         <module name="SingleLineJavadoc"/>
         <module name="EmptyCatchBlock">
             <property name="exceptionVariableName" value="expected"/>
         </module>
         <module name="CommentsIndentation">
             <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+            <message key="comments.indentation.block"
+                     value="블록 주석의 들여쓰기가 잘못되었습니다. 현재 들여쓰기: {1}, 예상되는 들여쓰기: {2}.
+                     들여쓰기는 {0}번 줄과 같아야 합니다."/>
+            <message key="comments.indentation.single"
+                     value="주석의 들여쓰기가 잘못되었습니다. 현재 들여쓰기: {1}, 예상되는 들여쓰기: {2}.
+                     들여쓰기는 {0}번 줄과 같아야 합니다."/>
         </module>
         <!-- https://checkstyle.org/filters/suppressionxpathfilter.html -->
         <module name="SuppressionXpathFilter">
