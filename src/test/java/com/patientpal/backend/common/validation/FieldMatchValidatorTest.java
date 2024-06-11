@@ -6,12 +6,16 @@ import static org.mockito.Mockito.when;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
 import com.patientpal.backend.common.validation.constraints.FieldMatch;
-import com.patientpal.backend.fixtures.member.SignUpRequestFixture;
+import com.patientpal.backend.fixtures.auth.SignUpRequestFixture;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@DisplayName("@FieldMatch 유효성 검사")
+@AutoKoreanDisplayName
+@ExtendWith(MockitoExtension.class)
+@SuppressWarnings("NonAsciiCharacters")
 class FieldMatchValidatorTest {
     private FieldMatchValidator validator;
 
@@ -27,10 +31,9 @@ class FieldMatchValidatorTest {
     }
 
     @Test
-    @DisplayName("서로 일치하면 유효성 검사가 성공한다.")
-    void success() {
+    void 서로_일치하면_유효성_검사가_성공한다() {
         // given
-        SignUpRequest request = SignUpRequestFixture.createValidSignUpRequest();
+        SignUpRequest request = SignUpRequestFixture.createUserSignUpRequest();
 
         // when
         boolean result = validator.isValid(request, null);
@@ -40,8 +43,7 @@ class FieldMatchValidatorTest {
     }
 
     @Test
-    @DisplayName("서로 일치하지 않으면 유효성 검사가 실패한다.")
-    void fail() {
+    void 서로_일치하지_않으면_유효성_검사가_실패한다() {
         // given
         SignUpRequest request = SignUpRequestFixture.createSignUpRequestWithMismatchedPasswords();
 
