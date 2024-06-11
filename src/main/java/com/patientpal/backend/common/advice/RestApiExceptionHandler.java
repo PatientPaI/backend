@@ -3,6 +3,8 @@ package com.patientpal.backend.common.advice;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.common.exception.ErrorResponse;
+import com.patientpal.backend.webhook.service.DiscordWebhookService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -10,11 +12,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestControllerAdvice(annotations = RestController.class, basePackages = "com.patientpal.backend")
 public class RestApiExceptionHandler {
+    private final DiscordWebhookService discordWebhookService;
+
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
         var response = ErrorResponse.of(ErrorCode.AUTHENTICATION_FAILED);
@@ -44,7 +50,11 @@ public class RestApiExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+    protected ResponseEntity<ErrorResponse> handleException(Exception e, WebRequest request) {
+        // FIXME: 추후에 모니터링 환경이 갖추어지면 제거될 예정
+        if (discordWebhookService != null) {
+            discordWebhookService.sendDiscordAlarm(e, request);
+        }
         var response = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(response, response.getStatus());
