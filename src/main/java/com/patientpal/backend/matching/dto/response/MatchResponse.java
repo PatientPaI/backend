@@ -55,7 +55,7 @@ public class MatchResponse {
                 .build();
     }
 
-    public Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
+    public static Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)
@@ -66,7 +66,7 @@ public class MatchResponse {
                 .build();
     }
 
-    public Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
+    public static Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)

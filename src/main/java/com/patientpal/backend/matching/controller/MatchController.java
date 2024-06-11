@@ -1,9 +1,12 @@
 package com.patientpal.backend.matching.controller;
 
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 import com.patientpal.backend.common.exception.ErrorResponse;
-import com.patientpal.backend.matching.service.MatchService;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
+import com.patientpal.backend.matching.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.http.HttpStatus.*;
 
 @Tag(name = "MATCH API", description = "매칭 관련 API")
 @RestController
@@ -72,13 +73,14 @@ public class MatchController {
             }
     )
     @GetMapping("/{matchId}")
-    public ResponseEntity<MatchResponse> getMatch(@AuthenticationPrincipal User currentMember, @PathVariable Long matchId) {
+    public ResponseEntity<MatchResponse> getMatch(@AuthenticationPrincipal User currentMember,
+                                                  @PathVariable Long matchId) {
         final MatchResponse match = matchService.getMatch(matchId, currentMember.getUsername());
         return ResponseEntity.status(OK).body(match);
     }
 
     @Operation(
-            summary = "매칭 리스트 조회",
+            summary = "매칭 리스트 조회 - 요청 보낸",
             responses = {
                     @ApiResponse(responseCode = "200", description = "매칭 리스트 조회 성공",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchListResponse.class))),
@@ -86,11 +88,30 @@ public class MatchController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    @GetMapping("/all")
-    public ResponseEntity<MatchListResponse> getMatchList(@AuthenticationPrincipal User currentMember,
-                                                          @RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size) {
-        final MatchListResponse matchList = matchService.getMatchList(currentMember.getUsername(), PageRequest.of(page, size));
+    @GetMapping("/all/request")
+    public ResponseEntity<MatchListResponse> getRequestMatchList(@AuthenticationPrincipal User currentMember,
+                                                              @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        final MatchListResponse matchList = matchService.getRequestMatches(currentMember.getUsername(),
+                PageRequest.of(page, size));
+        return ResponseEntity.status(OK).body(matchList);
+    }
+
+    @Operation(
+            summary = "매칭 리스트 조회 - 요청 받은",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "매칭 리스트 조회 성공",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchListResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "인증 실패",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    @GetMapping("/all/received")
+    public ResponseEntity<MatchListResponse> getReceivedMatchList(@AuthenticationPrincipal User currentMember,
+                                                                  @RequestParam(defaultValue = "0") int page,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        final MatchListResponse matchList = matchService.getReceivedMatches(currentMember.getUsername(),
+                PageRequest.of(page, size));
         return ResponseEntity.status(OK).body(matchList);
     }
 

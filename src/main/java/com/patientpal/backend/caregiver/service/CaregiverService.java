@@ -41,7 +41,9 @@ public class CaregiverService {
     }
 
     private void validateAuthorization(Member currentMember) {
-        if (currentMember.getRole() == Role.USER) throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED, currentMember.getUsername());
+        if (currentMember.getRole() == Role.USER) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED, currentMember.getUsername());
+        }
     }
 
     private void validateDuplicateCaregiver(Member currentMember) {
