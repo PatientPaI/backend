@@ -25,6 +25,14 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    attributes:
+      label: 📚 참고 자료
+      description: "참고할 수 있는 자료나 링크가 있다면 작성해주세요."
+      placeholder: "관련 자료나 링크를 입력해주세요."
+    validations:
+      required: false
+
   - type: input
     attributes:
       label: ⏳ 추정 시간
@@ -38,13 +46,5 @@ body:
       label: ⌛ 소요 시간
       description: "리팩터링 작업에 실제로 소요된 시간을 입력해주세요."
       placeholder: "예: 6시간"
-    validations:
-      required: false
-
-  - type: textarea
-    attributes:
-      label: 📚 참고 자료
-      description: "참고할 수 있는 자료나 링크가 있다면 작성해주세요."
-      placeholder: "관련 자료나 링크를 입력해주세요."
     validations:
       required: false
