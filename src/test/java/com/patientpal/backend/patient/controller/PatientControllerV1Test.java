@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.patientpal.backend.common.custommockuser.WithCustomMockUserPatient;
+import com.patientpal.backend.test.annotation.WithCustomMockUserPatient;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;

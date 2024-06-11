@@ -19,7 +19,7 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
-import com.patientpal.backend.common.custommockuser.WithCustomMockUserCaregiver;
+import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.test.CommonControllerSliceTest;
