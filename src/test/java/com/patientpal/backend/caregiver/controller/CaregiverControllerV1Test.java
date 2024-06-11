@@ -37,11 +37,11 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     CaregiverService caregiverService;
 
     @Nested
-    class 간병인_프로필_생성 {
+    class 간병인_프로필_생성시에 {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_성공적으로_생성한다() throws Exception {
+        void 성공한다() throws Exception {
             // given
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
             CaregiverProfileResponse response = createCaregiverProfileResponse();
@@ -61,7 +61,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_생성할_때_잘못된_요청이면_예외가_발생한다() throws Exception {
+        void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
             CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, 0, 1, "", "");
 
@@ -75,11 +75,11 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 간병인_프로필_조회 {
+    class 간병인_프로필_조회시에 {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_성공적으로_조회한다() throws Exception {
+        void 성공한다() throws Exception {
             // given
             CaregiverProfileResponse response = createCaregiverProfileResponse();
             given(caregiverService.getProfile(any(String.class))).willReturn(response);
@@ -96,7 +96,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_조회할_때_프로필이_없으면_예외가_발생한다() throws Exception {
+        void 프로필_미등록시에_예외가_발생한다() throws Exception {
             // given
             given(caregiverService.getProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
 
@@ -108,11 +108,11 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 간병인_프로필_수정 {
+    class 간병인_프로필_수정시에 {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_성공적으로_수정한다() throws Exception {
+        void 성공한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
             willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
@@ -127,7 +127,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_수정할_때_프로필이_없으면_예외가_발생한다() throws Exception {
+        void 프로필_미등록시__예외가_발생한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
             willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
@@ -142,11 +142,11 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 간병인_프로필_삭제 {
+    class 간병인_프로필_삭제시에 {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_성공적으로_삭제한다() throws Exception {
+        void 성공한다() throws Exception {
             // given
             willDoNothing().given(caregiverService).deleteCaregiverProfile(any(String.class));
 
@@ -158,7 +158,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 간병인_프로필을_삭제할_때_프로필이_없으면_예외가_발생한다() throws Exception {
+        void 프로필_미등록시_예외가_발생한다() throws Exception {
             // given
             willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).deleteCaregiverProfile(any(String.class));
 
