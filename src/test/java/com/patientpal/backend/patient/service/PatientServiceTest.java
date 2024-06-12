@@ -16,6 +16,8 @@ import static org.mockito.Mockito.when;
 
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.exception.CanNotDeleteException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.domain.Patient;
@@ -40,6 +42,9 @@ class PatientServiceTest {
 
     @Mock
     private PatientRepository patientRepository;
+
+    @Mock
+    private MatchRepository matchRepository;
 
     @Mock
     private MemberRepository memberRepository;
@@ -107,7 +112,7 @@ class PatientServiceTest {
         }
 
         @Test
-        void 성공적으로_조회한다() {
+        void 조회를_성공한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
@@ -131,7 +136,7 @@ class PatientServiceTest {
         }
 
         @Test
-        void 성공적으로_수정한다() {
+        void 수정을_성공한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
@@ -156,9 +161,10 @@ class PatientServiceTest {
         }
 
         @Test
-        void 성공적으로_삭제한다() {
+        void 삭제를_성공한다() {
             // given
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
+            when(matchRepository.existsInProgressMatchingForPatient(patient.getId())).thenReturn(false);
 
             // when
             patientService.deletePatientProfile(patient.getMember().getUsername());
@@ -169,19 +175,15 @@ class PatientServiceTest {
             assertThat(deletedPatient).isEmpty();
         }
 
-        // TODO - PENDING이 하나라도 있을 시 삭제 불가능
-        // @Test
-        // void 삭제할_때_진행중인_매칭이_있으면_예외가_발생한다() {
-        //     // given
-        //     when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
-        //     // 진행 중인 매칭 존재 시 예외 발생하도록 설정
-        //     doThrow(new IllegalStateException("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."))
-        //             .when(patientRepository).delete(any(Patient.class));
-        //
-        //     // when, then
-        //     assertThatThrownBy(() -> patientService.deletePatientProfile(patient.getMember().getUsername()))
-        //             .isInstanceOf(IllegalStateException.class)
-        //             .hasMessage("진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다.");
-        // }
+        @Test
+        void 삭제할_때_진행중인_매칭이_있으면_예외가_발생한다() {
+            // given
+            when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
+            when(matchRepository.existsInProgressMatchingForPatient(patient.getId())).thenReturn(true);
+
+            // when, then
+            assertThatThrownBy(() -> patientService.deletePatientProfile(patient.getMember().getUsername()))
+                    .isInstanceOf(CanNotDeleteException.class);
+        }
     }
 }
