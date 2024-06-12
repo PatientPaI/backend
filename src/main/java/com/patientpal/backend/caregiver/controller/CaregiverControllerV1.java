@@ -7,6 +7,8 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
+import com.patientpal.backend.image.dto.ImageNameDTO;
+import com.patientpal.backend.image.service.PresignedUrlService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +22,22 @@ import org.springframework.web.bind.annotation.*;
 public class CaregiverControllerV1 {
 
     private final CaregiverService caregiverService;
+    private final PresignedUrlService presignedUrlService;
+    private String path;
 
     @PostMapping
     public ResponseEntity<CaregiverProfileResponse> createCaregiverProfile(@AuthenticationPrincipal User currentMember,
                                                      @RequestBody @Valid CaregiverProfileCreateRequest CaregiverProfileCreateRequest) {
-        CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), CaregiverProfileCreateRequest);
+        String profileImageUrl = presignedUrlService.findByName(path);
+        CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), CaregiverProfileCreateRequest, profileImageUrl);
         return ResponseEntity.status(CREATED).body(caregiverProfileResponse);
+    }
+
+    @PostMapping("/presigned")
+    public String createPresigned(@RequestBody ImageNameDTO imageNameDTO) {
+        path ="profiles";
+        String imageName = imageNameDTO.getImageName();
+        return presignedUrlService.getPresignedUrl(path, imageName);
     }
 
     @GetMapping
@@ -36,7 +48,8 @@ public class CaregiverControllerV1 {
     @PatchMapping
     public ResponseEntity<Void> updateCaregiverProfile(@AuthenticationPrincipal User currentMember,
                                                        @RequestBody @Valid CaregiverProfileUpdateRequest caregiverProfileUpdateRequest) {
-        caregiverService.updateCaregiverProfile(currentMember.getUsername(), caregiverProfileUpdateRequest);
+        String profileImageUrl = presignedUrlService.findByName(path);
+        caregiverService.updateCaregiverProfile(currentMember.getUsername(), caregiverProfileUpdateRequest, profileImageUrl);
         return ResponseEntity.noContent().build();
     }
 
@@ -46,6 +59,11 @@ public class CaregiverControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/image")
+    public ResponseEntity<Void> deleteCaregiverProfileImage(@AuthenticationPrincipal User currentMember) {
+        caregiverService.deleteCaregiverProfileImage(currentMember.getUsername());
+        return ResponseEntity.noContent().build();
+    }
 
     @PostMapping("register/toMatchList")
     public ResponseEntity<Void> registerCaregiverProfileToMatchList(@AuthenticationPrincipal User currentMember) {

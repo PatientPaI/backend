@@ -36,6 +36,16 @@ patientpal:
     dev-url: http://localhost:8080
     prod-url: http://43.201.129.48:8080
 
+cloud:
+  aws:
+    s3:
+      bucket: ENC(CjiT7j7b7u1wlFVqx0zB2ujnopCuig1+1T3wOX5CIhiFTMFE8WaI27gH//lGbZZP)
+    stack.auto: false
+    region.static: ap-northeast-2
+    credentials:
+      accessKey: ENC(r04YXWG07hMBoYq5t2XkJi4aj4M70jctIk56GcTh8+Zlmq7DiFrfvFIZ4mBZTXUosLtIvBY6ww35G1dP75xBzQ==)
+      secretKey: ENC(s4Uba61I+DdhipLPJMTjQh+7QbyIU9Si2VsmsMoDqM/IIIcH5ZuKGpbawjuSFH61u24G9CNEbZuSRqq4b45oGcCt8Om4/kgDAn5bq20TPwI=)
+
 ---
 spring:
   config:

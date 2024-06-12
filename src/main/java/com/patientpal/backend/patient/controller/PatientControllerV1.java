@@ -3,6 +3,8 @@ package com.patientpal.backend.patient.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.patientpal.backend.image.dto.ImageNameDTO;
+import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
@@ -12,7 +14,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,12 +28,22 @@ import org.springframework.web.bind.annotation.*;
 public class PatientControllerV1 {
 
     private final PatientService patientService;
+    private final PresignedUrlService presignedUrlService;
+    private String path;
 
     @PostMapping
     public ResponseEntity<PatientProfileResponse> createPatientProfile(@AuthenticationPrincipal User currentMember,
                                                      @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest) {
-        PatientProfileResponse patientProfileResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest);
+        String profileImageUrl = presignedUrlService.findByName(path);
+        PatientProfileResponse patientProfileResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, profileImageUrl);
         return ResponseEntity.status(CREATED).body(patientProfileResponse);
+    }
+
+    @PostMapping("/presigned")
+    public String createPresigned(@RequestBody ImageNameDTO imageNameDTO) {
+        path ="profiles";
+        String imageName = imageNameDTO.getImageName();
+        return presignedUrlService.getPresignedUrl(path, imageName);
     }
 
     @GetMapping
@@ -36,13 +54,20 @@ public class PatientControllerV1 {
     @PatchMapping
     public ResponseEntity<Void> updatePatientProfile(@AuthenticationPrincipal User currentMember,
                                                      @RequestBody @Valid PatientProfileUpdateRequest patientProfileUpdateRequest) {
-        patientService.updatePatientProfile(currentMember.getUsername(), patientProfileUpdateRequest);
+        String profileImageUrl = presignedUrlService.findByName(path);
+        patientService.updatePatientProfile(currentMember.getUsername(), patientProfileUpdateRequest, profileImageUrl);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deletePatientProfile(@AuthenticationPrincipal User currentMember) {
         patientService.deletePatientProfile(currentMember.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/image")
+    public ResponseEntity<Void> deletePatientProfileImage(@AuthenticationPrincipal User currentMember) {
+        patientService.deletePatientProfileImage(currentMember.getUsername());
         return ResponseEntity.noContent().build();
     }
 

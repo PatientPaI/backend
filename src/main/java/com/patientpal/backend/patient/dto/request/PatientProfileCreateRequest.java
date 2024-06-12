@@ -47,7 +47,7 @@ public class PatientProfileCreateRequest {
         this.careRequirements = careRequirements;
     }
 
-    public Patient toEntity(Member member) {
+    public Patient toEntity(Member member, String profileImageUrl) {
         return Patient.builder()
                 .name(this.name)
                 .residentRegistrationNumber(this.residentRegistrationNumber)
@@ -59,6 +59,7 @@ public class PatientProfileCreateRequest {
                 .patientSignificant(this.patientSignificant)
                 .careRequirements(this.careRequirements)
                 .isInMatchList(false)
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 }

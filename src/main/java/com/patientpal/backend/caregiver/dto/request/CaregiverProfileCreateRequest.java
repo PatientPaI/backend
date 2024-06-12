@@ -48,7 +48,7 @@ public class CaregiverProfileCreateRequest {
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public Caregiver toEntity(Member member) {
+    public Caregiver toEntity(Member member, String profileImageUrl) {
         return Caregiver.builder()
                 .name(this.name)
                 .residentRegistrationNumber(this.residentRegistrationNumber)
@@ -60,6 +60,7 @@ public class CaregiverProfileCreateRequest {
                 .specialization(this.specialization)
                 .caregiverSignificant(this.caregiverSignificant)
                 .isInMatchList(false)
+                .profileImageUrl(profileImageUrl)
                 .build();
     }
 }

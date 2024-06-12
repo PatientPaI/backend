@@ -30,12 +30,13 @@ public class PatientService {
     private final MatchRepository matchRepository;
 
     @Transactional
-    public PatientProfileResponse savePatientProfile(String username, PatientProfileCreateRequest patientProfileCreateRequest) {
+    public PatientProfileResponse savePatientProfile(String username, PatientProfileCreateRequest patientProfileCreateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
         // TODO 본인 인증 시, 중복 가입이면 throw
         validateAuthorization(currentMember);
         validateDuplicateCaregiver(currentMember);
-        Patient savedPatient = patientRepository.save(patientProfileCreateRequest.toEntity(currentMember));
+        Patient savedPatient = patientRepository.save(
+                patientProfileCreateRequest.toEntity(currentMember, profileImageUrl));
         log.info("프로필 등록 성공: ID={}, NAME={}", savedPatient.getId(), savedPatient.getName());
         return PatientProfileResponse.of(savedPatient);
     }
@@ -59,10 +60,17 @@ public class PatientService {
     }
 
     @Transactional
-    public void updatePatientProfile(String username, PatientProfileUpdateRequest patientProfileUpdateRequest) {
+    public void updatePatientProfile(String username, PatientProfileUpdateRequest patientProfileUpdateRequest,
+                                     String profileImageUrl) {
         Member currentMember = getMember(username);
-        getPatient(currentMember).updateDetailProfile(patientProfileUpdateRequest.getAddress(), patientProfileUpdateRequest.getNokName(), patientProfileUpdateRequest.getNokContact(),
-                patientProfileUpdateRequest.getPatientSignificant(), patientProfileUpdateRequest.getCareRequirements());
+        getPatient(currentMember).updateDetailProfile(
+                patientProfileUpdateRequest.getAddress(),
+                patientProfileUpdateRequest.getNokName(),
+                patientProfileUpdateRequest.getNokContact(),
+                patientProfileUpdateRequest.getPatientSignificant(),
+                patientProfileUpdateRequest.getCareRequirements(),
+                profileImageUrl
+        );
     }
 
     @Transactional
@@ -96,12 +104,21 @@ public class PatientService {
         patient.setIsInMatchList(false);
     }
 
+    @Transactional
+    public void deletePatientProfileImage(String username) {
+        Member member = getMember(username);
+        Patient patient = getPatient(member);
+        patient.deleteProfileImage();
+    }
+
     private Member getMember(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
+        return memberRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
     }
 
     private Patient getPatient(Member currentMember) {
-        return patientRepository.findByMember(currentMember).orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
+        return patientRepository.findByMember(currentMember)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 
 }
