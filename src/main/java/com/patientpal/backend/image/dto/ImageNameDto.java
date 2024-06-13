@@ -5,10 +5,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(force = true)
-public class ImageNameDTO {
+public class ImageNameDto {
     private final String imageName;
 
-    public ImageNameDTO(String imageName) {
+    public ImageNameDto(String imageName) {
         this.imageName = imageName;
     }
 }

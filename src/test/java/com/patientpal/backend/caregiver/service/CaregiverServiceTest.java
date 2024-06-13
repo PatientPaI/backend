@@ -59,7 +59,7 @@ class CaregiverServiceTest {
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
 
             // when
-            CaregiverProfileResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request);
+            CaregiverProfileResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request, any(String.class));
 
             // then
             assertNotNull(response);
@@ -75,7 +75,7 @@ class CaregiverServiceTest {
             when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
 
             // when & then
-            assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request))
+            assertThatThrownBy(() -> caregiverService.saveCaregiverProfile(member.getUsername(), request, any(String.class)))
                     .isInstanceOf(AuthorizationException.class);
         }
 
@@ -138,7 +138,7 @@ class CaregiverServiceTest {
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
 
             // when
-            caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request);
+            caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request, any(String.class));
 
             // then
             assertThat(caregiver.getCaregiverSignificant()).isEqualTo(UPDATE_CAREGIVER_SIGNIFICANT);
@@ -153,7 +153,7 @@ class CaregiverServiceTest {
 
             // when, then
             assertThatThrownBy(
-                    () -> caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request))
+                    () -> caregiverService.updateCaregiverProfile(caregiver.getMember().getUsername(), request, any(String.class)))
                     .isInstanceOf(EntityNotFoundException.class);
         }
 

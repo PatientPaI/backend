@@ -7,7 +7,7 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
-import com.patientpal.backend.image.dto.ImageNameDTO;
+import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +34,9 @@ public class CaregiverControllerV1 {
     }
 
     @PostMapping("/presigned")
-    public String createPresigned(@RequestBody ImageNameDTO imageNameDTO) {
-        path ="profiles";
-        String imageName = imageNameDTO.getImageName();
+    public String createPresigned(@RequestBody ImageNameDto imageNameDto) {
+        path = "profiles";
+        String imageName = imageNameDto.getImageName();
         return presignedUrlService.getPresignedUrl(path, imageName);
     }
 

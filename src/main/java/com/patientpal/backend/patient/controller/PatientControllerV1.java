@@ -3,7 +3,7 @@ package com.patientpal.backend.patient.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.patientpal.backend.image.dto.ImageNameDTO;
+import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
@@ -40,9 +40,9 @@ public class PatientControllerV1 {
     }
 
     @PostMapping("/presigned")
-    public String createPresigned(@RequestBody ImageNameDTO imageNameDTO) {
-        path ="profiles";
-        String imageName = imageNameDTO.getImageName();
+    public String createPresigned(@RequestBody ImageNameDto imageNameDto) {
+        path = "profiles";
+        String imageName = imageNameDto.getImageName();
         return presignedUrlService.getPresignedUrl(path, imageName);
     }
 

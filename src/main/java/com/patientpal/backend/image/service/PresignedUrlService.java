@@ -42,9 +42,8 @@ public class PresignedUrlService {
         return url.toString();
     }
 
-    private String onlyOneFileName(String filename){
-        return UUID.randomUUID().toString()+filename;
-
+    private String onlyOneFileName(String filename) {
+        return UUID.randomUUID().toString() + filename;
     }
 
     private GeneratePresignedUrlRequest getGeneratePresignedUrlRequest(String bucket, String fileName) {
@@ -71,6 +70,6 @@ public class PresignedUrlService {
 
     public String findByName(String path) {
         log.info("Generating signed URL for file name = {}", useOnlyOneFileName);
-        return "https://"+bucket+".s3."+location+".amazonaws.com/"+path+"/"+useOnlyOneFileName;
+        return "https://" + bucket + ".s3." + location + ".amazonaws.com/" + path + "/" + useOnlyOneFileName;
     }
 }

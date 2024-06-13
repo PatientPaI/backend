@@ -45,7 +45,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
             // given
             PatientProfileCreateRequest request = createPatientProfileRequest();
             PatientProfileResponse response = createPatientProfileResponse();
-            given(patientService.savePatientProfile(any(String.class), any(PatientProfileCreateRequest.class))).willReturn(response);
+            given(patientService.savePatientProfile(any(String.class), any(PatientProfileCreateRequest.class), any())).willReturn(response);
 
             // when & then
             mockMvc.perform(post("/api/v1/patient")
@@ -115,7 +115,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
-            willDoNothing().given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class));
+            willDoNothing().given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class), any());
 
             // when & then
             mockMvc.perform(patch("/api/v1/patient")
@@ -130,7 +130,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         void 프로필이_없으면_예외가_발생한다() throws Exception {
             // given
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
-            willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST)).given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class));
+            willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST)).given(patientService).updatePatientProfile(any(String.class), any(PatientProfileUpdateRequest.class), any());
 
             // when & then
             mockMvc.perform(patch("/api/v1/patient")
