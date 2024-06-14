@@ -70,7 +70,8 @@ public class Patient extends BaseTimeEntity {
     @Setter
     private Boolean isInMatchList;
 
-    @Lob
+    @Column(length = 512)
+    @Setter
     private String profileImageUrl;
 
     @Builder
@@ -89,16 +90,19 @@ public class Patient extends BaseTimeEntity {
         this.profileImageUrl = profileImageUrl;
     }
 
-    public void updateDetailProfile(final Address address, final String nokName, final String nokContact, final String patientSignificant, final String careRequirements, final String profileImageUrl) {
+    public void updateDetailProfile(final Address address, final String nokName, final String nokContact, final String patientSignificant, final String careRequirements) {
         this.address = address;
         this.nokName = nokName;
         this.nokContact = nokContact;
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
-        this.profileImageUrl = profileImageUrl;
     }
 
     public void deleteProfileImage() {
         this.profileImageUrl = null;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }

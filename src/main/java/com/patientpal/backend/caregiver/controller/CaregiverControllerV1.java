@@ -29,16 +29,15 @@ public class CaregiverControllerV1 {
 
     private final CaregiverService caregiverService;
     private final PresignedUrlService presignedUrlService;
-    private String path;
 
     @Operation(summary = "간병인 프로필 생성", description = "간병인 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "간병인 프로필 생성 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileResponse.class)))
     @PostMapping
     public ResponseEntity<CaregiverProfileResponse> createCaregiverProfile(
             @AuthenticationPrincipal User currentMember,
-            @RequestBody @Valid CaregiverProfileCreateRequest caregiverProfileCreateRequest) {
-        String profileImageUrl = presignedUrlService.findByName(path);
-        CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), caregiverProfileCreateRequest, profileImageUrl);
+            @RequestBody @Valid CaregiverProfileCreateRequest caregiverProfileCreateRequest,
+            @RequestParam(required = false) String profileImageUrl) {
+        CaregiverProfileResponse caregiverProfileResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), caregiverProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
         return ResponseEntity.status(CREATED).body(caregiverProfileResponse);
     }
 
@@ -46,9 +45,8 @@ public class CaregiverControllerV1 {
     @ApiResponse(responseCode = "200", description = "생성 성공")
     @PostMapping("/presigned")
     public String createPresigned(@RequestBody ImageNameDto imageNameDto) {
-        path = "profiles";
         String imageName = imageNameDto.getImageName();
-        return presignedUrlService.getPresignedUrl(path, imageName);
+        return presignedUrlService.getPresignedUrl("profiles", imageName);
     }
 
     @Operation(summary = "간병인 프로필 조회", description = "현재 로그인된 사용자의 간병인 프로필을 조회합니다.")
@@ -64,9 +62,9 @@ public class CaregiverControllerV1 {
     @PatchMapping
     public ResponseEntity<Void> updateCaregiverProfile(
             @AuthenticationPrincipal User currentMember,
-            @RequestBody @Valid CaregiverProfileUpdateRequest caregiverProfileUpdateRequest) {
-        String profileImageUrl = presignedUrlService.findByName(path);
-        caregiverService.updateCaregiverProfile(currentMember.getUsername(), caregiverProfileUpdateRequest, profileImageUrl);
+            @RequestBody @Valid CaregiverProfileUpdateRequest caregiverProfileUpdateRequest,
+            @RequestParam(required = false) String profileImageUrl) {
+        caregiverService.updateCaregiverProfile(currentMember.getUsername(), caregiverProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
         return ResponseEntity.noContent().build();
     }
 

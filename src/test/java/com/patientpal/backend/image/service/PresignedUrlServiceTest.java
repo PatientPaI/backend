@@ -2,10 +2,8 @@ package com.patientpal.backend.image.service;
 
 import static com.patientpal.backend.fixtures.image.ImageFixture.BUCKET;
 import static com.patientpal.backend.fixtures.image.ImageFixture.FILE_NAME;
-import static com.patientpal.backend.fixtures.image.ImageFixture.LOCATION;
 import static com.patientpal.backend.fixtures.image.ImageFixture.PREFIX;
 import static com.patientpal.backend.fixtures.image.ImageFixture.PRESIGNED_URL;
-import static com.patientpal.backend.fixtures.image.ImageFixture.USE_ONLY_ONE_FILE_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -36,7 +34,6 @@ class PresignedUrlServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(presignedUrlService, "bucket", BUCKET);
-        ReflectionTestUtils.setField(presignedUrlService, "location", LOCATION);
     }
 
     @Test
@@ -55,14 +52,10 @@ class PresignedUrlServiceTest {
 
     @Test
     void 프로필_이미지를_조회할_URL을_가져오기_성공한다() {
-        // given
-        ReflectionTestUtils.setField(presignedUrlService, "useOnlyOneFileName", USE_ONLY_ONE_FILE_NAME);
-
         // when
-        String signedUrl = presignedUrlService.findByName(PREFIX);
-        System.out.println(signedUrl);
+        String savedUrl = presignedUrlService.getSavedUrl(PRESIGNED_URL);
 
         // then
-        assertThat(signedUrl).isEqualTo(PRESIGNED_URL);
-    }
+        String expectedUrl = PRESIGNED_URL.split("\\?")[0];
+        assertThat(savedUrl).isEqualTo(expectedUrl);    }
 }

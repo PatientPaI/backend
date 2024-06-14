@@ -60,17 +60,28 @@ public class PatientService {
     }
 
     @Transactional
-    public void updatePatientProfile(String username, PatientProfileUpdateRequest patientProfileUpdateRequest,
-                                     String profileImageUrl) {
+    public void updatePatientProfile(String username, PatientProfileUpdateRequest patientProfileUpdateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
-        getPatient(currentMember).updateDetailProfile(
+        Patient patient = getPatient(currentMember);
+
+        String currentProfileImageUrl = patient.getProfileImageUrl();
+
+        patient.updateDetailProfile(
                 patientProfileUpdateRequest.getAddress(),
                 patientProfileUpdateRequest.getNokName(),
                 patientProfileUpdateRequest.getNokContact(),
                 patientProfileUpdateRequest.getPatientSignificant(),
-                patientProfileUpdateRequest.getCareRequirements(),
-                profileImageUrl
+                patientProfileUpdateRequest.getCareRequirements()
         );
+
+        if (profileImageUrl == null) {
+            patient.setProfileImageUrl(null);
+            return;
+        }
+
+        if (!profileImageUrl.equals(currentProfileImageUrl)) {
+            patient.updateProfileImage(profileImageUrl);
+        }
     }
 
     @Transactional
@@ -84,10 +95,7 @@ public class PatientService {
     }
 
     private boolean hasOnGoingMatches(Long patientId) {
-        if (matchRepository.existsInProgressMatchingForPatient(patientId)) {
-            return true;
-        }
-        return false;
+        return matchRepository.existsInProgressMatchingForPatient(patientId);
     }
 
     @Transactional

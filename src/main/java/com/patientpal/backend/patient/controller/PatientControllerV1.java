@@ -29,16 +29,15 @@ public class PatientControllerV1 {
 
     private final PatientService patientService;
     private final PresignedUrlService presignedUrlService;
-    private String path;
 
     @Operation(summary = "환자 프로필 생성", description = "환자 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileResponse.class)))
     @PostMapping
     public ResponseEntity<PatientProfileResponse> createPatientProfile(
             @AuthenticationPrincipal User currentMember,
-            @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest) {
-        String profileImageUrl = presignedUrlService.findByName(path);
-        PatientProfileResponse patientProfileResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, profileImageUrl);
+            @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest,
+            @RequestParam(required = false) String profileImageUrl) {
+        PatientProfileResponse patientProfileResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
         return ResponseEntity.status(CREATED).body(patientProfileResponse);
     }
 
@@ -46,9 +45,8 @@ public class PatientControllerV1 {
     @ApiResponse(responseCode = "200", description = "생성 성공")
     @PostMapping("/presigned")
     public String createPresigned(@RequestBody ImageNameDto imageNameDto) {
-        path = "profiles";
         String imageName = imageNameDto.getImageName();
-        return presignedUrlService.getPresignedUrl(path, imageName);
+        return presignedUrlService.getPresignedUrl("profiles", imageName);
     }
 
     @Operation(summary = "환자 프로필 조회", description = "현재 로그인된 사용자의 환자 프로필을 조회합니다.")
@@ -64,9 +62,9 @@ public class PatientControllerV1 {
     @PatchMapping
     public ResponseEntity<Void> updatePatientProfile(
             @AuthenticationPrincipal User currentMember,
-            @RequestBody @Valid PatientProfileUpdateRequest patientProfileUpdateRequest) {
-        String profileImageUrl = presignedUrlService.findByName(path);
-        patientService.updatePatientProfile(currentMember.getUsername(), patientProfileUpdateRequest, profileImageUrl);
+            @RequestBody @Valid PatientProfileUpdateRequest patientProfileUpdateRequest,
+            @RequestParam(required = false) String profileImageUrl) {
+        patientService.updatePatientProfile(currentMember.getUsername(), patientProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
         return ResponseEntity.noContent().build();
     }
 

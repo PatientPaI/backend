@@ -61,14 +61,26 @@ public class CaregiverService {
     @Transactional
     public void updateCaregiverProfile(String username, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
+        Caregiver caregiver = getCaregiver(currentMember);
+
+        String currentProfileImageUrl = caregiver.getProfileImageUrl();
+
         getCaregiver(currentMember).updateDetailProfile(
                 caregiverProfileUpdateRequest.getAddress(),
                 caregiverProfileUpdateRequest.getRating(),
                 caregiverProfileUpdateRequest.getExperienceYears(),
                 caregiverProfileUpdateRequest.getSpecialization(),
-                caregiverProfileUpdateRequest.getCaregiverSignificant(),
-                profileImageUrl
+                caregiverProfileUpdateRequest.getCaregiverSignificant()
         );
+
+        if (profileImageUrl == null) {
+            caregiver.setProfileImageUrl(null);
+            return;
+        }
+
+        if (!profileImageUrl.equals(currentProfileImageUrl)) {
+            caregiver.updateProfileImage(profileImageUrl);
+        }
     }
 
     @Transactional
@@ -82,10 +94,7 @@ public class CaregiverService {
     }
 
     private boolean hasOnGoingMatches(Long caregiverId) {
-        if (matchRepository.existsInProgressMatchingForCaregiver(caregiverId)) {
-            return true;
-        }
-        return false;
+        return matchRepository.existsInProgressMatchingForCaregiver(caregiverId);
     }
 
     @Transactional
