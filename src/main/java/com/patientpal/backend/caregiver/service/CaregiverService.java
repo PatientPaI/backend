@@ -30,12 +30,12 @@ public class CaregiverService {
     private final MatchRepository matchRepository;
 
     @Transactional
-    public CaregiverProfileResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest) {
+    public CaregiverProfileResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
         // TODO 본인 인증 진행, 중복 가입이면 throw
         validateAuthorization(currentMember);
         validateDuplicateCaregiver(currentMember);
-        Caregiver savedCaregiver = caregiverRepository.save(caregiverProfileCreateRequest.toEntity(currentMember));
+        Caregiver savedCaregiver = caregiverRepository.save(caregiverProfileCreateRequest.toEntity(currentMember, profileImageUrl));
         log.info("프로필 등록 성공: ID={}, NAME={}", savedCaregiver.getId(), savedCaregiver.getName());
         return CaregiverProfileResponse.of(savedCaregiver);
     }
@@ -59,8 +59,12 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void updateCaregiverProfile(String username, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest) {
+    public void updateCaregiverProfile(String username, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
+        Caregiver caregiver = getCaregiver(currentMember);
+
+        String currentProfileImageUrl = caregiver.getProfileImageUrl();
+
         getCaregiver(currentMember).updateDetailProfile(
                 caregiverProfileUpdateRequest.getAddress(),
                 caregiverProfileUpdateRequest.getRating(),
@@ -68,6 +72,15 @@ public class CaregiverService {
                 caregiverProfileUpdateRequest.getSpecialization(),
                 caregiverProfileUpdateRequest.getCaregiverSignificant()
         );
+
+        if (profileImageUrl == null) {
+            caregiver.setProfileImageUrl(null);
+            return;
+        }
+
+        if (!profileImageUrl.equals(currentProfileImageUrl)) {
+            caregiver.updateProfileImage(profileImageUrl);
+        }
     }
 
     @Transactional
@@ -81,10 +94,7 @@ public class CaregiverService {
     }
 
     private boolean hasOnGoingMatches(Long caregiverId) {
-        if (matchRepository.existsInProgressMatchingForCaregiver(caregiverId)) {
-            return true;
-        }
-        return false;
+        return matchRepository.existsInProgressMatchingForCaregiver(caregiverId);
     }
 
     @Transactional
@@ -107,5 +117,12 @@ public class CaregiverService {
 
     private Caregiver getCaregiver(Member currentMember) {
         return caregiverRepository.findByMember(currentMember).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+    }
+
+    @Transactional
+    public void deleteCaregiverProfileImage(String username) {
+        Member member = getMember(username);
+        Caregiver caregiver = getCaregiver(member);
+        caregiver.deleteProfileImage();
     }
 }

@@ -64,7 +64,7 @@ class PatientServiceTest {
             PatientProfileCreateRequest request = createPatientProfileRequest();
 
             // when
-            PatientProfileResponse response = patientService.savePatientProfile(member.getUsername(), request);
+            PatientProfileResponse response = patientService.savePatientProfile(member.getUsername(), request, any(String.class));
 
             // then
             assertNotNull(response);
@@ -80,7 +80,7 @@ class PatientServiceTest {
             when(memberRepository.findByUsername(member.getUsername())).thenReturn(Optional.of(member));
 
             // when & then
-            assertThatThrownBy(() -> patientService.savePatientProfile(member.getUsername(), request))
+            assertThatThrownBy(() -> patientService.savePatientProfile(member.getUsername(), request, any(String.class)))
                     .isInstanceOf(AuthorizationException.class);
         }
 
@@ -142,7 +142,7 @@ class PatientServiceTest {
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
 
             // when
-            patientService.updatePatientProfile(patient.getMember().getUsername(), request);
+            patientService.updatePatientProfile(patient.getMember().getUsername(), request, any(String.class));
 
             // then
             assertThat(patient.getPatientSignificant()).isEqualTo(UPDATE_PATIENT_SIGNIFICANT);
@@ -156,7 +156,7 @@ class PatientServiceTest {
             PatientProfileUpdateRequest request = updatePatientProfileRequest();
 
             // when & then
-            assertThatThrownBy(() -> patientService.updatePatientProfile(patient.getMember().getUsername(), request))
+            assertThatThrownBy(() -> patientService.updatePatientProfile(patient.getMember().getUsername(), request, any(String.class)))
                     .isInstanceOf(EntityNotFoundException.class);
         }
 

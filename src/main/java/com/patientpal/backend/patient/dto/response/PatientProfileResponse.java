@@ -31,8 +31,11 @@ public class PatientProfileResponse {
 
     private Boolean isInMatchList;
 
+    private String image;
+
     @Builder
-    public PatientProfileResponse(Long memberId, String name, String residentRegistrationNumber, String phoneNumber, Address address, String nokName, String nokContact, String patientSignificant, String careRequirements, Boolean isInMatchList) {
+    public PatientProfileResponse(Long memberId, String name, String residentRegistrationNumber, String phoneNumber, Address address, String nokName, String nokContact,
+                                  String patientSignificant, String careRequirements, Boolean isInMatchList, String image) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
@@ -43,6 +46,7 @@ public class PatientProfileResponse {
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
         this.isInMatchList = isInMatchList;
+        this.image = image;
     }
 
     public static PatientProfileResponse of(Patient patient) {
@@ -57,6 +61,7 @@ public class PatientProfileResponse {
                 .patientSignificant(patient.getPatientSignificant())
                 .careRequirements(patient.getCareRequirements())
                 .isInMatchList(patient.getIsInMatchList())
+                .image(patient.getProfileImageUrl())
                 .build();
     }
 }

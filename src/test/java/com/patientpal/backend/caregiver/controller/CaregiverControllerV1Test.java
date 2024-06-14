@@ -19,11 +19,11 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
-import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
+import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
             // given
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
             CaregiverProfileResponse response = createCaregiverProfileResponse();
-            given(caregiverService.saveCaregiverProfile(any(String.class), any(CaregiverProfileCreateRequest.class))).willReturn(response);
+            given(caregiverService.saveCaregiverProfile(any(String.class), any(CaregiverProfileCreateRequest.class), any())).willReturn(response);
 
             // when & then
             mockMvc.perform(post("/api/v1/caregiver")
@@ -115,7 +115,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
-            willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
+            willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class), any());
 
             // when & then
             mockMvc.perform(patch("/api/v1/caregiver")
@@ -127,10 +127,10 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
 
         @Test
         @WithCustomMockUserCaregiver
-        void 프로필_미등록시__예외가_발생한다() throws Exception {
+        void 프로필_미등록시_예외가_발생한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
-            willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class));
+            willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class), any());
 
             // when & then
             mockMvc.perform(patch("/api/v1/caregiver")

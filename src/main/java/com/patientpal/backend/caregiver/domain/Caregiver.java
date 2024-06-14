@@ -69,9 +69,13 @@ public class Caregiver extends BaseTimeEntity {
     @Setter
     private Boolean isInMatchList;
 
+    @Column(length = 512)
+    @Setter
+    private String profileImageUrl;
+
     @Builder
     public Caregiver(Member member, String name, String residentRegistrationNumber, String phoneNumber, Address address,
-                     float rating, int experienceYears, String specialization, String caregiverSignificant, Boolean isInMatchList) {
+                     float rating, int experienceYears, String specialization, String caregiverSignificant, Boolean isInMatchList, String profileImageUrl) {
         this.member = member;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
@@ -82,6 +86,7 @@ public class Caregiver extends BaseTimeEntity {
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
         this.isInMatchList = isInMatchList;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final String caregiverSignificant) {
@@ -90,5 +95,13 @@ public class Caregiver extends BaseTimeEntity {
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
+    }
+
+    public void deleteProfileImage() {
+        this.profileImageUrl = null;
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
     }
 }
