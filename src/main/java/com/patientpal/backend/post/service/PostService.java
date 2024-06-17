@@ -68,9 +68,16 @@ public class PostService {
         return postRepository.findAllByPostType(PostType.FREE);
     }
 
+    @Transactional
+    public Post createFreePost(Member member, PostCreateRequest createRequest) {
+        Post post = Post.builder()
+                .member(member)
+                .title(createRequest.getTitle())
+                .content(createRequest.getContent())
+                .postType(PostType.FREE)
+                .build();
+
+        return postRepository.save(post);
+    }
 
 }
-
-
-
-
