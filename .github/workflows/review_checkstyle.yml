@@ -1,0 +1,16 @@
+name: reviewdog
+
+on: [pull_request]
+
+jobs:
+  checkstyle:
+    name: Java Code Style Checker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dbelyaev/action-checkstyle@master
+        with:
+          workdir: src/main
+          github_token: ${{ secrets.REVIEWDOG_TOKEN }}
+          reporter: github-pr-review
+          checkstyle_config: .github/custom_google_checks.xml

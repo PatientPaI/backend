@@ -1,7 +1,7 @@
 package com.patientpal.backend.auth.service;
 
 import com.patientpal.backend.auth.dto.SignInRequest;
-import com.patientpal.backend.auth.dto.TokenResponse;
+import com.patientpal.backend.auth.dto.TokenDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,7 +13,7 @@ public class JwtLoginService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenService tokenService;
 
-    public TokenResponse authenticateUser(SignInRequest request) {
+    public TokenDto authenticateUser(SignInRequest request) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         var authentication = authenticationManagerBuilder.getObject()
                 .authenticate(authenticationToken);

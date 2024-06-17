@@ -28,11 +28,9 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         final Server devServer = new Server();
         devServer.setUrl(devUrl);
-        devServer.description("개발 환경 서버 URL");
 
-//        final Server prodServer = new Server();
-//        prodServer.setUrl(prodUrl);
-//        devServer.description("운영 환경 서버 URL");
+        final Server prodServer = new Server();
+        prodServer.setUrl(prodUrl);
 
         final Info info = new Info()
                 .title("Patientpal API")
@@ -51,7 +49,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(info)
-                .servers(List.of(devServer/*, prodServer*/))
+                .servers(List.of(devServer, prodServer))
                 .addSecurityItem(securityRequirement)
                 .components(new io.swagger.v3.oas.models.Components().addSecuritySchemes("Authorization", securityScheme));
     }

@@ -1,7 +1,7 @@
 name: ✨ 기능 추가
 description: 추가할 새로운 기능이 있나요?
 title: "[FEAT] "
-labels: ["✨ feature"]
+labels: ["✨ 기능"]
 projects: ["goaheadgogo/1"]
 body:
   - type: textarea
