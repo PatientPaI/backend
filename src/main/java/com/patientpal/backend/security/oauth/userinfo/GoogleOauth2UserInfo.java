@@ -2,9 +2,9 @@ package com.patientpal.backend.security.oauth.userinfo;
 
 import java.util.Map;
 
-public class GoogleOAuth2UserInfo extends CustomOAuth2UserInfo {
+public class GoogleOauth2UserInfo extends CustomOauth2UserInfo {
 
-    protected GoogleOAuth2UserInfo(Map<String, Object> attributes) {
+    protected GoogleOauth2UserInfo(Map<String, Object> attributes) {
         super(attributes);
     }
 
@@ -15,8 +15,8 @@ public class GoogleOAuth2UserInfo extends CustomOAuth2UserInfo {
     }
 
     @Override
-    public CustomOAuth2Provider getProvider() {
-        return CustomOAuth2Provider.GOOGLE;
+    public CustomOauth2Provider getProvider() {
+        return CustomOauth2Provider.GOOGLE;
     }
 
     @Override

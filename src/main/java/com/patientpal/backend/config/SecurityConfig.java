@@ -4,7 +4,7 @@ import com.patientpal.backend.security.jwt.JwtAccessDeniedHandler;
 import com.patientpal.backend.security.jwt.JwtAuthTokenFilter;
 import com.patientpal.backend.security.jwt.JwtAuthenticationEntryPoint;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
-import com.patientpal.backend.security.oauth.CustomOAuth2UserService;
+import com.patientpal.backend.security.oauth.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOauth2UserService customOAuth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -4,9 +4,9 @@ import static com.patientpal.backend.common.utils.ConvertUtils.uncheckedCast;
 
 import java.util.Map;
 
-public class KakaoOAuth2UserInfo extends CustomOAuth2UserInfo {
+public class KakaoOauth2UserInfo extends CustomOauth2UserInfo {
 
-    protected KakaoOAuth2UserInfo(Map<String, Object> attributes) {
+    protected KakaoOauth2UserInfo(Map<String, Object> attributes) {
         super(attributes);
     }
 
@@ -20,8 +20,8 @@ public class KakaoOAuth2UserInfo extends CustomOAuth2UserInfo {
     }
 
     @Override
-    public CustomOAuth2Provider getProvider() {
-        return CustomOAuth2Provider.KAKAO;
+    public CustomOauth2Provider getProvider() {
+        return CustomOauth2Provider.KAKAO;
     }
 
     @Override

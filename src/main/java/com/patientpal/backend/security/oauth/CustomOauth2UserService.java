@@ -2,7 +2,7 @@ package com.patientpal.backend.security.oauth;
 
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.security.oauth.userinfo.CustomOAuth2UserInfo;
+import com.patientpal.backend.security.oauth.userinfo.CustomOauth2UserInfo;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public CustomOAuth2UserService(MemberRepository memberRepository, @Lazy PasswordEncoder passwordEncoder) {
+    public CustomOauth2UserService(MemberRepository memberRepository, @Lazy PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -30,7 +30,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         var user = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        var userInfo = CustomOAuth2UserInfo.of(registrationId, user.getAttributes());
+        var userInfo = CustomOauth2UserInfo.of(registrationId, user.getAttributes());
 
         Optional<Member> foundAccount = memberRepository.findByUsername(userInfo.getEmail());
         if (foundAccount.isEmpty()) {
@@ -40,9 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .build();
             member.encodePassword(passwordEncoder);
             memberRepository.save(member);
-            return new CustomOAuth2UserPrincipal(member, userInfo);
+            return new CustomOauth2UserPrincipal(member, userInfo);
         }
-        return new CustomOAuth2UserPrincipal(foundAccount.get(), userInfo);
+        return new CustomOauth2UserPrincipal(foundAccount.get(), userInfo);
     }
 
     private String createDummyPassword() {
