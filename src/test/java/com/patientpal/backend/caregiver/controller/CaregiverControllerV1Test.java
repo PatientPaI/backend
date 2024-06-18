@@ -17,10 +17,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
@@ -44,7 +45,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
-            CaregiverProfileResponse response = createCaregiverProfileResponse();
+            CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
             given(caregiverService.saveCaregiverProfile(any(String.class), any(CaregiverProfileCreateRequest.class), any())).willReturn(response);
 
             // when & then
@@ -55,15 +56,14 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()))
-                    .andExpect(jsonPath("$.address.street").value(response.getAddress().getStreet()));
+                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
         }
 
         @Test
         @WithCustomMockUserCaregiver
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, 0, 1, "", "");
+            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, new Address("hi", "ho", "ha"), 1, 1, "", "");
 
             // when & then
             mockMvc.perform(post("/api/v1/caregiver")
@@ -81,7 +81,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserCaregiver
         void 성공한다() throws Exception {
             // given
-            CaregiverProfileResponse response = createCaregiverProfileResponse();
+            CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
             given(caregiverService.getProfile(any(String.class))).willReturn(response);
 
             // when & then
@@ -90,8 +90,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()))
-                    .andExpect(jsonPath("$.address.street").value(response.getAddress().getStreet()));
+                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
         }
 
         @Test

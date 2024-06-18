@@ -15,12 +15,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.test.annotation.WithCustomMockUserPatient;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
-import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.service.PatientService;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
@@ -44,7 +45,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             PatientProfileCreateRequest request = createPatientProfileRequest();
-            PatientProfileResponse response = createPatientProfileResponse();
+            PatientProfileDetailResponse response = createPatientProfileResponse();
             given(patientService.savePatientProfile(any(String.class), any(PatientProfileCreateRequest.class), any())).willReturn(response);
 
             // when & then
@@ -55,15 +56,15 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()))
-                    .andExpect(jsonPath("$.address.street").value(response.getAddress().getStreet()));
+                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
         }
 
         @Test
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", "", null, "", "", "", "");
+            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", "", null, "", "", "", "",
+                    Gender.MALE);
 
             // when & then
             mockMvc.perform(post("/api/v1/patient")
@@ -81,7 +82,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 성공한다() throws Exception {
             // given
-            PatientProfileResponse response = createPatientProfileResponse();
+            PatientProfileDetailResponse response = createPatientProfileResponse();
             given(patientService.getProfile(any(String.class))).willReturn(response);
 
             // when & then
@@ -90,8 +91,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()))
-                    .andExpect(jsonPath("$.address.street").value(response.getAddress().getStreet()));
+                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
         }
 
         @Test
