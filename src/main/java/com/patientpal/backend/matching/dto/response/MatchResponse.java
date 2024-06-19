@@ -4,9 +4,8 @@ import com.patientpal.backend.matching.domain.FirstRequest;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.matching.domain.ReadStatus;
-import com.patientpal.backend.member.domain.Caregiver;
-import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.member.domain.Patient;
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.patient.domain.Patient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,7 +55,7 @@ public class MatchResponse {
                 .build();
     }
 
-    public Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
+    public static Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)
@@ -67,7 +66,7 @@ public class MatchResponse {
                 .build();
     }
 
-    public Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
+    public static Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
         return Match.builder()
                 .patient(patient)
                 .caregiver(caregiver)

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod # [local, prod]
+    active: local # [local, prod]
 
   application:
     name: backend
@@ -21,7 +21,7 @@ jasypt:
 
 security:
   jwt:
-    base64-secret: ENC(1GNNUxVCM5+Bdl4dwgzuJSkKrKsfQA9+7cTXnd1QCK2oEJKaoF2Z2U/BRqNRDd6C0NLtTpCImGTaXWsFAXNfIpgO4Qg5j1aIKbSxPuCkTfkfgoDGd/kImPKDYGW8XwgbFJsIZsLzFIXbWAC6M0uGTiewFXlel9LX2e3V6Fy9UVU=)
+    base64-secret: ENC(sNYHhUvD+ubS2pa6dMF/PbvmsCyUuEwDuCS4kwtsSSlYfAfEap7x4Mzd9VEpSwtsu+lzLFnRA6bI2hhgVg0IFPkiRlBHSx1hvorTuikQIS/WUyOBy53RorcyLfxOF2r4ptlDto9J5XiCKNCRAqYXLpPJWe2YsH1ca5dWNX5Ye/c=)
     access-expiration-time: 86400000
     refresh-expiration-time: 604800000
 
@@ -36,6 +36,16 @@ patientpal:
     dev-url: http://localhost:8080
     prod-url: http://43.201.129.48:8080
 
+cloud:
+  aws:
+    s3:
+      bucket: ENC(54LDKQx7340EEx/yKG/KgE3RR83t8vafcGa2ZsuQDnHQwNnTHlbhCF179X3lSzKE)
+    stack.auto: false
+    region.static: ap-northeast-2
+    credentials:
+      accessKey: ENC(tEeWEIeX8ZAdndGq/K7QW6yLiyry5Vo4rpRQBKI/YNdfMOgGtpRqf/aqwR+or0DAp+PXc6Q7RE54uYAt6wBN1A==)
+      secretKey: ENC(Lo/mgU4/JW5OsWM9zyKZjH8XIz1AJyYyw2N281xL7iZnHMaSJ9vu/RwXsJfuQ2vzTKU3YYeUisMVh0sSEOD0Foz774tN/ZTjd1yXto572eU=)
+
 ---
 spring:
   config:
@@ -44,7 +54,7 @@ spring:
 
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:patientPal
+    url: jdbc:h2:tcp://localhost/~/patientpal
     username: sa
     password:
 
@@ -69,10 +79,14 @@ spring:
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(FB7REH9ivhDanwT9tAAGMQ+vmHedMpRjbqI/WcpFnldEh3BwDUXVfspSQi5C4oVuQtAQqCexD/K81b0CYkeJHTo7GIdFk/rjZd0X/EZ4svWjdREwBEsKJ8UGMmjsMLPJT0Qemjit7cKRvTvRfo9qis4r64G+Zuvgl+lofrSUbn8=)
-    username: ENC(Ay5DwL21B0Z0dy2r5TkexrD7ncfUp5L49AF0G6Fo1qPfwOGhWORIPxly7EDHFAUW)
-    password: ENC(wYREFiBZU6XZp0pvg2J9R5RhSYpn4vdmhrRuffOlV/TgkCIuZ2Zvy0yd8uM8hVz2)
+    url: ENC(uyv48BYctQJakgP+CtCpexc8sfHazuwXd+XH2ZVGeRnL1SD4f3272cV+Z21gYY7PN45UJVcluQYRVd4eVkwh0kscf5bILxCTzs5BiVp0JM6/Vq2CIuD/WJModD5P/M1hWxZaKmU0qywaaeHMLCNPH3EehJKkemVw37Zyko2IpPo=)
+    username: ENC(YvhNZJW8jdIHTxSfHYpIu33tu3yWyxAoWC9wQmFINy2HZ0RK4l8pd3idd2JiMzuk)
+    password: ENC(ph6RlG+iJmNuBKF9qLEgiNSlrsXteKokbapXBZOEh4e8U5B7f+Qqb6Fzq+n5MA3S)
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
+
+discord:
+  webhook:
+    url: ENC(IlHTFWTyZbk4wQJk3H08kV/oN9vDHCKsn48wGzmDSM/RSQDX7zTPxnQjg4BMPj6rZIe8CV75z1dn3Vp9Enq4IIYIlFicZgDG0MAfCxtVn5O0INjLr7af2Fn6H0SAqJLGdsb6nBbXTyyTn8+NGn+NpVyvB3cUbKtG+IXG2E2OeN/WwsEVrolWs15XfU8HV3LBc1ItjnPprbO6JcdQAPCnng==)
