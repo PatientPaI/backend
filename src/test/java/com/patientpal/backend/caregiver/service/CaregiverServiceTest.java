@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -64,7 +64,7 @@ class CaregiverServiceTest {
             CaregiverProfileCreateRequest request = createCaregiverProfileRequest();
 
             // when
-            CaregiverProfileResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request, any(String.class));
+            CaregiverProfileDetailResponse response = caregiverService.saveCaregiverProfile(member.getUsername(), request, any(String.class));
 
             // then
             assertNotNull(response);
@@ -117,7 +117,7 @@ class CaregiverServiceTest {
             when(caregiverRepository.findByMember(caregiver.getMember())).thenReturn(Optional.of(caregiver));
 
             // when
-            CaregiverProfileResponse response = caregiverService.getProfile(caregiver.getMember().getUsername());
+            CaregiverProfileDetailResponse response = caregiverService.getProfile(caregiver.getMember().getUsername());
 
             // then
             assertNotNull(response);

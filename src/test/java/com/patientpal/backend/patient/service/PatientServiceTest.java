@@ -23,7 +23,7 @@ import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
-import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Optional;
@@ -64,7 +64,7 @@ class PatientServiceTest {
             PatientProfileCreateRequest request = createPatientProfileRequest();
 
             // when
-            PatientProfileResponse response = patientService.savePatientProfile(member.getUsername(), request, any(String.class));
+            PatientProfileDetailResponse response = patientService.savePatientProfile(member.getUsername(), request, any(String.class));
 
             // then
             assertNotNull(response);
@@ -117,7 +117,7 @@ class PatientServiceTest {
             when(patientRepository.findByMember(patient.getMember())).thenReturn(Optional.of(patient));
 
             // when
-            PatientProfileResponse response = patientService.getProfile(patient.getMember().getUsername());
+            PatientProfileDetailResponse response = patientService.getProfile(patient.getMember().getUsername());
 
             // then
             assertNotNull(response);

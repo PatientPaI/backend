@@ -6,10 +6,11 @@ import static com.patientpal.backend.fixtures.member.MemberFixture.jeonghyeRoleP
 
 import com.patientpal.backend.fixtures.member.MemberFixture;
 import com.patientpal.backend.member.domain.Address;
+import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
-import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 
 public class PatientFixture {
 
@@ -63,6 +64,7 @@ public class PatientFixture {
         return PatientProfileCreateRequest.builder()
                 .phoneNumber(PATIENT_PHONE_NUMBER)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .gender(Gender.MALE)
                 .name(MemberFixture.HUSEONG_NAME)
                 .address(PATIENT_ADDRESS)
                 .nokName(NOK_NAME)
@@ -80,8 +82,8 @@ public class PatientFixture {
                 .build();
     }
 
-    public static PatientProfileResponse createPatientProfileResponse() {
-        return PatientProfileResponse.builder()
+    public static PatientProfileDetailResponse createPatientProfileResponse() {
+        return PatientProfileDetailResponse.builder()
                 .memberId(1L)
                 .phoneNumber(PATIENT_PHONE_NUMBER)
                 .address(PATIENT_ADDRESS)

@@ -10,8 +10,9 @@ import static com.patientpal.backend.fixtures.member.MemberFixture.jeonghyeRoleC
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.member.domain.Address;
+import com.patientpal.backend.member.domain.Gender;
 
 public class CaregiverFixture {
 
@@ -76,6 +77,7 @@ public class CaregiverFixture {
         return CaregiverProfileCreateRequest.builder()
                 .name(HUSEONG_NAME)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .gender(Gender.MALE)
                 .phoneNumber(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -95,8 +97,8 @@ public class CaregiverFixture {
                 .build();
     }
 
-    public static CaregiverProfileResponse createCaregiverProfileResponse() {
-        return CaregiverProfileResponse.builder()
+    public static CaregiverProfileDetailResponse createCaregiverProfileResponse() {
+        return CaregiverProfileDetailResponse.builder()
                 .memberId(1L)
                 .name(HUSEONG_NAME)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)

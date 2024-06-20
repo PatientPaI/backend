@@ -3,7 +3,7 @@ package com.patientpal.backend.caregiver.service;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -14,8 +14,13 @@ import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
+import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,14 +35,14 @@ public class CaregiverService {
     private final MatchRepository matchRepository;
 
     @Transactional
-    public CaregiverProfileResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest, String profileImageUrl) {
+    public CaregiverProfileDetailResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
         // TODO 본인 인증 진행, 중복 가입이면 throw
         validateAuthorization(currentMember);
         validateDuplicateCaregiver(currentMember);
         Caregiver savedCaregiver = caregiverRepository.save(caregiverProfileCreateRequest.toEntity(currentMember, profileImageUrl));
         log.info("프로필 등록 성공: ID={}, NAME={}", savedCaregiver.getId(), savedCaregiver.getName());
-        return CaregiverProfileResponse.of(savedCaregiver);
+        return CaregiverProfileDetailResponse.of(savedCaregiver);
     }
 
     private void validateAuthorization(Member currentMember) {
@@ -52,10 +57,10 @@ public class CaregiverService {
         });
     }
 
-    public CaregiverProfileResponse getProfile(String username) {
+    public CaregiverProfileDetailResponse getProfile(String username) {
         Member currentMember = getMember(username);
         Caregiver caregiver = getCaregiver(currentMember);
-        return CaregiverProfileResponse.of(caregiver);
+        return CaregiverProfileDetailResponse.of(caregiver);
     }
 
     @Transactional
@@ -124,5 +129,10 @@ public class CaregiverService {
         Member member = getMember(username);
         Caregiver caregiver = getCaregiver(member);
         caregiver.deleteProfileImage();
+    }
+
+    public PatientProfileListResponse searchPageOrderBy(ProfileSearchCondition condition, Pageable pageable) {
+        Page<PatientProfileResponse> search = caregiverRepository.searchPatientProfilesOrderBy(condition, pageable);
+        return PatientProfileListResponse.from(search);
     }
 }

@@ -3,11 +3,13 @@ package com.patientpal.backend.patient.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
+import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
-import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,10 +18,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "환자", description = "환자 프로필 관리 API")
 @RestController
@@ -31,14 +42,14 @@ public class PatientControllerV1 {
     private final PresignedUrlService presignedUrlService;
 
     @Operation(summary = "환자 프로필 생성", description = "환자 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
-    @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileResponse.class)))
+    @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
     @PostMapping
-    public ResponseEntity<PatientProfileResponse> createPatientProfile(
+    public ResponseEntity<PatientProfileDetailResponse> createPatientProfile(
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        PatientProfileResponse patientProfileResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
-        return ResponseEntity.status(CREATED).body(patientProfileResponse);
+        PatientProfileDetailResponse patientProfileDetailResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
+        return ResponseEntity.status(CREATED).body(patientProfileDetailResponse);
     }
 
     @Operation(summary = "AWS S3에 저장될 전체 URL 경로 생성", description = "이미지 업로드를 위한 URL을 생성합니다. 생성된 URL로 파일 첨부 후 PUTMAPPING 진행 시 이미지가 저장됩니다.")
@@ -50,9 +61,9 @@ public class PatientControllerV1 {
     }
 
     @Operation(summary = "환자 프로필 조회", description = "현재 로그인된 사용자의 환자 프로필을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "환자 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileResponse.class)))
+    @ApiResponse(responseCode = "200", description = "환자 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
     @GetMapping
-    public ResponseEntity<PatientProfileResponse> getPatientProfile(
+    public ResponseEntity<PatientProfileDetailResponse> getPatientProfile(
             @AuthenticationPrincipal User currentMember) {
         return ResponseEntity.status(OK).body(patientService.getProfile(currentMember.getUsername()));
     }
@@ -102,5 +113,14 @@ public class PatientControllerV1 {
             @AuthenticationPrincipal User currentMember) {
         patientService.unregisterPatientProfileToMatchList(currentMember.getUsername());
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "간병인 찾기", description = "지역, 이름, 성별, 나이, 경력으로 간병인을 검색합니다. sort='field',asc/desc로 정렬 가능합니다. ")
+    @ApiResponse(responseCode = "200", description = "조건에 해당하는 간병인 찾기 성공")
+    @GetMapping("/search")
+    public ResponseEntity<CaregiverProfileListResponse> searchCaregivers(ProfileSearchCondition condition,
+                                                                         @PageableDefault(size = 5) Pageable pageable) {
+        final CaregiverProfileListResponse searchedProfiles = patientService.searchPageOrderBy(condition, pageable);
+        return ResponseEntity.status(OK).body(searchedProfiles);
     }
 }

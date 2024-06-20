@@ -1,6 +1,7 @@
 package com.patientpal.backend.patient.dto.request;
 
 import com.patientpal.backend.member.domain.Address;
+import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.patient.domain.Patient;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +20,9 @@ public class PatientProfileCreateRequest {
     @NotNull
     private String residentRegistrationNumber;
 
+    @NotNull
+    private Gender gender;
+
     //TODO 인증
     @NotNull
     private String phoneNumber;
@@ -36,9 +40,11 @@ public class PatientProfileCreateRequest {
     private String careRequirements;
 
     @Builder
-    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, String phoneNumber, Address address, String nokName, String nokContact, String patientSignificant, String careRequirements) {
+    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, String phoneNumber, Address address,
+                                       String nokName, String nokContact, String patientSignificant, String careRequirements, Gender gender) {
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.gender = gender;
         this.phoneNumber = phoneNumber;
         this.address = address;
         this.nokName = nokName;
@@ -51,7 +57,9 @@ public class PatientProfileCreateRequest {
         return Patient.builder()
                 .name(this.name)
                 .residentRegistrationNumber(this.residentRegistrationNumber)
+                .age(Patient.getAge(this.residentRegistrationNumber))
                 .member(member)
+                .gender(this.gender)
                 .phoneNumber(this.phoneNumber)
                 .address(this.address)
                 .nokName(this.nokName)
