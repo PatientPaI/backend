@@ -85,8 +85,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
 
 discord:
   webhook:
-    url: ENC(IlHTFWTyZbk4wQJk3H08kV/oN9vDHCKsn48wGzmDSM/RSQDX7zTPxnQjg4BMPj6rZIe8CV75z1dn3Vp9Enq4IIYIlFicZgDG0MAfCxtVn5O0INjLr7af2Fn6H0SAqJLGdsb6nBbXTyyTn8+NGn+NpVyvB3cUbKtG+IXG2E2OeN/WwsEVrolWs15XfU8HV3LBc1ItjnPprbO6JcdQAPCnng==)
+    url: ENC(Mm+59DLL4p0DaurvMneVpz/RrCoMA4xSXbCaCJwEA/OfMqSGaQFCFy9fW8MShdyx98eTHtwNE01VuwCEfHVqUfd+d8bLOBWEXCJdjZmUDxQaorDbDaCKj4PRnqK3gkDjpAx4SQb6qWoIZVz0P718qYpiPYNmAWNYfus4A0AP4qx/rKKWiDPqIObbXYz31rg0n92pvvEZVydUnPb8DDGNng==)
