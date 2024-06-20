@@ -14,6 +14,7 @@ public enum ErrorCode {
     AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AU_001", "이메일 또는 비밀번호가 일치하지 않습니다."),
 
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "V_001", "유효하지 않은 토큰입니다."),
+    INVALID_RESIDENT_REGISTRATION_NUMBER(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "V_002", "유효하지 않은 주민등록번호입니다."),
 
     MEMBER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "M_001", "이미 가입된 계정이 존재합니다."),
     MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M_002", "해당 멤버는 존재하지 않습니다."),

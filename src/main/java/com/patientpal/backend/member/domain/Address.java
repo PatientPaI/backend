@@ -1,25 +1,22 @@
 package com.patientpal.backend.member.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import static jakarta.persistence.FetchType.*;
 
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Address {
 
-    private String street;
-    private String city;
+    private String addr;
+    private String addrDetail;
     private String zipCode;
 
-    public Address(String city, String street, String zipCode) {
-        this.city = city;
-        this.street = street;
+    public Address(String zipCode, String addr, String addrDetail) {
+        this.addr = addr;
+        this.addrDetail = addrDetail;
         this.zipCode = zipCode;
     }
-
 }
