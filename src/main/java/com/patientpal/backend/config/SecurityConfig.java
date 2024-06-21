@@ -4,11 +4,8 @@ import com.patientpal.backend.security.jwt.JwtAccessDeniedHandler;
 import com.patientpal.backend.security.jwt.JwtAuthTokenFilter;
 import com.patientpal.backend.security.jwt.JwtAuthenticationEntryPoint;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
-<<<<<<< HEAD
 import com.patientpal.backend.security.oauth.CustomOauth2UserService;
-=======
 import java.util.Collections;
->>>>>>> main
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
