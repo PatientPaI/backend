@@ -53,12 +53,14 @@ public class Member {
     private LocalDate birthDate;
 
     @Builder
-    public Member(String username, String password, Provider provider, Role role, String contact) {
+    public Member(String username, String password, Provider provider, Role role, String contact, Patient patient, Caregiver caregiver) {
         this.username = username;
         this.password = password;
         this.provider = provider;
         this.role = role;
         this.contact = contact;
+        this.patient = patient;
+        this.caregiver = caregiver;
     }
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
