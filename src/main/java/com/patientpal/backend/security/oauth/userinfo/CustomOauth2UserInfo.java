@@ -47,7 +47,7 @@ public abstract class CustomOauth2UserInfo {
      */
     public static CustomOauth2UserInfo of(String registrationId, Map<String, Object> attributes) {
         if (CustomOauth2Provider.NAVER.equalsWith(registrationId)) {
-            return new KakaoOauth2UserInfo(attributes);
+            return new NaverOauth2UserInfo(attributes);
         } else if (CustomOauth2Provider.KAKAO.equalsWith(registrationId)) {
             return new KakaoOauth2UserInfo(attributes);
         } else if (CustomOauth2Provider.GOOGLE.equalsWith(registrationId)) {
