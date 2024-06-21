@@ -42,6 +42,7 @@ public class BoardController {
     }
 
     @RoleType(Role.USER)
+    @RoleType(Role.CAREGIVER)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PostCreateResponse create(@RequestBody PostCreateRequest createRequest, @AuthenticationPrincipal User currentMember) {
@@ -51,6 +52,7 @@ public class BoardController {
     }
 
     @RoleType(Role.USER)
+    @RoleType(Role.CAREGIVER)
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest, @AuthenticationPrincipal User currentMember) {
@@ -60,6 +62,7 @@ public class BoardController {
     }
 
     @RoleType(Role.USER)
+    @RoleType(Role.CAREGIVER)
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id, @AuthenticationPrincipal User currentMember) {
