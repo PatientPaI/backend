@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    private final CustomOauth2UserService customOAuth2UserService;
+    private final CustomOauth2UserService customOauth2UserService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -45,14 +45,14 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                         .accessDeniedHandler(jwtAccessDeniedHandler))
                 .addFilterBefore(new JwtAuthTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService))
-                        .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/login/oauth2/authorize"))
-                        .redirectionEndpoint(redirection -> redirection
-                                .baseUri("/login/oauth2/code/{code}"))
-                )
+            // TODO: 향후 OAuth2 로그인 기능을 이어서 구현해야 함
+            // .oauth2Login(oauth -> oauth
+            //         .userInfoEndpoint(userInfo -> userInfo
+            //                 .userService(customOauth2UserService))
+            //         .authorizationEndpoint(authorization -> authorization
+            //                 .baseUri("/login/oauth2/authorize"))
+            //         .redirectionEndpoint(redirection -> redirection
+            //                 .baseUri("/login/oauth2/code/{code}"))
             .build();
     }
 }
