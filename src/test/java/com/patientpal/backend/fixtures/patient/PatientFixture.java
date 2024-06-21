@@ -16,6 +16,7 @@ public class PatientFixture {
 
     public static final String PATIENT_PHONE_NUMBER = "010-9876-5432";
     public static final Address PATIENT_ADDRESS = new Address("Incheon Street", "ho", "hi");
+    public static final String NAME = "환자 이름";
 
     public static final String NOK_NAME = "보호자이름";
     public static final String NOK_CONTACT = "010-8765-4321";

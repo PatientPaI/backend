@@ -18,6 +18,7 @@ public class CaregiverFixture {
 
     public static final String PHONE_NUMBER = "010-1234-5678";
     public static final Address ADDRESS = new Address("Seoul Street", "ho", "hi");
+    public static final String NAME = "간병인 이름";
 
     public static final float RATING = 4.5f;
     public static final int EXPERIENCE_YEARS = 5;
