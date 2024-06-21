@@ -41,7 +41,7 @@ public class MatchController {
     @PostMapping("/patient/{responseMemberId}")
     public ResponseEntity<MatchResponse> createMatchForPatient(@AuthenticationPrincipal User currentMember,
                                                                @PathVariable Long responseMemberId) {
-        return ResponseEntity.status(CREATED).body(matchService.createForPatient(currentMember, responseMemberId));
+        return ResponseEntity.status(CREATED).body(matchService.createForPatient(currentMember.getUsername(), responseMemberId));
     }
 
     @Operation(
@@ -58,7 +58,7 @@ public class MatchController {
     @PostMapping("/caregiver/{responseMemberId}")
     public ResponseEntity<MatchResponse> createMatchForCaregiver(@AuthenticationPrincipal User currentMember,
                                                                  @PathVariable Long responseMemberId) {
-        return ResponseEntity.status(CREATED).body(matchService.createForCaregiver(currentMember, responseMemberId));
+        return ResponseEntity.status(CREATED).body(matchService.createForCaregiver(currentMember.getUsername(), responseMemberId));
     }
 
     @Operation(

@@ -3,13 +3,12 @@ package com.patientpal.backend.matching.service;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 
 public interface MatchService {
 
-    MatchResponse createForPatient(User currentMember, Long responseMemberId);
+    MatchResponse createForPatient(String username, Long responseMemberId);
 
-    MatchResponse createForCaregiver(User currentMember, Long responseMemberId);
+    MatchResponse createForCaregiver(String username, Long responseMemberId);
 
     MatchResponse getMatch(Long matchId, String username);
 

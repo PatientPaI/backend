@@ -1,11 +1,9 @@
 package com.patientpal.backend.matching.service;
 
 import static com.patientpal.backend.common.exception.ErrorCode.AUTHORIZATION_FAILED;
-import static com.patientpal.backend.common.exception.ErrorCode.CAREGIVER_NOT_EXIST;
 import static com.patientpal.backend.common.exception.ErrorCode.DUPLICATED_REQUEST;
 import static com.patientpal.backend.common.exception.ErrorCode.MATCH_NOT_EXIST;
 import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
-import static com.patientpal.backend.common.exception.ErrorCode.PATIENT_NOT_EXIST;
 import static com.patientpal.backend.matching.domain.FirstRequest.CAREGIVER_FIRST;
 import static com.patientpal.backend.matching.domain.FirstRequest.PATIENT_FIRST;
 import static com.patientpal.backend.matching.domain.MatchStatus.ACCEPTED;
@@ -24,7 +22,6 @@ import static com.patientpal.backend.member.domain.Role.CAREGIVER;
 import static com.patientpal.backend.member.domain.Role.USER;
 
 import com.patientpal.backend.caregiver.domain.Caregiver;
-import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.matching.domain.Match;
@@ -35,13 +32,11 @@ import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.domain.Patient;
-import com.patientpal.backend.patient.repository.PatientRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,15 +46,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MatchServiceImpl implements MatchService {
 
-    private final PatientRepository patientRepository;
-    private final CaregiverRepository caregiverRepository;
     private final MatchRepository matchRepository;
     private final MemberRepository memberRepository;
 
     @Transactional
     @Override
-    public MatchResponse createForPatient(User currentMember, Long responseMemberId) {
-        Member requestMember = getMember(currentMember.getUsername());
+    public MatchResponse createForPatient(String username, Long responseMemberId) {
+        Member requestMember = getMember(username);
         Member responseMember = getMemberById(responseMemberId);
         validatePatientRequest(requestMember, responseMember);
         if (matchRepository.existsPendingMatchForPatient(requestMember.getPatient().getId(),
@@ -71,8 +64,8 @@ public class MatchServiceImpl implements MatchService {
 
     @Transactional
     @Override
-    public MatchResponse createForCaregiver(User currentMember, Long responseMemberId) {
-        Member requestMember = getMember(currentMember.getUsername());
+    public MatchResponse createForCaregiver(String username, Long responseMemberId) {
+        Member requestMember = getMember(username);
         Member responseMember = getMemberById(responseMemberId);
         validateCaregiverRequest(requestMember, responseMember);
         if (matchRepository.existsPendingMatchForCaregiver(requestMember.getCaregiver().getId(),
@@ -83,33 +76,19 @@ public class MatchServiceImpl implements MatchService {
     }
 
     private MatchResponse createMatchForPatient(Member requestMember, Member responseMember) {
-        Patient requestPatient = getPatientByMember(requestMember);
-        Caregiver responseCaregiver = getCaregiverByMember(responseMember);
-        String generatedPatientProfileSnapshot = generatePatientProfileSnapshot(requestPatient.getId());
+        String generatedPatientProfileSnapshot = generatePatientProfileSnapshot(requestMember.getPatient());
         Match match = matchRepository.save(
                 MatchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
-        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestPatient.getName(), responseCaregiver.getName());
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestMember.getPatient().getName(), responseMember.getCaregiver().getName());
         return MatchResponse.of(match);
     }
 
     private MatchResponse createMatchForCaregiver(Member requestMember, Member responseMember) {
-        Caregiver requestCaregiver = getCaregiverByMember(requestMember);
-        Patient responsePatient = getPatientByMember(responseMember);
-        String generatedCaregiverProfileSnapshot = generateCaregiverProfileSnapshot(requestCaregiver.getId());
+        String generatedCaregiverProfileSnapshot = generateCaregiverProfileSnapshot(requestMember.getCaregiver());
         Match match = matchRepository.save(
                 MatchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
-        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestCaregiver.getName(), responsePatient.getName());
+        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestMember.getCaregiver().getName(), responseMember.getPatient().getName());
         return MatchResponse.of(match);
-    }
-
-    private Patient getPatientByMember(Member responseMember) {
-        return patientRepository.findByMember(responseMember)
-                .orElseThrow(() -> new EntityNotFoundException(PATIENT_NOT_EXIST, responseMember.getUsername()));
-    }
-
-    private Caregiver getCaregiverByMember(Member member) {
-        return caregiverRepository.findByMember(member)
-                .orElseThrow(() -> new EntityNotFoundException(CAREGIVER_NOT_EXIST, member.getUsername()));
     }
 
     private Member getMember(String username) {
@@ -129,7 +108,7 @@ public class MatchServiceImpl implements MatchService {
         validateMatchAuthorization(findMatch, username);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
-        return MatchResponse.of(findMatch); //여기 수정했음 다시 테스트해봐야함.
+        return MatchResponse.of(findMatch);
     }
 
     private Match getMatchById(Long matchId) {
@@ -212,7 +191,7 @@ public class MatchServiceImpl implements MatchService {
                     match.getPatient().getId().equals(currentMember.getPatient().getId())) {
                 validateIsNotExistCaregiver(match);
                 match.setMatchStatus(ACCEPTED);
-                match.setPatientProfileSnapshot(generatePatientProfileSnapshot(currentMember.getPatient().getId()));
+                match.setPatientProfileSnapshot(generatePatientProfileSnapshot(currentMember.getPatient()));
             } else {
                 throw new AuthorizationException(AUTHORIZATION_FAILED);
             }
@@ -221,16 +200,14 @@ public class MatchServiceImpl implements MatchService {
                     match.getCaregiver().getId().equals(currentMember.getCaregiver().getId())) {
                 validateIsNotExistPatient(match);
                 match.setMatchStatus(ACCEPTED);
-                match.setCaregiverProfileSnapshot(generateCaregiverProfileSnapshot(currentMember.getCaregiver().getId()));
+                match.setCaregiverProfileSnapshot(generateCaregiverProfileSnapshot(currentMember.getCaregiver()));
             } else {
                 throw new AuthorizationException(AUTHORIZATION_FAILED);
             }
         }
     }
 
-    private String generatePatientProfileSnapshot(Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new EntityNotFoundException(PATIENT_NOT_EXIST));
+    private String generatePatientProfileSnapshot(Patient patient) {
         return String.format("Patient Snapshot - Name: %s, Address: %s, PatientSignificant: %s, CareRequirements : %s",
                 patient.getName(),
                 patient.getAddress(),
@@ -238,9 +215,7 @@ public class MatchServiceImpl implements MatchService {
                 patient.getCareRequirements());
     }
 
-    private String generateCaregiverProfileSnapshot(Long caregiverId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException(CAREGIVER_NOT_EXIST));
+    private String generateCaregiverProfileSnapshot(Caregiver caregiver) {
         return String.format("Caregiver Snapshot - Name: %s, Address: %s, Experience: %d years, CaregiverSignificant: %s, Specialization: %s",
                 caregiver.getName(),
                 caregiver.getAddress(),
