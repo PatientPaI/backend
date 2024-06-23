@@ -62,4 +62,22 @@ public class PostService {
     public void deletePost(Long id) {
         postRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public List<Post> getFreePosts() {
+        return postRepository.findAllByPostType(PostType.FREE);
+    }
+
+    @Transactional
+    public Post createFreePost(Member member, PostCreateRequest createRequest) {
+        Post post = Post.builder()
+                .member(member)
+                .title(createRequest.getTitle())
+                .content(createRequest.getContent())
+                .postType(PostType.FREE)
+                .build();
+
+        return postRepository.save(post);
+    }
+
 }
