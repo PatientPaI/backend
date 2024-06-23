@@ -50,16 +50,25 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long id, PostUpdateRequest updateRequest) {
+    public Post updatePost(Member member, Long id, PostUpdateRequest updateRequest) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
 
+        Member postMember = post.getMember();
+        if (!postMember.equals(member)) {
+            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         post.update(updateRequest.getTitle(), updateRequest.getContent());
-
         return post;
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(Member member, Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
+        Member postMember = post.getMember();
+        if(!postMember.equals(member)) {
+            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         postRepository.deleteById(id);
     }
 
