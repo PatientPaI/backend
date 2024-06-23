@@ -11,9 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/v1/board")
@@ -57,7 +58,7 @@ public class BoardController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse update(@PathVariable("id") Long id, @RequestBody PostUpdateRequest updateRequest, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Post post = postService.updatePost(id, updateRequest);
+        Post post = postService.updatePost(member, id, updateRequest);
         return new PostResponse(post);
     }
 
@@ -67,7 +68,7 @@ public class BoardController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        postService.deletePost(id);
+        postService.deletePost(member, id);
     }
 
 }
