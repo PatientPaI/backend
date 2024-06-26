@@ -28,7 +28,7 @@ public class MatchController {
     private final MatchService matchService;
 
     @Operation(
-            summary = "매칭 생성 for 환자",
+            summary = "매칭 생성",
             responses = {
                     @ApiResponse(responseCode = "201", description = "매칭 생성 성공",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchResponse.class))),
@@ -38,27 +38,10 @@ public class MatchController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    @PostMapping("/patient/{responseMemberId}")
+    @PostMapping
     public ResponseEntity<MatchResponse> createMatchForPatient(@AuthenticationPrincipal User currentMember,
-                                                               @PathVariable Long responseMemberId) {
-        return ResponseEntity.status(CREATED).body(matchService.createForPatient(currentMember.getUsername(), responseMemberId));
-    }
-
-    @Operation(
-            summary = "매칭 생성 for 간병인",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "매칭 생성 성공",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = MatchResponse.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "401", description = "인증 실패",
-                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
-            }
-    )
-    @PostMapping("/caregiver/{responseMemberId}")
-    public ResponseEntity<MatchResponse> createMatchForCaregiver(@AuthenticationPrincipal User currentMember,
-                                                                 @PathVariable Long responseMemberId) {
-        return ResponseEntity.status(CREATED).body(matchService.createForCaregiver(currentMember.getUsername(), responseMemberId));
+                                                               @RequestParam Long responseMemberId) {
+        return ResponseEntity.status(CREATED).body(matchService.createMatch(currentMember.getUsername(), responseMemberId));
     }
 
     @Operation(
@@ -88,11 +71,12 @@ public class MatchController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    @GetMapping("/all/request")
+    @GetMapping("{memberId}/all/request")
     public ResponseEntity<MatchListResponse> getRequestMatchList(@AuthenticationPrincipal User currentMember,
                                                               @RequestParam(defaultValue = "0") int page,
-                                                              @RequestParam(defaultValue = "10") int size) {
-        final MatchListResponse matchList = matchService.getRequestMatches(currentMember.getUsername(),
+                                                              @RequestParam(defaultValue = "10") int size,
+                                                                 @PathVariable Long memberId) {
+        final MatchListResponse matchList = matchService.getRequestMatches(currentMember.getUsername(), memberId,
                 PageRequest.of(page, size));
         return ResponseEntity.status(OK).body(matchList);
     }
@@ -106,11 +90,12 @@ public class MatchController {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    @GetMapping("/all/received")
+    @GetMapping("{memberId}/all/received")
     public ResponseEntity<MatchListResponse> getReceivedMatchList(@AuthenticationPrincipal User currentMember,
+                                                                  @PathVariable Long memberId,
                                                                   @RequestParam(defaultValue = "0") int page,
                                                                   @RequestParam(defaultValue = "10") int size) {
-        final MatchListResponse matchList = matchService.getReceivedMatches(currentMember.getUsername(),
+        final MatchListResponse matchList = matchService.getReceivedMatches(currentMember.getUsername(), memberId,
                 PageRequest.of(page, size));
         return ResponseEntity.status(OK).body(matchList);
     }
