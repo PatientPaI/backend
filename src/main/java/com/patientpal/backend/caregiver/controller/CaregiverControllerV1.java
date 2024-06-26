@@ -26,6 +26,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,7 @@ public class CaregiverControllerV1 {
 
     @Operation(summary = "간병인 프로필 생성", description = "간병인 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "간병인 프로필 생성 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
-    @PostMapping
+    @PostMapping("/profile")
     public ResponseEntity<CaregiverProfileDetailResponse> createCaregiverProfile(
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid CaregiverProfileCreateRequest caregiverProfileCreateRequest,
@@ -62,56 +63,52 @@ public class CaregiverControllerV1 {
 
     @Operation(summary = "간병인 프로필 조회", description = "현재 로그인된 사용자의 간병인 프로필을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "간병인 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
-    @GetMapping
+    @GetMapping("/profile/{memberId}")
     public ResponseEntity<CaregiverProfileDetailResponse> getCaregiverProfile(
-            @AuthenticationPrincipal User currentMember) {
-        return ResponseEntity.status(OK).body(caregiverService.getProfile(currentMember.getUsername()));
+            @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId) {
+        return ResponseEntity.status(OK).body(caregiverService.getProfile(currentMember.getUsername(), memberId));
     }
 
     @Operation(summary = "간병인 프로필 수정", description = "간병인 프로필 정보를 수정합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 수정 성공")
-    @PatchMapping
+    @PatchMapping("/profile/{memberId}")
     public ResponseEntity<Void> updateCaregiverProfile(
             @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId,
             @RequestBody @Valid CaregiverProfileUpdateRequest caregiverProfileUpdateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        caregiverService.updateCaregiverProfile(currentMember.getUsername(), caregiverProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "간병인 프로필 삭제", description = "간병인 프로필을 삭제합니다.")
-    @ApiResponse(responseCode = "204", description = "간병인 프로필 삭제 성공")
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCaregiverProfile(
-            @AuthenticationPrincipal User currentMember) {
-        caregiverService.deleteCaregiverProfile(currentMember.getUsername());
+        caregiverService.updateCaregiverProfile(currentMember.getUsername(), memberId, caregiverProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "간병인 프로필 이미지 삭제", description = "간병인 프로필에서 이미지를 삭제합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 이미지 삭제 성공")
-    @DeleteMapping("/image")
+    @DeleteMapping("{memberId}/image")
     public ResponseEntity<Void> deleteCaregiverProfileImage(
-            @AuthenticationPrincipal User currentMember) {
-        caregiverService.deleteCaregiverProfileImage(currentMember.getUsername());
+            @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId) {
+        caregiverService.deleteCaregiverProfileImage(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "간병인 프로필 매칭 리스트에 등록", description = "간병인 프로필을 매칭 리스트에 등록합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 매칭 리스트 등록 성공")
-    @PostMapping("register/toMatchList")
+    @PostMapping("/profile/{memberId}/register/toMatchList")
     public ResponseEntity<Void> registerCaregiverProfileToMatchList(
-            @AuthenticationPrincipal User currentMember) {
-        caregiverService.registerCaregiverProfileToMatchList(currentMember.getUsername());
+            @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId) {
+        caregiverService.registerCaregiverProfileToMatchList(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "간병인 프로필 매칭 리스트에서 제거", description = "간병인 프로필을 매칭 리스트에서 제거합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 매칭 리스트 제거 성공")
-    @PostMapping("unregister/toMatchList")
+    @PostMapping("/profile/{memberId}/unregister/toMatchList")
     public ResponseEntity<Void> unregisterCaregiverProfileToMatchList(
-            @AuthenticationPrincipal User currentMember) {
-        caregiverService.unregisterCaregiverProfileToMatchList(currentMember.getUsername());
+            @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId) {
+        caregiverService.unregisterCaregiverProfileToMatchList(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }
 

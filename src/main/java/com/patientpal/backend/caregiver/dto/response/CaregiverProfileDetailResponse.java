@@ -20,7 +20,7 @@ public class CaregiverProfileDetailResponse {
 
     private int age;
 
-    private String phoneNumber;
+    private String contact;
 
     private Gender gender;
 
@@ -39,13 +39,13 @@ public class CaregiverProfileDetailResponse {
     private String image;
 
     @Builder
-    public CaregiverProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age, String phoneNumber, Gender gender, Address address, float rating, int experienceYears,
+    public CaregiverProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age, String contact, Gender gender, Address address, float rating, int experienceYears,
                                           String specialization, String caregiverSignificant, Boolean isInMatchList, String image) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
         this.age = age;
-        this.phoneNumber = phoneNumber;
+        this.contact = contact;
         this.gender = gender;
         this.address = address;
         this.rating = rating;
@@ -58,18 +58,18 @@ public class CaregiverProfileDetailResponse {
 
     public static CaregiverProfileDetailResponse of(Caregiver caregiver) {
         return CaregiverProfileDetailResponse.builder()
-                .memberId(caregiver.getMember().getId())
+                .memberId(caregiver.getId())
                 .name(caregiver.getName())
                 .residentRegistrationNumber(caregiver.getResidentRegistrationNumber())
-                .age(Caregiver.getAge(caregiver.getResidentRegistrationNumber()))
-                .phoneNumber(caregiver.getPhoneNumber())
+                .age(caregiver.getAge())
+                .contact(caregiver.getContact())
                 .gender(caregiver.getGender())
                 .address(caregiver.getAddress())
                 .rating(caregiver.getRating())
                 .experienceYears(caregiver.getExperienceYears())
                 .specialization(caregiver.getSpecialization())
                 .caregiverSignificant(caregiver.getCaregiverSignificant())
-                .isInMatchList(caregiver.getIsInMatchList())
+                .isInMatchList(caregiver.getIsProfilePublic())
                 .image(caregiver.getProfileImageUrl())
                 .build();
     }
