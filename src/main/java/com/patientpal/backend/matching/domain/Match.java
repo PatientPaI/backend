@@ -2,9 +2,8 @@ package com.patientpal.backend.matching.domain;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.common.BaseEntity;
-import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -37,12 +36,12 @@ public class Match extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @JoinColumn(name = "request_member_id")
+    private Member requestMember;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "caregiver_id")
-    private Caregiver caregiver;
+    @JoinColumn(name = "received_member_id")
+    private Member receivedMember;
 
     @Enumerated(EnumType.STRING)
     @Setter
@@ -64,10 +63,10 @@ public class Match extends BaseEntity {
     private String caregiverProfileSnapshot;
 
     @Builder
-    public Match(@NonNull Patient patient, @NonNull Caregiver caregiver, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
+    public Match(@NonNull Member requestMember, @NonNull Member receivedMember, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
                  FirstRequest firstRequest, String patientProfileSnapshot, String caregiverProfileSnapshot) {
-        this.patient = patient;
-        this.caregiver = caregiver;
+        this.requestMember = requestMember;
+        this.receivedMember = receivedMember;
         this.matchStatus = matchStatus;
         this.readStatus = readStatus;
         this.firstRequest = firstRequest;

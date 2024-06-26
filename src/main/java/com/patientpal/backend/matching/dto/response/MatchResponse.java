@@ -4,22 +4,20 @@ import com.patientpal.backend.matching.domain.FirstRequest;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.matching.domain.ReadStatus;
-import com.patientpal.backend.caregiver.domain.Caregiver;
-import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.member.domain.Member;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MatchResponse {
 
     private Long id;
-    private Long patientId;
-    private Long caregiverId;
+    private Long requestMemberId;
+    private Long receivedMemberId;
     private LocalDateTime createdDate;
     private MatchStatus matchStatus;
     private ReadStatus readStatus;
@@ -28,11 +26,11 @@ public class MatchResponse {
     private String caregiverProfileSnapshot;
 
     @Builder
-    public MatchResponse(Long id, Long patientId, Long caregiverId, LocalDateTime createdDate, MatchStatus matchStatus, ReadStatus readStatus, FirstRequest firstRequest,
+    public MatchResponse(Long id, Long requestMemberId, Long receivedMemberId, LocalDateTime createdDate, MatchStatus matchStatus, ReadStatus readStatus, FirstRequest firstRequest,
                          String patientProfileSnapshot, String caregiverProfileSnapshot) {
         this.id = id;
-        this.patientId = patientId;
-        this.caregiverId = caregiverId;
+        this.requestMemberId = requestMemberId;
+        this.receivedMemberId = receivedMemberId;
         this.createdDate = createdDate;
         this.matchStatus = matchStatus;
         this.readStatus = readStatus;
@@ -44,8 +42,8 @@ public class MatchResponse {
     public static MatchResponse of(Match match) {
         return MatchResponse.builder()
                 .id(match.getId())
-                .patientId(match.getPatient().getId())
-                .caregiverId(match.getCaregiver().getId())
+                .requestMemberId(match.getRequestMember().getId())
+                .receivedMemberId(match.getReceivedMember().getId())
                 .matchStatus(match.getMatchStatus())
                 .readStatus(match.getReadStatus())
                 .firstRequest(match.getFirstRequest())
@@ -55,10 +53,10 @@ public class MatchResponse {
                 .build();
     }
 
-    public static Match toEntityFirstPatient(Patient patient, Caregiver caregiver, String generatedPatientProfileSnapshot) {
+    public static Match toEntityFirstPatient(Member patient, Member caregiver, String generatedPatientProfileSnapshot) {
         return Match.builder()
-                .patient(patient)
-                .caregiver(caregiver)
+                .requestMember(patient)
+                .receivedMember(caregiver)
                 .matchStatus(MatchStatus.PENDING)
                 .readStatus(ReadStatus.UNREAD)
                 .firstRequest(FirstRequest.PATIENT_FIRST)
@@ -66,10 +64,10 @@ public class MatchResponse {
                 .build();
     }
 
-    public static Match toEntityFirstCaregiver(Caregiver caregiver, Patient patient, String generatedCaregiverProfileSnapshot) {
+    public static Match toEntityFirstCaregiver(Member caregiver, Member patient, String generatedCaregiverProfileSnapshot) {
         return Match.builder()
-                .patient(patient)
-                .caregiver(caregiver)
+                .requestMember(caregiver)
+                .receivedMember(patient)
                 .matchStatus(MatchStatus.PENDING)
                 .readStatus(ReadStatus.UNREAD)
                 .firstRequest(FirstRequest.CAREGIVER_FIRST)

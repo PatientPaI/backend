@@ -1,11 +1,18 @@
 package com.patientpal.backend.member.service;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
+import com.patientpal.backend.common.exception.BusinessException;
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.member.domain.*;
+import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.member.domain.Provider;
+import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,12 +26,32 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CaregiverRepository caregiverRepository;
+    private final PatientRepository patientRepository;
 
     public Long save(SignUpRequest request) {
         try {
-            var member = SignUpRequest.of(request);
-            member.encodePassword(passwordEncoder);
-            return memberRepository.save(member).getId();
+            if (request.getRole() == Role.CAREGIVER) {
+                Caregiver caregiver = Caregiver.builder().
+                        username(request.getUsername())
+                        .password(request.getPassword())
+                        .role(request.getRole())
+                        .provider(Provider.LOCAL)
+                        .build();
+                caregiver.encodePassword(passwordEncoder);
+                return caregiverRepository.save(caregiver).getId();
+            }
+            if (request.getRole() == Role.USER) {
+                Patient patient = Patient.builder().
+                        username(request.getUsername())
+                        .password(request.getPassword())
+                        .role(request.getRole())
+                        .provider(Provider.LOCAL)
+                        .build();
+                patient.encodePassword(passwordEncoder);
+                return patientRepository.save(patient).getId();
+            }
+            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }

@@ -3,20 +3,18 @@ package com.patientpal.backend.patient.service;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.common.exception.AuthorizationException;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.matching.domain.MatchRepository;
-import com.patientpal.backend.matching.exception.CanNotDeleteException;
-import com.patientpal.backend.matching.exception.DuplicateRequestException;
+import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
-import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,20 +29,27 @@ import org.springframework.transaction.annotation.Transactional;
 public class PatientService {
 
     private final PatientRepository patientRepository;
-
     private final MemberRepository memberRepository;
-    private final MatchRepository matchRepository;
 
     @Transactional
     public PatientProfileDetailResponse savePatientProfile(String username, PatientProfileCreateRequest patientProfileCreateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
+        Patient patient = patientRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
         // TODO 본인 인증 시, 중복 가입이면 throw
         validateAuthorization(currentMember);
-        validateDuplicateCaregiver(currentMember);
-        Patient savedPatient = patientRepository.save(
-                patientProfileCreateRequest.toEntity(currentMember, profileImageUrl));
-        log.info("프로필 등록 성공: ID={}, NAME={}", savedPatient.getId(), savedPatient.getName());
-        return PatientProfileDetailResponse.of(savedPatient);
+        patient.registerDetailProfile(patientProfileCreateRequest.getName(),
+                patientProfileCreateRequest.getAddress(),
+                patientProfileCreateRequest.getContact(),
+                patientProfileCreateRequest.getResidentRegistrationNumber(),
+                patientProfileCreateRequest.getGender(),
+                patientProfileCreateRequest.getNokName(),
+                patientProfileCreateRequest.getNokContact(),
+                patientProfileCreateRequest.getPatientSignificant(),
+                patientProfileCreateRequest.getCareRequirements(),
+                profileImageUrl);
+        log.info("프로필 등록 성공: ID={}, NAME={}", patient.getId(), patient.getName());
+        return PatientProfileDetailResponse.of(patient);
     }
 
     private void validateAuthorization(Member currentMember) {
@@ -53,23 +58,20 @@ public class PatientService {
         }
     }
 
-    private void validateDuplicateCaregiver(Member currentMember) {
-        patientRepository.findByMember(currentMember).ifPresent(patient -> {
-            throw new DuplicateRequestException(ErrorCode.PATIENT_ALREADY_EXIST);
-        });
-    }
-
-    public PatientProfileDetailResponse getProfile(String username) {
-        Member currentMember = getMember(username);
-        Patient patient = getPatient(currentMember);
+    public PatientProfileDetailResponse getProfile(String username, Long memberId) {
+        Patient patient = getPatientByMemberId(memberId);
+        if (!username.equals(patient.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         return PatientProfileDetailResponse.of(patient);
     }
 
     @Transactional
-    public void updatePatientProfile(String username, PatientProfileUpdateRequest patientProfileUpdateRequest, String profileImageUrl) {
-        Member currentMember = getMember(username);
-        Patient patient = getPatient(currentMember);
-
+    public void updatePatientProfile(String username, Long memberId, PatientProfileUpdateRequest patientProfileUpdateRequest, String profileImageUrl) {
+        Patient patient = getPatientByMemberId(memberId);
+        if (!username.equals(patient.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         String currentProfileImageUrl = patient.getProfileImageUrl();
 
         patient.updateDetailProfile(
@@ -91,37 +93,29 @@ public class PatientService {
     }
 
     @Transactional
-    public void deletePatientProfile(String username) {
-        Member currentMember = getMember(username);
-        Patient patient = getPatient(currentMember);
-        if (hasOnGoingMatches(patient.getId())) {
-            throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
+    public void registerPatientProfileToMatchList(String username, Long memberId) {
+        Patient patient = getPatientByMemberId(memberId);
+        if (!username.equals(patient.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
-        patientRepository.delete(patient);
-    }
-
-    private boolean hasOnGoingMatches(Long patientId) {
-        return matchRepository.existsInProgressMatchingForPatient(patientId);
+        patient.setIsProfilePublic(true);
     }
 
     @Transactional
-    public void registerPatientProfileToMatchList(String username) {
-        Member member = getMember(username);
-        Patient patient = getPatient(member);
-        patient.setIsInMatchList(true);
+    public void unregisterPatientProfileToMatchList(String username, Long memberId) {
+        Patient patient = getPatientByMemberId(memberId);
+        if (!username.equals(patient.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
+        patient.setIsProfilePublic(false);
     }
 
     @Transactional
-    public void unregisterPatientProfileToMatchList(String username) {
-        Member member = getMember(username);
-        Patient patient = getPatient(member);
-        patient.setIsInMatchList(false);
-    }
-
-    @Transactional
-    public void deletePatientProfileImage(String username) {
-        Member member = getMember(username);
-        Patient patient = getPatient(member);
+    public void deletePatientProfileImage(String username, Long memberId) {
+        Patient patient = getPatientByMemberId(memberId);
+        if (!username.equals(patient.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         patient.deleteProfileImage();
     }
 
@@ -130,8 +124,8 @@ public class PatientService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
     }
 
-    private Patient getPatient(Member currentMember) {
-        return patientRepository.findByMember(currentMember)
+    private Patient getPatientByMemberId(Long memberId) {
+        return patientRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 

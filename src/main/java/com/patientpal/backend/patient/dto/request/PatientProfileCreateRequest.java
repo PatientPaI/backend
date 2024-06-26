@@ -2,8 +2,6 @@ package com.patientpal.backend.patient.dto.request;
 
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Gender;
-import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.patient.domain.Patient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -25,7 +23,7 @@ public class PatientProfileCreateRequest {
 
     //TODO 인증
     @NotNull
-    private String phoneNumber;
+    private String contact;
 
     @NotNull
     private Address address;
@@ -40,34 +38,16 @@ public class PatientProfileCreateRequest {
     private String careRequirements;
 
     @Builder
-    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, String phoneNumber, Address address,
+    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, String contact, Address address,
                                        String nokName, String nokContact, String patientSignificant, String careRequirements, Gender gender) {
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
         this.gender = gender;
-        this.phoneNumber = phoneNumber;
+        this.contact = contact;
         this.address = address;
         this.nokName = nokName;
         this.nokContact = nokContact;
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
-    }
-
-    public Patient toEntity(Member member, String profileImageUrl) {
-        return Patient.builder()
-                .name(this.name)
-                .residentRegistrationNumber(this.residentRegistrationNumber)
-                .age(Patient.getAge(this.residentRegistrationNumber))
-                .member(member)
-                .gender(this.gender)
-                .phoneNumber(this.phoneNumber)
-                .address(this.address)
-                .nokName(this.nokName)
-                .nokContact(this.nokContact)
-                .patientSignificant(this.patientSignificant)
-                .careRequirements(this.careRequirements)
-                .isInMatchList(false)
-                .profileImageUrl(profileImageUrl)
-                .build();
     }
 }
