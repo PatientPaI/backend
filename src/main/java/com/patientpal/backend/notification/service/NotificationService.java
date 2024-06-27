@@ -81,13 +81,9 @@ public class NotificationService {
                 .forEach(entry -> sendNotification(emitter, entry.getKey(), emitterId, entry.getValue()));
     }
 
-    //TODO TX안걸려 있는데 어떻게 SAVE가 되는거지? save메서드가 알아서 해줌. 일부러 tx 안걸었다. tx걸면 한 작업으로 크게 묶여서 알림 전송이 실패하면 save가 롤백됨. tx 안걸면 save됨.
-    //그러면 여기서 해볼 수 있는것이 알림이 저장이 되고, 이후 전송이 실패할 때, 알림은 데베에 저장되어 있지만, 전송이 안된거니
-    //저장은 되었지만 전송은 안된 알림들을 모아서 일괄적으로 재전송하는 기능을 만들 수 있겠다.
     public void send(String username, NotificationType notificationType, String content, String url) {
         Notification notification = notificationRepository.save(createNotification(username, notificationType, content, url));
 
-        // if (true) throw new IllegalStateException("hoho");
         String eventId = username + "_" + System.currentTimeMillis();
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithByMemberId(username);
         emitters.forEach(
