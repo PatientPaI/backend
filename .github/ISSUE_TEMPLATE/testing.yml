@@ -2,7 +2,7 @@ name: 🧪 테스트
 description: 테스트와 관련된 작업이 필요한가요?
 title: "[TEST] "
 labels: ["🧪 테스트"]
-projects: ["goaheadgogo/1"]
+projects: ["patientpaI/1"]
 body:
   - type: textarea
     attributes:

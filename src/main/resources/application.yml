@@ -34,7 +34,7 @@ springdoc:
 patientpal:
   openapi:
     dev-url: http://localhost:8080
-    prod-url: http://43.201.129.48:8080
+    prod-url: http://3.35.178.244:8080
 
 cloud:
   aws:
@@ -85,7 +85,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
 
 discord:
   webhook:
