@@ -2,7 +2,7 @@ name: 🛠️ 환경설정
 description: 환경설정과 관련된 작업이 필요한가요?
 title: "[ENVIRONMENT] "
 labels: ["🛠️ 설정"]
-projects: ["goaheadgogo/1"]
+projects: ["patientpaI/1"]
 body:
   - type: textarea
     attributes:

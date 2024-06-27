@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-@Entity
+@Entity(name = "caregivers")
 @Getter
 @DiscriminatorValue("CAREGIVER")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
