@@ -51,7 +51,7 @@ public class PostService {
     @Transactional
     public Post updatePost(Member member, Long id, PostUpdateRequest updateRequest) {
         Post post = postRepository.findByIdAndMemberId(id, member.getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
         post.update(updateRequest.getTitle(), updateRequest.getContent());
         return post;
     }
