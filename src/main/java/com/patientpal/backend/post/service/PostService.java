@@ -33,8 +33,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Post getPost(Long id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
+        return findPost(id);
     }
 
     @Transactional
@@ -51,25 +50,17 @@ public class PostService {
 
     @Transactional
     public Post updatePost(Member member, Long id, PostUpdateRequest updateRequest) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
-
-        Member postMember = post.getMember();
-        if (!postMember.equals(member)) {
-            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED);
-        }
+        Post post = postRepository.findByIdAndMemberId(id, member.getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND);
         post.update(updateRequest.getTitle(), updateRequest.getContent());
         return post;
     }
 
     public void deletePost(Member member, Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
-        Member postMember = post.getMember();
-        if(!postMember.equals(member)) {
-            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED);
+        int deletedPostCount = postRepository.deleteByIdAndMemberId(id, member.getId());
+        if(deletedPostCount == 0) {
+            throw new EntityNotFoundException(ErrorCode.POST_NOT_FOUND);
         }
-        postRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
@@ -89,4 +80,8 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    private Post findPost(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
+    }
 }
