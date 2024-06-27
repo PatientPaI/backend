@@ -31,6 +31,7 @@ import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.notification.annotation.NeedNotification;
 import com.patientpal.backend.patient.domain.Patient;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Transactional
     @Override
+    @NeedNotification
     public MatchResponse createForPatient(String username, Long responseMemberId) {
         Member requestMember = getMember(username);
         Member responseMember = getMemberById(responseMemberId);
@@ -59,11 +61,16 @@ public class MatchServiceImpl implements MatchService {
                 responseMember.getCaregiver().getId())) {
             throw new DuplicateRequestException(DUPLICATED_REQUEST);
         }
-        return createMatchForPatient(requestMember, responseMember);
+        Match match = createMatchForPatient(requestMember, responseMember);
+        log.info("매칭 신청 성공. 신청 : {}, 수락 : {}", requestMember.getPatient().getName(), responseMember.getCaregiver().getName());
+        MatchResponse matchResponse = MatchResponse.of(match);
+
+        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
     }
 
     @Transactional
     @Override
+    @NeedNotification
     public MatchResponse createForCaregiver(String username, Long responseMemberId) {
         Member requestMember = getMember(username);
         Member responseMember = getMemberById(responseMemberId);
@@ -72,23 +79,23 @@ public class MatchServiceImpl implements MatchService {
                 responseMember.getPatient().getId())) {
             throw new DuplicateRequestException(DUPLICATED_REQUEST);
         }
-        return createMatchForCaregiver(requestMember, responseMember);
+        Match match = createMatchForCaregiver(requestMember, responseMember);
+        log.info("매칭 신청 성공. 신청 : {}, 수락 : {}", requestMember.getCaregiver().getName(), responseMember.getPatient().getName());
+        MatchResponse matchResponse = MatchResponse.of(match);
+
+        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
     }
 
-    private MatchResponse createMatchForPatient(Member requestMember, Member responseMember) {
+    private Match createMatchForPatient(Member requestMember, Member responseMember) {
         String generatedPatientProfileSnapshot = generatePatientProfileSnapshot(requestMember.getPatient());
-        Match match = matchRepository.save(
+        return matchRepository.save(
                 MatchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
-        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestMember.getPatient().getName(), responseMember.getCaregiver().getName());
-        return MatchResponse.of(match);
     }
 
-    private MatchResponse createMatchForCaregiver(Member requestMember, Member responseMember) {
+    private Match createMatchForCaregiver(Member requestMember, Member responseMember) {
         String generatedCaregiverProfileSnapshot = generateCaregiverProfileSnapshot(requestMember.getCaregiver());
-        Match match = matchRepository.save(
+        return matchRepository.save(
                 MatchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
-        log.info("매칭 성공 ! 신청 : {}, 수락 : {}", requestMember.getCaregiver().getName(), responseMember.getPatient().getName());
-        return MatchResponse.of(match);
     }
 
     private Member getMember(String username) {
