@@ -57,10 +57,9 @@ public class PostService {
     }
 
     public void deletePost(Member member, Long id) {
-        int deletedPostCount = postRepository.deleteByIdAndMemberId(id, member.getId());
-        if(deletedPostCount == 0) {
-            throw new EntityNotFoundException(ErrorCode.POST_NOT_FOUND);
-        }
+        postRepository.findByIdAndMemberId(id, member.getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
+        postRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
