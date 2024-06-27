@@ -12,27 +12,30 @@ import static com.patientpal.backend.matching.domain.ReadStatus.READ;
 import static com.patientpal.backend.matching.domain.ReadStatus.UNREAD;
 import static com.patientpal.backend.matching.service.MatchValidation.validateAcceptance;
 import static com.patientpal.backend.matching.service.MatchValidation.validateCancellation;
-import static com.patientpal.backend.matching.service.MatchValidation.validateCaregiverRequest;
 import static com.patientpal.backend.matching.service.MatchValidation.validateIsCanceled;
+import static com.patientpal.backend.matching.service.MatchValidation.validateIsInMatchList;
 import static com.patientpal.backend.matching.service.MatchValidation.validateIsNotExistCaregiver;
 import static com.patientpal.backend.matching.service.MatchValidation.validateIsNotExistPatient;
 import static com.patientpal.backend.matching.service.MatchValidation.validateMatchAuthorization;
-import static com.patientpal.backend.matching.service.MatchValidation.validatePatientRequest;
 import static com.patientpal.backend.member.domain.Role.CAREGIVER;
 import static com.patientpal.backend.member.domain.Role.USER;
 
-import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
 import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
+import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.notification.annotation.NeedNotification;
 import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,56 +52,51 @@ public class MatchServiceImpl implements MatchService {
 
     private final MatchRepository matchRepository;
     private final MemberRepository memberRepository;
+    private final PatientRepository patientRepository;
+    private final CaregiverRepository caregiverRepository;
 
     @Transactional
     @Override
     @NeedNotification
-    public MatchResponse createForPatient(String username, Long responseMemberId) {
-        Member requestMember = getMember(username);
+    public MatchResponse createMatch(String username, Long responseMemberId) {
+        Member requestMember = getMemberByUsername(username);
         Member responseMember = getMemberById(responseMemberId);
-        validatePatientRequest(requestMember, responseMember);
-        if (matchRepository.existsPendingMatchForPatient(requestMember.getPatient().getId(),
-                responseMember.getCaregiver().getId())) {
+        validateIsInMatchList(requestMember);
+        validateIsInMatchList(responseMember);
+
+        if (matchRepository.existsPendingMatch(requestMember.getId(), responseMember.getId())) {
             throw new DuplicateRequestException(DUPLICATED_REQUEST);
         }
-        Match match = createMatchForPatient(requestMember, responseMember);
-        log.info("매칭 신청 성공. 신청 : {}, 수락 : {}", requestMember.getPatient().getName(), responseMember.getCaregiver().getName());
-        MatchResponse matchResponse = MatchResponse.of(match);
 
-        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
+        return createMatch(requestMember, responseMember);
     }
 
-    @Transactional
-    @Override
-    @NeedNotification
-    public MatchResponse createForCaregiver(String username, Long responseMemberId) {
-        Member requestMember = getMember(username);
-        Member responseMember = getMemberById(responseMemberId);
-        validateCaregiverRequest(requestMember, responseMember);
-        if (matchRepository.existsPendingMatchForCaregiver(requestMember.getCaregiver().getId(),
-                responseMember.getPatient().getId())) {
-            throw new DuplicateRequestException(DUPLICATED_REQUEST);
+    private MatchResponse createMatch(Member requestMember, Member responseMember) {
+        if (requestMember.getRole() == USER) {
+            return createPatientMatch(requestMember, responseMember);
+        } else if (requestMember.getRole() == CAREGIVER) {
+            return createCaregiverMatch(requestMember, responseMember);
+        } else {
+            throw new AuthorizationException(AUTHORIZATION_FAILED);
         }
-        Match match = createMatchForCaregiver(requestMember, responseMember);
-        log.info("매칭 신청 성공. 신청 : {}, 수락 : {}", requestMember.getCaregiver().getName(), responseMember.getPatient().getName());
-        MatchResponse matchResponse = MatchResponse.of(match);
-
-        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
     }
 
-    private Match createMatchForPatient(Member requestMember, Member responseMember) {
-        String generatedPatientProfileSnapshot = generatePatientProfileSnapshot(requestMember.getPatient());
-        return matchRepository.save(
-                MatchResponse.toEntityFirstPatient(requestMember.getPatient(), responseMember.getCaregiver(), generatedPatientProfileSnapshot));
+    private MatchResponse createPatientMatch(Member requestMember, Member responseMember) {
+        String generatedPatientProfileSnapshot = getPatientByMemberId(requestMember.getId()).generatePatientProfileSnapshot();
+        Match match = matchRepository.save(MatchResponse.toEntityFirstPatient(requestMember, responseMember, generatedPatientProfileSnapshot));
+        log.info("매칭 신청 성공 ! 요청 : {}, 수락 : {}", requestMember.getName(), responseMember.getName());
+        return MatchResponse.of(match);
     }
 
-    private Match createMatchForCaregiver(Member requestMember, Member responseMember) {
-        String generatedCaregiverProfileSnapshot = generateCaregiverProfileSnapshot(requestMember.getCaregiver());
-        return matchRepository.save(
-                MatchResponse.toEntityFirstCaregiver(requestMember.getCaregiver(), responseMember.getPatient(), generatedCaregiverProfileSnapshot));
+    private MatchResponse createCaregiverMatch(Member requestMember, Member responseMember) {
+        String generatedCaregiverProfileSnapshot = getCaregiverByMemberId(requestMember.getId()).generateCaregiverProfileSnapshot();
+        Match match = matchRepository.save(MatchResponse.toEntityFirstCaregiver(requestMember, responseMember, generatedCaregiverProfileSnapshot));
+        log.info("매칭 신청 성공 ! 요청 : {}, 수락 : {}", requestMember.getName(), responseMember.getName());
+        return MatchResponse.of(match);
     }
 
-    private Member getMember(String username) {
+
+    private Member getMemberByUsername(String username) {
         return memberRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException(MEMBER_NOT_EXIST, username));
     }
@@ -111,7 +109,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public MatchResponse getMatch(Long matchId, String username) {
         Match findMatch = getMatchById(matchId);
-        Member currentMember = getMember(username);
+        Member currentMember = getMemberByUsername(username);
         validateMatchAuthorization(findMatch, username);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
@@ -123,9 +121,9 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public MatchListResponse getRequestMatches(String username, Pageable pageable) {
-        Member currentMember = getMember(username);
-        Page<Match> matchPage = getRequestMatchesWithPage(currentMember, pageable);
+    public MatchListResponse getRequestMatches(String username, Long memberId, Pageable pageable) {
+        Member currentMember = getMemberById(memberId);
+        Page<Match> matchPage = matchRepository.findAllRequest(currentMember.getId(), pageable);
         List<MatchResponse> matchListResponse = matchPage.stream()
                 .map(MatchResponse::of)
                 .toList();
@@ -133,40 +131,20 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public MatchListResponse getReceivedMatches(String username, Pageable pageable) {
-        Member currentMember = getMember(username);
-        Page<Match> matchPage = getReceivedMatchesWithPage(currentMember, pageable);
+    public MatchListResponse getReceivedMatches(String username, Long memberId, Pageable pageable) {
+        Member currentMember = getMemberById(memberId);
+        Page<Match> matchPage = matchRepository.findAllReceived(currentMember.getId(), pageable);
         List<MatchResponse> matchListResponse = matchPage.stream()
                 .map(MatchResponse::of)
                 .toList();
         return MatchListResponse.from(matchPage, matchListResponse);
-    }
-
-    private Page<Match> getRequestMatchesWithPage(Member currentMember, Pageable pageable) {
-        if (currentMember.getRole() == USER) {
-            return matchRepository.findAllRequestByPatientId(currentMember.getPatient().getId(), pageable);
-        } else if (currentMember.getRole() == CAREGIVER) {
-            return matchRepository.findAllRequestByCaregiverId(currentMember.getCaregiver().getId(), pageable);
-        } else {
-            throw new AuthorizationException(AUTHORIZATION_FAILED, currentMember.getUsername());
-        }
-    }
-
-    private Page<Match> getReceivedMatchesWithPage(Member currentMember, Pageable pageable) {
-        if (currentMember.getRole() == USER) {
-            return matchRepository.findAllReceivedByPatientId(currentMember.getPatient().getId(), pageable);
-        } else if (currentMember.getRole() == CAREGIVER) {
-            return matchRepository.findAllReceivedByCaregiverId(currentMember.getCaregiver().getId(), pageable);
-        } else {
-            throw new AuthorizationException(AUTHORIZATION_FAILED, currentMember.getUsername());
-        }
     }
 
     @Transactional
     @Override
     public void cancelMatch(Long matchId, String username) {
         Match match = getMatchById(matchId);
-        Member currentMember = getMember(username);
+        Member currentMember = getMemberByUsername(username);
         validateCancellation(match, currentMember);
         match.setMatchStatus(CANCELED);
     }
@@ -175,11 +153,10 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public void acceptMatch(Long matchId, String username) {
         Match match = getMatchById(matchId);
-        Member currentMember = getMember(username);
+        Member currentMember = getMemberByUsername(username);
         validateAcceptance(match);
         match.setReadStatus(READ);
         setMatchStatusAccepted(match, currentMember);
-        matchRepository.save(match);
     }
 
     private void setMatchReadStatus(Match findMatch, Member currentMember) {
@@ -194,40 +171,35 @@ public class MatchServiceImpl implements MatchService {
 
     private void setMatchStatusAccepted(Match match, Member currentMember) {
         if (currentMember.getRole() == USER) {
+            Patient patient = getPatientByMemberId(currentMember.getId());
             if (match.getFirstRequest() == CAREGIVER_FIRST &&
-                    match.getPatient().getId().equals(currentMember.getPatient().getId())) {
+                    match.getReceivedMember().getId().equals(currentMember.getId())) {
                 validateIsNotExistCaregiver(match);
                 match.setMatchStatus(ACCEPTED);
-                match.setPatientProfileSnapshot(generatePatientProfileSnapshot(currentMember.getPatient()));
+                match.setPatientProfileSnapshot(patient.generatePatientProfileSnapshot());
             } else {
                 throw new AuthorizationException(AUTHORIZATION_FAILED);
             }
         } else if (currentMember.getRole() == CAREGIVER) {
+            Caregiver caregiver = getCaregiverByMemberId(currentMember.getId());
             if (match.getFirstRequest() == PATIENT_FIRST &&
-                    match.getCaregiver().getId().equals(currentMember.getCaregiver().getId())) {
+                    match.getReceivedMember().getId().equals(currentMember.getId())) {
                 validateIsNotExistPatient(match);
                 match.setMatchStatus(ACCEPTED);
-                match.setCaregiverProfileSnapshot(generateCaregiverProfileSnapshot(currentMember.getCaregiver()));
+                match.setCaregiverProfileSnapshot(caregiver.generateCaregiverProfileSnapshot());
             } else {
                 throw new AuthorizationException(AUTHORIZATION_FAILED);
             }
         }
     }
 
-    private String generatePatientProfileSnapshot(Patient patient) {
-        return String.format("Patient Snapshot - Name: %s, Address: %s, PatientSignificant: %s, CareRequirements : %s",
-                patient.getName(),
-                patient.getAddress(),
-                patient.getPatientSignificant(),
-                patient.getCareRequirements());
+    private Patient getPatientByMemberId(Long memberId) {
+        return patientRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 
-    private String generateCaregiverProfileSnapshot(Caregiver caregiver) {
-        return String.format("Caregiver Snapshot - Name: %s, Address: %s, Experience: %d years, CaregiverSignificant: %s, Specialization: %s",
-                caregiver.getName(),
-                caregiver.getAddress(),
-                caregiver.getExperienceYears(),
-                caregiver.getCaregiverSignificant(),
-                caregiver.getSpecialization());
+    private Caregiver getCaregiverByMemberId(Long memberId) {
+        return caregiverRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
     }
 }

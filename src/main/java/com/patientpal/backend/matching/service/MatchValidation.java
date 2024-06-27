@@ -5,11 +5,8 @@ import static com.patientpal.backend.common.exception.ErrorCode.CAN_NOT_ACCEPT_A
 import static com.patientpal.backend.common.exception.ErrorCode.CAN_NOT_CANCEL_ALREADY_ACCEPTED_MATCH;
 import static com.patientpal.backend.common.exception.ErrorCode.CAN_NOT_READ;
 import static com.patientpal.backend.common.exception.ErrorCode.CAN_NOT_REQUEST_TO;
-import static com.patientpal.backend.common.exception.ErrorCode.CAREGIVER_NOT_EXIST;
 import static com.patientpal.backend.common.exception.ErrorCode.MATCH_ALREADY_ACCEPTED;
 import static com.patientpal.backend.common.exception.ErrorCode.MATCH_ALREADY_CANCELED;
-import static com.patientpal.backend.common.exception.ErrorCode.NOT_COMPLETE_PROFILE;
-import static com.patientpal.backend.common.exception.ErrorCode.PATIENT_NOT_EXIST;
 import static com.patientpal.backend.matching.domain.FirstRequest.CAREGIVER_FIRST;
 import static com.patientpal.backend.matching.domain.FirstRequest.PATIENT_FIRST;
 import static com.patientpal.backend.matching.domain.MatchStatus.ACCEPTED;
@@ -17,60 +14,30 @@ import static com.patientpal.backend.matching.domain.MatchStatus.CANCELED;
 import static com.patientpal.backend.member.domain.Role.CAREGIVER;
 import static com.patientpal.backend.member.domain.Role.USER;
 
-import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.common.exception.AuthorizationException;
-import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.exception.CanNotAcceptException;
 import com.patientpal.backend.matching.exception.CanNotReadException;
 import com.patientpal.backend.matching.exception.CanNotRequestException;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
-import com.patientpal.backend.matching.exception.NotCompleteProfileException;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.patient.domain.Patient;
 
 public final class MatchValidation {
 
-    public static void validatePatientRequest(Member requestMember, Member responseMember) {
-        if (requestMember.getPatient() == null) {
-            throw new NotCompleteProfileException(NOT_COMPLETE_PROFILE, requestMember.getUsername());
-        }
-        if (responseMember.getCaregiver() == null) {
-            throw new EntityNotFoundException(CAREGIVER_NOT_EXIST);
-        }
-        validateIsInMatchListCaregiver(responseMember.getCaregiver());
-    }
-
-    public static void validateCaregiverRequest(Member requestMember, Member responseMember) {
-        if (requestMember.getCaregiver() == null) {
-            throw new NotCompleteProfileException(NOT_COMPLETE_PROFILE, requestMember.getUsername());
-        }
-        if (responseMember.getPatient() == null) {
-            throw new EntityNotFoundException(PATIENT_NOT_EXIST);
-        }
-        validateIsInMatchListPatient(responseMember.getPatient());
-    }
-
-    private static void validateIsInMatchListCaregiver(Caregiver caregiver) {
-        if (!caregiver.getIsInMatchList()) {
-            throw new CanNotRequestException(CAN_NOT_REQUEST_TO);
-        }
-    }
-
-    private static void validateIsInMatchListPatient(Patient patient) {
-        if (!patient.getIsInMatchList()) {
+    public static void validateIsInMatchList(Member member) {
+        if (!member.getIsProfilePublic()) {
             throw new CanNotRequestException(CAN_NOT_REQUEST_TO);
         }
     }
 
     public static void validateIsNotExistCaregiver(Match match) {
-        if (match.getCaregiver() == null) {
+        if (match.getRequestMember() == null) {
             throw new CanNotAcceptException(CAN_NOT_ACCEPT_ALREADY_DELETE_PROFILE);
         }
     }
 
     public static void validateIsNotExistPatient(Match match) {
-        if (match.getPatient() == null) {
+        if (match.getRequestMember() == null) {
             throw new CanNotAcceptException(CAN_NOT_ACCEPT_ALREADY_DELETE_PROFILE);
         }
     }
@@ -82,8 +49,8 @@ public final class MatchValidation {
     }
 
     public static void validateMatchAuthorization(Match findMatch, String username) {
-        if (!findMatch.getPatient().getMember().getUsername().equals(username) &&
-                !findMatch.getCaregiver().getMember().getUsername().equals(username)) {
+        if (!findMatch.getRequestMember().getUsername().equals(username) &&
+                !findMatch.getReceivedMember().getUsername().equals(username)) {
             throw new AuthorizationException(AUTHORIZATION_FAILED);
         }
     }
@@ -103,15 +70,15 @@ public final class MatchValidation {
     }
 
     private static void validatePatientCancellation(Match match, Member currentMember) {
-        if (match.getFirstRequest() == CAREGIVER_FIRST || !match.getPatient().getId()
-                .equals(currentMember.getPatient().getId())) {
+        if (match.getFirstRequest() == CAREGIVER_FIRST || !match.getRequestMember().getId()
+                .equals(currentMember.getId())) {
             throw new AuthorizationException(AUTHORIZATION_FAILED);
         }
     }
 
     private static void validateCaregiverCancellation(Match match, Member currentMember) {
-        if (match.getFirstRequest() == PATIENT_FIRST || !match.getCaregiver().getId()
-                .equals(currentMember.getCaregiver().getId())) {
+        if (match.getFirstRequest() == PATIENT_FIRST || !match.getRequestMember().getId()
+                .equals(currentMember.getId())) {
             throw new AuthorizationException(AUTHORIZATION_FAILED);
         }
     }
