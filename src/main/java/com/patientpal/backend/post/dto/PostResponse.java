@@ -12,13 +12,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PostResponse {
     private Long id;
+    private String name;
+    private Long memberId;
     private String title;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
     public PostResponse(Post post) {
         this.id = post.getId();
+        this.name = post.getMember().getName();
+        this.memberId = post.getMember().getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.createdAt = post.getCreatedDate();

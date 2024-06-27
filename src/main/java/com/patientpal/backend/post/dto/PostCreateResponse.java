@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public class PostCreateResponse {
 
     private Long id;
+    private String name;
+    private Long memberId;
     private String title;
     private String content;
     private LocalDateTime createdDate;
@@ -19,6 +21,8 @@ public class PostCreateResponse {
 
     public PostCreateResponse(Post post) {
         this.id = post.getId();
+        this.name = post.getMember().getName();
+        this.memberId = post.getMember().getId();
         this.title = post.getTitle();
         this.content = post.getContent();
         this.createdDate = post.getCreatedDate();
