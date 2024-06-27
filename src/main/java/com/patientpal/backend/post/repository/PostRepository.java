@@ -3,8 +3,6 @@ package com.patientpal.backend.post.repository;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.domain.PostType;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
