@@ -20,7 +20,7 @@ public class PatientProfileDetailResponse {
 
     private int age;
 
-    private String phoneNumber;
+    private String contact;
 
     private Gender gender;
 
@@ -34,17 +34,17 @@ public class PatientProfileDetailResponse {
 
     private String careRequirements;
 
-    private Boolean isInMatchList;
+    private Boolean isProfilePublic;
 
     private String image;
 
     @Builder
-    public PatientProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, String phoneNumber, Gender gender, int age, Address address, String nokName, String nokContact,
-                                        String patientSignificant, String careRequirements, Boolean isInMatchList, String image) {
+    public PatientProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, String contact, Gender gender, int age, Address address, String nokName, String nokContact,
+                                        String patientSignificant, String careRequirements, Boolean isProfilePublic, String image) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
-        this.phoneNumber = phoneNumber;
+        this.contact = contact;
         this.gender = gender;
         this.age = age;
         this.address = address;
@@ -52,24 +52,24 @@ public class PatientProfileDetailResponse {
         this.nokContact = nokContact;
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
-        this.isInMatchList = isInMatchList;
+        this.isProfilePublic = isProfilePublic;
         this.image = image;
     }
 
     public static PatientProfileDetailResponse of(Patient patient) {
         return PatientProfileDetailResponse.builder()
-                .memberId(patient.getMember().getId())
+                .memberId(patient.getId())
                 .name(patient.getName())
                 .residentRegistrationNumber(patient.getResidentRegistrationNumber())
                 .age(patient.getAge())
-                .phoneNumber(patient.getPhoneNumber())
+                .contact(patient.getContact())
                 .gender(patient.getGender())
                 .address(patient.getAddress())
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())
                 .patientSignificant(patient.getPatientSignificant())
                 .careRequirements(patient.getCareRequirements())
-                .isInMatchList(patient.getIsInMatchList())
+                .isProfilePublic(patient.getIsProfilePublic())
                 .image(patient.getProfileImageUrl())
                 .build();
     }

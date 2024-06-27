@@ -49,16 +49,17 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Member member, Long id, PostUpdateRequest updateRequest) {
+    public Post updatePost(Member member, Long id, PostUpdateRequest updateRequest) { 
         Post post = postRepository.findByIdAndMemberId(id, member.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
         post.update(updateRequest.getTitle(), updateRequest.getContent());
         return post;
     }
 
-    public void deletePost(Member member, Long id) {
+    public void deletePost(Member member, Long id) { 
         postRepository.findByIdAndMemberId(id, member.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
+
         postRepository.deleteById(id);
     }
 

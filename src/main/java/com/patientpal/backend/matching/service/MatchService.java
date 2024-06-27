@@ -6,15 +6,13 @@ import org.springframework.data.domain.Pageable;
 
 public interface MatchService {
 
-    MatchResponse createForPatient(String username, Long responseMemberId);
-
-    MatchResponse createForCaregiver(String username, Long responseMemberId);
+    MatchResponse createMatch(String username, Long responseMemberId);
 
     MatchResponse getMatch(Long matchId, String username);
 
-    MatchListResponse getRequestMatches(String username, Pageable pageable);
+    MatchListResponse getRequestMatches(String username, Long memberId, Pageable pageable);
 
-    MatchListResponse getReceivedMatches(String username, Pageable pageable);
+    MatchListResponse getReceivedMatches(String username, Long memberId, Pageable pageable);
 
     void cancelMatch(Long matchId, String username);
 

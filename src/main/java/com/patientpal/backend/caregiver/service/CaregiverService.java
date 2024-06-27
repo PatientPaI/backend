@@ -5,18 +5,14 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
-import com.patientpal.backend.common.exception.AuthorizationException;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.matching.domain.MatchRepository;
-import com.patientpal.backend.matching.exception.CanNotDeleteException;
-import com.patientpal.backend.matching.exception.DuplicateRequestException;
+import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
 import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
-import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,45 +28,43 @@ public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final MemberRepository memberRepository;
-    private final MatchRepository matchRepository;
 
     @Transactional
     public CaregiverProfileDetailResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest, String profileImageUrl) {
         Member currentMember = getMember(username);
         // TODO 본인 인증 진행, 중복 가입이면 throw
-        validateAuthorization(currentMember);
-        validateDuplicateCaregiver(currentMember);
-        Caregiver savedCaregiver = caregiverRepository.save(caregiverProfileCreateRequest.toEntity(currentMember, profileImageUrl));
-        log.info("프로필 등록 성공: ID={}, NAME={}", savedCaregiver.getId(), savedCaregiver.getName());
-        return CaregiverProfileDetailResponse.of(savedCaregiver);
+        Caregiver caregiver = caregiverRepository.findById(currentMember.getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+        caregiver.registerDetailProfile(caregiverProfileCreateRequest.getName(),
+                caregiverProfileCreateRequest.getAddress(),
+                caregiverProfileCreateRequest.getContact(),
+                caregiverProfileCreateRequest.getResidentRegistrationNumber(),
+                caregiverProfileCreateRequest.getGender(),
+                caregiverProfileCreateRequest.getExperienceYears(),
+                caregiverProfileCreateRequest.getSpecialization(),
+                caregiverProfileCreateRequest.getCaregiverSignificant(),
+                profileImageUrl);
+        log.info("프로필 등록 성공: ID={}, NAME={}", caregiver.getId(), caregiver.getName());
+        return CaregiverProfileDetailResponse.of(caregiver);
     }
 
-    private void validateAuthorization(Member currentMember) {
-        if (currentMember.getRole() == Role.USER) {
-            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED, currentMember.getUsername());
+    public CaregiverProfileDetailResponse getProfile(String username, Long memberId) {
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!username.equals(caregiver.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
-    }
-
-    private void validateDuplicateCaregiver(Member currentMember) {
-        caregiverRepository.findByMember(currentMember).ifPresent(caregiver -> {
-            throw new DuplicateRequestException(ErrorCode.CAREGIVER_ALREADY_EXIST);
-        });
-    }
-
-    public CaregiverProfileDetailResponse getProfile(String username) {
-        Member currentMember = getMember(username);
-        Caregiver caregiver = getCaregiver(currentMember);
         return CaregiverProfileDetailResponse.of(caregiver);
     }
 
     @Transactional
-    public void updateCaregiverProfile(String username, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
-        Member currentMember = getMember(username);
-        Caregiver caregiver = getCaregiver(currentMember);
-
+    public void updateCaregiverProfile(String username, Long memberId, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!username.equals(caregiver.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         String currentProfileImageUrl = caregiver.getProfileImageUrl();
 
-        getCaregiver(currentMember).updateDetailProfile(
+        getCaregiverByMemberId(memberId).updateDetailProfile(
                 caregiverProfileUpdateRequest.getAddress(),
                 caregiverProfileUpdateRequest.getRating(),
                 caregiverProfileUpdateRequest.getExperienceYears(),
@@ -88,46 +82,49 @@ public class CaregiverService {
         }
     }
 
+    // @Transactional //세부 프로필 삭제가 필요한가? 어차피 프로필 공개/비공개를 설정해두면 비공개로 하면 삭제 안해도 되는거 아닌가?
+    // public void deleteCaregiverProfile(String username, Long memberId) {
+    //     Member currentMember = getMember(username);
+    //     Caregiver caregiver = getCaregiver(memberId);
+    //     if (hasOnGoingMatches(caregiver.getId())) {
+    //         throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
+    //     }
+    //     // caregiverRepository.delete(caregiver);
+    // }
+
+
     @Transactional
-    public void deleteCaregiverProfile(String username) {
-        Member currentMember = getMember(username);
-        Caregiver caregiver = getCaregiver(currentMember);
-        if (hasOnGoingMatches(caregiver.getId())) {
-            throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
+    public void registerCaregiverProfileToMatchList(String username, Long memberId) {
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!username.equals(caregiver.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
-        caregiverRepository.delete(caregiver);
-    }
-
-    private boolean hasOnGoingMatches(Long caregiverId) {
-        return matchRepository.existsInProgressMatchingForCaregiver(caregiverId);
+        caregiver.setIsProfilePublic(true);
     }
 
     @Transactional
-    public void registerCaregiverProfileToMatchList(String username) {
-        Member member = getMember(username);
-        Caregiver caregiver = getCaregiver(member);
-        caregiver.setIsInMatchList(true);
-    }
-
-    @Transactional
-    public void unregisterCaregiverProfileToMatchList(String username) {
-        Member member = getMember(username);
-        Caregiver caregiver = getCaregiver(member);
-        caregiver.setIsInMatchList(false);
+    public void unregisterCaregiverProfileToMatchList(String username, Long memberId) {
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!username.equals(caregiver.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
+        caregiver.setIsProfilePublic(false);
     }
 
     private Member getMember(String username) {
         return memberRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
     }
 
-    private Caregiver getCaregiver(Member currentMember) {
-        return caregiverRepository.findByMember(currentMember).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+    private Caregiver getCaregiverByMemberId(Long memberId) {
+        return caregiverRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
     }
 
     @Transactional
-    public void deleteCaregiverProfileImage(String username) {
-        Member member = getMember(username);
-        Caregiver caregiver = getCaregiver(member);
+    public void deleteCaregiverProfileImage(String username, Long memberId) {
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!username.equals(caregiver.getUsername())) {
+            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        }
         caregiver.deleteProfileImage();
     }
 
