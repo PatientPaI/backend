@@ -98,6 +98,9 @@ public class PatientService {
         if (!username.equals(patient.getUsername())) {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
+        if (!patient.getIsCompleteProfile()) {
+            throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
+        }
         patient.setIsProfilePublic(true);
     }
 

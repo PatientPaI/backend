@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +18,7 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Address;
@@ -49,14 +49,14 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
             given(caregiverService.saveCaregiverProfile(any(String.class), any(CaregiverProfileCreateRequest.class), any())).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/v1/caregiver")
+            mockMvc.perform(post("/api/v1/caregiver/profile")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
+                    .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 
         @Test
@@ -66,7 +66,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
             CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, new Address("hi", "ho", "ha"), 1, 1, "", "");
 
             // when & then
-            mockMvc.perform(post("/api/v1/caregiver")
+            mockMvc.perform(post("/api/v1/caregiver/profile")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
@@ -82,25 +82,25 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
-            given(caregiverService.getProfile(any(String.class))).willReturn(response);
+            given(caregiverService.getProfile(any(String.class), any())).willReturn(response);
 
             // when & then
-            mockMvc.perform(get("/api/v1/caregiver"))
+            mockMvc.perform(get("/api/v1/caregiver/profile/{memberId}", 1L))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
                     .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
-                    .andExpect(jsonPath("$.phoneNumber").value(response.getPhoneNumber()));
+                    .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 
         @Test
         @WithCustomMockUserCaregiver
         void 프로필_미등록시에_예외가_발생한다() throws Exception {
             // given
-            given(caregiverService.getProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+            given(caregiverService.getProfile(any(String.class), any())).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
 
             // when & then
-            mockMvc.perform(get("/api/v1/caregiver"))
+            mockMvc.perform(get("/api/v1/caregiver/profile/{memberId}", 1L))
                     .andDo(print())
                     .andExpect(status().isNotFound());
         }
@@ -114,10 +114,10 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
-            willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class), any());
+            willDoNothing().given(caregiverService).updateCaregiverProfile(any(String.class), any(), any(CaregiverProfileUpdateRequest.class), any());
 
             // when & then
-            mockMvc.perform(patch("/api/v1/caregiver")
+            mockMvc.perform(patch("/api/v1/caregiver/profile/{memberId}", 1L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
@@ -129,10 +129,10 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 프로필_미등록시_예외가_발생한다() throws Exception {
             // given
             CaregiverProfileUpdateRequest request = updateCaregiverProfileRequest();
-            willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(CaregiverProfileUpdateRequest.class), any());
+            willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).updateCaregiverProfile(any(String.class), any(), any(CaregiverProfileUpdateRequest.class), any());
 
             // when & then
-            mockMvc.perform(patch("/api/v1/caregiver")
+            mockMvc.perform(patch("/api/v1/caregiver/profile/{memberId}", 1L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
@@ -141,30 +141,58 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
     }
 
     @Nested
-    class 간병인_프로필_삭제시에 {
+    class 간병인_프로필_매칭_리스트에_등록_시에 {
 
         @Test
         @WithCustomMockUserCaregiver
         void 성공한다() throws Exception {
             // given
-            willDoNothing().given(caregiverService).deleteCaregiverProfile(any(String.class));
+            willDoNothing().given(caregiverService).registerCaregiverProfileToMatchList(any(String.class), any(Long.class));
 
             // when & then
-            mockMvc.perform(delete("/api/v1/caregiver"))
+            mockMvc.perform(post("/api/v1/caregiver/profile/{memberId}/register/toMatchList", 1L))
                     .andDo(print())
                     .andExpect(status().isNoContent());
         }
 
         @Test
         @WithCustomMockUserCaregiver
-        void 프로필_미등록시_예외가_발생한다() throws Exception {
+        void 권한이_없으면_예외가_발생한다() throws Exception {
             // given
-            willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST)).given(caregiverService).deleteCaregiverProfile(any(String.class));
+            willThrow(new BusinessException(ErrorCode.AUTHORIZATION_FAILED)).given(caregiverService).registerCaregiverProfileToMatchList(any(String.class), any(Long.class));
 
             // when & then
-            mockMvc.perform(delete("/api/v1/caregiver"))
+            mockMvc.perform(post("/api/v1/caregiver/profile/{memberId}/register/toMatchList", 1L))
                     .andDo(print())
-                    .andExpect(status().isNotFound());
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    @Nested
+    class 간병인_프로필_매칭_리스트에_제거_시에 {
+
+        @Test
+        @WithCustomMockUserCaregiver
+        void 성공한다() throws Exception {
+            // given
+            willDoNothing().given(caregiverService).unregisterCaregiverProfileToMatchList(any(String.class), any(Long.class));
+
+            // when & then
+            mockMvc.perform(post("/api/v1/caregiver/profile/{memberId}/unregister/toMatchList", 1L))
+                    .andDo(print())
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
+        @WithCustomMockUserCaregiver
+        void 권한이_없으면_예외가_발생한다() throws Exception {
+            // given
+            willThrow(new BusinessException(ErrorCode.AUTHORIZATION_FAILED)).given(caregiverService).unregisterCaregiverProfileToMatchList(any(String.class), any(Long.class));
+
+            // when & then
+            mockMvc.perform(post("/api/v1/caregiver/profile/{memberId}/unregister/toMatchList", 1L))
+                    .andDo(print())
+                    .andExpect(status().isForbidden());
         }
     }
 }

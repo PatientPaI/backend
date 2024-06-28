@@ -10,10 +10,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.fixtures.caregiver.CaregiverFixture;
-import com.patientpal.backend.fixtures.member.MemberFixture;
 import com.patientpal.backend.fixtures.patient.PatientFixture;
 import com.patientpal.backend.matching.domain.FirstRequest;
 import com.patientpal.backend.matching.domain.Match;
@@ -24,7 +24,6 @@ import com.patientpal.backend.matching.dto.response.MatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.matching.exception.CanNotRequestException;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
-import com.patientpal.backend.matching.exception.NotCompleteProfileException;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -50,12 +50,15 @@ public class CaregiverMatchServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private CaregiverRepository caregiverRepository;
+
     @InjectMocks
     private MatchServiceImpl matchService;
 
-    private final Member requestMember = caregiverMemberForMatch();
-    private final Member responseMember = patientMemberForMatch();
-    private final Match match = createMatchForCaregiver(requestMember, responseMember);
+    Member requestMember = Mockito.spy(caregiverMemberForMatch());
+    Member responseMember = Mockito.spy(patientMemberForMatch());
+    Match match = createMatchForCaregiver(requestMember, responseMember);
 
     @Nested
     class 매칭_생성_시_간병인 {
@@ -65,10 +68,11 @@ public class CaregiverMatchServiceTest {
             // when
             when(memberRepository.findByUsername(requestMember.getUsername())).thenReturn(Optional.of(requestMember));
             when(memberRepository.findById(responseMember.getId())).thenReturn(Optional.of(responseMember));
-            when(matchRepository.existsPendingMatchForCaregiver(any(), any())).thenReturn(false);
             when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> invocation.getArgument(0));
-            MatchResponse response = matchService.createForCaregiver(requestMember.getUsername(),
-                    responseMember.getId());
+            when(caregiverRepository.findById(requestMember.getId())).thenReturn(Optional.of(CaregiverFixture.defaultCaregiver()));
+            requestMember.setIsProfilePublic(true);
+            responseMember.setIsProfilePublic(true);
+            MatchResponse response = matchService.createMatch(requestMember.getUsername(), responseMember.getId());
 
             // then
             assertThat(response.getFirstRequest()).isEqualTo(FirstRequest.CAREGIVER_FIRST);
@@ -79,44 +83,15 @@ public class CaregiverMatchServiceTest {
         }
 
         @Test
-        void 실패한다_내_프로필_미등록() {
-            // given
-            Member requestMember = MemberFixture.huseongRoleCaregiver();
-            Member responseMember = patientMemberForMatch();
-
-            // when
-            when(memberRepository.findByUsername(requestMember.getUsername())).thenReturn(Optional.of(requestMember));
-            when(memberRepository.findById(responseMember.getId())).thenReturn(Optional.of(responseMember));
-
-            // then
-            assertThatThrownBy(() -> matchService.createForCaregiver(requestMember.getUsername(),
-                    responseMember.getId())).isInstanceOf(NotCompleteProfileException.class);
-        }
-
-        @Test
-        void 실패한다_상대_환자_프로필_없음() {
-            // given
-            Member requestMember = caregiverMemberForMatch();
-            Member responseMember = MemberFixture.huseongRolePatient();
-
-            // when
-            when(memberRepository.findByUsername(requestMember.getUsername())).thenReturn(Optional.of(requestMember));
-            when(memberRepository.findById(responseMember.getId())).thenReturn(Optional.of(responseMember));
-
-            // then
-            assertThatThrownBy(() -> matchService.createForCaregiver(requestMember.getUsername(),
-                    responseMember.getId())).isInstanceOf(EntityNotFoundException.class);
-        }
-
-        @Test
         void 실패한다_상대_환자_매칭_검색_리스트에_미등록() {
             // when
             when(memberRepository.findByUsername(requestMember.getUsername())).thenReturn(Optional.of(requestMember));
             when(memberRepository.findById(responseMember.getId())).thenReturn(Optional.of(responseMember));
-            responseMember.getPatient().setIsInMatchList(false);
+            requestMember.setIsProfilePublic(true);
+            responseMember.setIsProfilePublic(false);
 
             // then
-            assertThatThrownBy(() -> matchService.createForCaregiver(requestMember.getUsername(),
+            assertThatThrownBy(() -> matchService.createMatch(requestMember.getUsername(),
                     responseMember.getId())).isInstanceOf(CanNotRequestException.class);
         }
 
@@ -125,10 +100,13 @@ public class CaregiverMatchServiceTest {
             // when
             when(memberRepository.findByUsername(requestMember.getUsername())).thenReturn(Optional.of(requestMember));
             when(memberRepository.findById(responseMember.getId())).thenReturn(Optional.of(responseMember));
-            when(matchRepository.existsPendingMatchForCaregiver(any(), any())).thenReturn(true);
+            requestMember.setIsProfilePublic(true);
+            responseMember.setIsProfilePublic(true);
+            when(matchRepository.existsPendingMatch(requestMember.getId(), responseMember.getId())).thenReturn(true);
+
 
             // then
-            assertThatThrownBy(() -> matchService.createForCaregiver(requestMember.getUsername(),
+            assertThatThrownBy(() -> matchService.createMatch(requestMember.getUsername(),
                     responseMember.getId())).isInstanceOf(DuplicateRequestException.class);
         }
     }
@@ -140,7 +118,7 @@ public class CaregiverMatchServiceTest {
         void 성공한다() {
             // given
             when(memberRepository.findByUsername(any(String.class))).thenReturn(
-                    Optional.of(match.getCaregiver().getMember()));
+                    Optional.of(match.getRequestMember()));
             when(matchRepository.findById(any())).thenReturn(Optional.of(match));
 
             // when
@@ -148,8 +126,8 @@ public class CaregiverMatchServiceTest {
 
             // then
             assertNotNull(response);
-            assertThat(response.getPatientId()).isEqualTo(match.getPatient().getId());
-            assertThat(response.getCaregiverId()).isEqualTo(match.getCaregiver().getId());
+            assertThat(response.getRequestMemberId()).isEqualTo(match.getRequestMember().getId());
+            assertThat(response.getReceivedMemberId()).isEqualTo(match.getReceivedMember().getId());
         }
 
         @Test
@@ -166,8 +144,8 @@ public class CaregiverMatchServiceTest {
         void 실패한다_내가_포함된_매칭_아님() {
             // given
             Match match = Match.builder()
-                    .patient(PatientFixture.huseongPatient())
-                    .caregiver(CaregiverFixture.huseongCaregiver())
+                    .requestMember(PatientFixture.defaultPatient())
+                    .receivedMember(CaregiverFixture.defaultCaregiver())
                     .matchStatus(MatchStatus.PENDING)
                     .readStatus(ReadStatus.UNREAD)
                     .build();
@@ -180,7 +158,6 @@ public class CaregiverMatchServiceTest {
             assertThatThrownBy(() -> matchService.getMatch(match.getId(), requestMember.getUsername()))
                     .isInstanceOf(AuthorizationException.class);
         }
-
     }
 
     @Nested
@@ -188,10 +165,11 @@ public class CaregiverMatchServiceTest {
 
         @Test
         void 성공한다() {
-            when(memberRepository.findByUsername(any(String.class))).thenReturn(Optional.of(requestMember));
-            when(matchRepository.findAllRequestByCaregiverId(any(), any())).thenReturn(new PageImpl<>(List.of(match)));
+            when(requestMember.getId()).thenReturn(1L);
+            when(memberRepository.findById(requestMember.getId())).thenReturn(Optional.of(requestMember));
+            when(matchRepository.findAllRequest(any(), any())).thenReturn(new PageImpl<>(List.of(match)));
 
-            MatchListResponse response = matchService.getRequestMatches(requestMember.getUsername(),
+            MatchListResponse response = matchService.getRequestMatches(requestMember.getUsername(), requestMember.getId(),
                     PageRequest.of(0, 10));
 
             assertNotNull(response);
@@ -200,9 +178,9 @@ public class CaregiverMatchServiceTest {
 
         @Test
         void 실패한다_회원_정보_없음() {
-            when(memberRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+            when(memberRepository.findById(requestMember.getId())).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> matchService.getRequestMatches(requestMember.getUsername(), PageRequest.of(0, 10)))
+            assertThatThrownBy(() -> matchService.getRequestMatches(requestMember.getUsername(), requestMember.getId(), PageRequest.of(0, 10)))
                     .isInstanceOf(EntityNotFoundException.class);
         }
     }
@@ -212,10 +190,11 @@ public class CaregiverMatchServiceTest {
 
         @Test
         void 성공한다() {
-            when(memberRepository.findByUsername(any(String.class))).thenReturn(Optional.of(requestMember));
-            when(matchRepository.findAllReceivedByCaregiverId(any(), any())).thenReturn(new PageImpl<>(List.of(match)));
+            when(requestMember.getId()).thenReturn(1L);
+            when(memberRepository.findById(requestMember.getId())).thenReturn(Optional.of(requestMember));
+            when(matchRepository.findAllReceived(any(), any())).thenReturn(new PageImpl<>(List.of(match)));
 
-            MatchListResponse response = matchService.getReceivedMatches(requestMember.getUsername(),
+            MatchListResponse response = matchService.getReceivedMatches(requestMember.getUsername(), requestMember.getId(),
                     PageRequest.of(0, 10));
 
             assertNotNull(response);
@@ -224,10 +203,10 @@ public class CaregiverMatchServiceTest {
 
         @Test
         void 실패한다_회원_정보_없음() {
-            when(memberRepository.findByUsername(any(String.class))).thenReturn(Optional.empty());
+            when(memberRepository.findById(requestMember.getId())).thenReturn(Optional.empty());
 
             assertThatThrownBy(
-                    () -> matchService.getReceivedMatches(requestMember.getUsername(), PageRequest.of(0, 10)))
+                    () -> matchService.getReceivedMatches(requestMember.getUsername(), requestMember.getId(),  PageRequest.of(0, 10)))
                     .isInstanceOf(EntityNotFoundException.class);
         }
     }

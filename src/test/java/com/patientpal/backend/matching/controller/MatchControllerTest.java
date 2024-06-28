@@ -41,11 +41,12 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             MatchResponse response = MatchResponse.builder().build();
-            given(matchService.createForPatient(any(String.class), any(Long.class))).willReturn(response);
+            given(matchService.createMatch(any(String.class), any(Long.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/v1/matches/patient/{responseMemberId}", 1L)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post("/api/v1/matches")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("responseMemberId", "1"))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(response.getId()));
@@ -55,8 +56,9 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // when & then
-            mockMvc.perform(post("/api/v1/matches/patient/{responseMemberId}", "invalidId")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post("/api/v1/matches")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("responseMemberId", "invalidId"))
                     .andDo(print())
                     .andExpect(status().isBadRequest());
         }
@@ -71,11 +73,12 @@ public class MatchControllerTest extends CommonControllerSliceTest {
             // given
             MatchResponse response = MatchResponse.builder().build();
 
-            given(matchService.createForCaregiver(any(String.class), any(Long.class))).willReturn(response);
+            given(matchService.createMatch(any(String.class), any(Long.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/v1/matches/caregiver/{responseMemberId}", 1L)
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post("/api/v1/matches")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("responseMemberId", "1"))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(response.getId()));
@@ -85,8 +88,9 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // when & then
-            mockMvc.perform(post("/api/v1/matches/caregiver/{responseMemberId}", "invalidId")
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post("/api/v1/matches")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .param("responseMemberId", "invalidId"))
                     .andDo(print())
                     .andExpect(status().isBadRequest());
         }
@@ -114,7 +118,8 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 매칭_정보가_없으면_예외가_발생한다() throws Exception {
             // given
-            given(matchService.getMatch(any(Long.class), any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST));
+            given(matchService.getMatch(any(Long.class), any(String.class))).willThrow(
+                    new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST));
 
             // when & then
             mockMvc.perform(get("/api/v1/matches/{matchId}", 1L))
@@ -136,10 +141,10 @@ public class MatchControllerTest extends CommonControllerSliceTest {
             PageImpl<MatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10), responses.size());
             MatchListResponse listResponse = new MatchListResponse(responses, 0, matchPage.getTotalPages(),
                     matchPage.getTotalElements());
-            given(matchService.getRequestMatches(any(String.class), any())).willReturn(listResponse);
+            given(matchService.getRequestMatches(any(String.class), any(), any())).willReturn(listResponse);
 
             // when & then
-            mockMvc.perform(get("/api/v1/matches/all/request")
+            mockMvc.perform(get("/api/v1/matches/{memberId}/all/request", 1L)
                             .param("page", "0")
                             .param("size", "10"))
                     .andDo(print())
@@ -159,10 +164,10 @@ public class MatchControllerTest extends CommonControllerSliceTest {
             PageImpl<MatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10), responses.size());
             MatchListResponse listResponse = new MatchListResponse(responses, 0, matchPage.getTotalPages(),
                     matchPage.getTotalElements());
-            given(matchService.getReceivedMatches(any(String.class), any())).willReturn(listResponse);
+            given(matchService.getReceivedMatches(any(String.class), any(), any())).willReturn(listResponse);
 
             // when & then
-            mockMvc.perform(get("/api/v1/matches/all/received")
+            mockMvc.perform(get("/api/v1/matches/{memberId}/all/received", 1L)
                             .param("page", "0")
                             .param("size", "10"))
                     .andDo(print())
@@ -189,7 +194,8 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 매칭_정보가_없으면_예외가_발생한다() throws Exception {
             // given
-            willThrow(new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST)).given(matchService).cancelMatch(any(Long.class), any(String.class));
+            willThrow(new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST)).given(matchService)
+                    .cancelMatch(any(Long.class), any(String.class));
 
             // when & then
             mockMvc.perform(post("/api/v1/matches/{matchId}/cancel", 1L))
@@ -217,7 +223,8 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 매칭_정보가_없으면_예외가_발생한다() throws Exception {
             // given
-            willThrow(new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST)).given(matchService).acceptMatch(any(Long.class), any(String.class));
+            willThrow(new EntityNotFoundException(ErrorCode.MATCH_NOT_EXIST)).given(matchService)
+                    .acceptMatch(any(Long.class), any(String.class));
 
             // when & then
             mockMvc.perform(post("/api/v1/matches/{matchId}/accept", 1L))

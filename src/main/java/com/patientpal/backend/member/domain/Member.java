@@ -80,6 +80,9 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
     @Setter
     private Boolean isProfilePublic;
 
+    @Setter
+    private Boolean isCompleteProfile;
+
     @Column(length = 512)
     @Setter
     private String profileImageUrl;
