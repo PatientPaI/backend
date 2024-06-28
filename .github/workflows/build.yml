@@ -2,7 +2,8 @@ name: build and deploy
 
 on:
   push:
-    branches: [ "feat/build-with-docker" ]
+    branches:
+      - $default-branch
     paths-ignore:
       - '.github/**'
       - 'styleguide/**'
