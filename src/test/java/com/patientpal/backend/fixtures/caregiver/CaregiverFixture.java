@@ -1,12 +1,5 @@
 package com.patientpal.backend.fixtures.caregiver;
 
-import static com.patientpal.backend.fixtures.member.MemberFixture.DOHYUN_NAME;
-import static com.patientpal.backend.fixtures.member.MemberFixture.HUSEONG_NAME;
-import static com.patientpal.backend.fixtures.member.MemberFixture.JEONGHYE_NAME;
-import static com.patientpal.backend.fixtures.member.MemberFixture.dohyunRoleCaregiver;
-import static com.patientpal.backend.fixtures.member.MemberFixture.huseongRoleCaregiver;
-import static com.patientpal.backend.fixtures.member.MemberFixture.jeonghyeRoleCaregiver;
-
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
@@ -18,8 +11,8 @@ public class CaregiverFixture {
 
     public static final String PHONE_NUMBER = "010-1234-5678";
     public static final Address ADDRESS = new Address("Seoul Street", "ho", "hi");
-    public static final String NAME = "간병인 이름";
-
+    public static final String CAREGIVER_NAME = "간병";
+    public static final String CAREGIVER_USERNAME = "간병";
     public static final float RATING = 4.5f;
     public static final int EXPERIENCE_YEARS = 5;
     public static final String RESIDENT_REGISTRATION_NUMBER = "121212-121212";
@@ -32,40 +25,12 @@ public class CaregiverFixture {
     public static final String UPDATE_SPECIALIZATION = "업데이트 노인 간병";
     public static final String UPDATE_CAREGIVER_SIGNIFICANT = "업데이트 다양한 경험 보유";
 
-    public static Caregiver huseongCaregiver() {
+    public static Caregiver defaultCaregiver() {
         return Caregiver.builder()
-                .member(huseongRoleCaregiver())
-                .name(HUSEONG_NAME)
+                .username(CAREGIVER_USERNAME)
+                .name(CAREGIVER_NAME)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
-                .phoneNumber(PHONE_NUMBER)
-                .address(ADDRESS)
-                .rating(RATING)
-                .experienceYears(EXPERIENCE_YEARS)
-                .specialization(SPECIALIZATION)
-                .caregiverSignificant(CAREGIVER_SIGNIFICANT)
-                .build();
-    }
-
-    public static Caregiver dohyunCaregiver() {
-        return Caregiver.builder()
-                .member(dohyunRoleCaregiver())
-                .name(DOHYUN_NAME)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
-                .phoneNumber(PHONE_NUMBER)
-                .address(ADDRESS)
-                .rating(RATING)
-                .experienceYears(EXPERIENCE_YEARS)
-                .specialization(SPECIALIZATION)
-                .caregiverSignificant(CAREGIVER_SIGNIFICANT)
-                .build();
-    }
-
-    public static Caregiver jeonghyeCaregiver() {
-        return Caregiver.builder()
-                .member(jeonghyeRoleCaregiver())
-                .name(JEONGHYE_NAME)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
-                .phoneNumber(PHONE_NUMBER)
+                .contact(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
                 .experienceYears(EXPERIENCE_YEARS)
@@ -76,10 +41,10 @@ public class CaregiverFixture {
 
     public static CaregiverProfileCreateRequest createCaregiverProfileRequest() {
         return CaregiverProfileCreateRequest.builder()
-                .name(HUSEONG_NAME)
+                .name(CAREGIVER_NAME)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .gender(Gender.MALE)
-                .phoneNumber(PHONE_NUMBER)
+                .contact(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
                 .experienceYears(EXPERIENCE_YEARS)
@@ -101,9 +66,9 @@ public class CaregiverFixture {
     public static CaregiverProfileDetailResponse createCaregiverProfileResponse() {
         return CaregiverProfileDetailResponse.builder()
                 .memberId(1L)
-                .name(HUSEONG_NAME)
+                .name(CAREGIVER_NAME)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
-                .phoneNumber(PHONE_NUMBER)
+                .contact(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
                 .experienceYears(EXPERIENCE_YEARS)
