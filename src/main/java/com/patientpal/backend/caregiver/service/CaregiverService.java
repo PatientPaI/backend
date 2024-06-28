@@ -99,6 +99,9 @@ public class CaregiverService {
         if (!username.equals(caregiver.getUsername())) {
             throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
         }
+        if (!caregiver.getIsCompleteProfile()) {
+            throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
+        }
         caregiver.setIsProfilePublic(true);
     }
 
