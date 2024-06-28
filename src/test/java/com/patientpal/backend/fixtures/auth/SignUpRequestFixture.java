@@ -39,7 +39,6 @@ public class SignUpRequestFixture {
                 .username(VALID_USERNAME)
                 .password(VALID_PASSWORD)
                 .passwordConfirm(VALID_PASSWORD)
-                .contact(VALID_CONTACT)
                 .role(Role.USER);
     }
 }
