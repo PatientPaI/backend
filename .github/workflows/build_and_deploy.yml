@@ -1,9 +1,8 @@
-name: build and deploy
+name: build
 
 on:
   push:
-    branches:
-      - $default-branch
+    branches: [ "feat/build-with-docker" ]
     paths-ignore:
       - '.github/**'
       - 'styleguide/**'
@@ -42,7 +41,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: leehusung/backend:latest
+          tags: layer6ai/patientpal:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -57,10 +56,10 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull leehusung/backend:latest
+            docker pull layer6ai/patientpal:latest
             docker stop patientpal-be || true
             docker rm patientpal-be || true
             docker run -d --name patientpal-be -p 8080:8080 \
               -e JASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }} \
               -e PROD_PROFILE=prod \
-              leehusung/backend:latest
+              layer6ai/patientpal:latest
