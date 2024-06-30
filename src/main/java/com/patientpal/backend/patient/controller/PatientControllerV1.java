@@ -49,7 +49,8 @@ public class PatientControllerV1 {
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        PatientProfileDetailResponse patientProfileDetailResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
+        String savedCloudFrontUrl = presignedUrlService.getCloudFrontUrl("profiles", profileImageUrl);
+        PatientProfileDetailResponse patientProfileDetailResponse = patientService.savePatientProfile(currentMember.getUsername(), patientProfileCreateRequest, savedCloudFrontUrl);
         return ResponseEntity.status(CREATED).body(patientProfileDetailResponse);
     }
 
@@ -78,7 +79,8 @@ public class PatientControllerV1 {
             @PathVariable Long memberId,
             @RequestBody @Valid PatientProfileUpdateRequest patientProfileUpdateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        patientService.updatePatientProfile(currentMember.getUsername(), memberId, patientProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
+        String savedCloudFrontUrl = presignedUrlService.getCloudFrontUrl("profiles", profileImageUrl);
+        patientService.updatePatientProfile(currentMember.getUsername(), memberId, patientProfileUpdateRequest, savedCloudFrontUrl);
         return ResponseEntity.noContent().build();
     }
 

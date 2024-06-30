@@ -19,6 +19,9 @@ public class PresignedUrlService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${cloudfront.domain}")
+    private String cloudFrontDomain;
+
     private final AmazonS3 amazonS3;
 
     public String getPresignedUrl(String prefix, String fileName) {
@@ -31,6 +34,15 @@ public class PresignedUrlService {
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 
         return url.toString();
+    }
+
+    public String getCloudFrontUrl(String prefix, String wholeUrl) {
+        String urlWithoutParams = wholeUrl.split("\\?")[0];
+        String fileName = urlWithoutParams.substring(urlWithoutParams.lastIndexOf('/') + 1);
+        if (!prefix.isEmpty()) {
+            fileName = prefix + "/" + fileName;
+        }
+        return cloudFrontDomain + "/" + fileName;
     }
 
     private String onlyOneFileName(String filename) {
@@ -52,13 +64,5 @@ public class PresignedUrlService {
         expiration.setTime(expTimeMillis);
 
         return expiration;
-    }
-
-    public String getSavedUrl(String profileImageUrl) {
-        if (profileImageUrl == null) {
-            return null;
-        }
-        int queryIndex = profileImageUrl.indexOf('?');
-        return (queryIndex == -1) ? profileImageUrl : profileImageUrl.substring(0, queryIndex);
     }
 }
