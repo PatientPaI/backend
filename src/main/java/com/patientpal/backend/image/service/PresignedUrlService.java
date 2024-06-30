@@ -42,7 +42,7 @@ public class PresignedUrlService {
         if (!prefix.isEmpty()) {
             fileName = prefix + "/" + fileName;
         }
-        return cloudFrontDomain + "/" + fileName;
+        return cloudFrontDomain + "/" + fileName + "?h=50";
     }
 
     private String onlyOneFileName(String filename) {
