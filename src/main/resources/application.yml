@@ -46,6 +46,9 @@ cloud:
       accessKey: ENC(tEeWEIeX8ZAdndGq/K7QW6yLiyry5Vo4rpRQBKI/YNdfMOgGtpRqf/aqwR+or0DAp+PXc6Q7RE54uYAt6wBN1A==)
       secretKey: ENC(Lo/mgU4/JW5OsWM9zyKZjH8XIz1AJyYyw2N281xL7iZnHMaSJ9vu/RwXsJfuQ2vzTKU3YYeUisMVh0sSEOD0Foz774tN/ZTjd1yXto572eU=)
 
+cloudfront:
+  domain: ENC(01drYBBlLccBHHJA8iC7qKld42M7VqefpmCv2r03PHocKpsBRSBFo9enqIJ98okaRaQwb5QRwpUFak42TEdBhVdEXntEwEAWld1EIMxwO8k=)
+
 ---
 spring:
   config:
