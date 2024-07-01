@@ -31,6 +31,7 @@ import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.matching.exception.DuplicateRequestException;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.notification.annotation.NeedNotification;
 import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.repository.PatientRepository;
@@ -55,6 +56,7 @@ public class MatchServiceImpl implements MatchService {
 
     @Transactional
     @Override
+    @NeedNotification
     public MatchResponse createMatch(String username, Long responseMemberId) {
         Member requestMember = getMemberByUsername(username);
         Member responseMember = getMemberById(responseMemberId);
@@ -82,14 +84,16 @@ public class MatchServiceImpl implements MatchService {
         String generatedPatientProfileSnapshot = getPatientByMemberId(requestMember.getId()).generatePatientProfileSnapshot();
         Match match = matchRepository.save(MatchResponse.toEntityFirstPatient(requestMember, responseMember, generatedPatientProfileSnapshot));
         log.info("매칭 신청 성공 ! 요청 : {}, 수락 : {}", requestMember.getName(), responseMember.getName());
-        return MatchResponse.of(match);
+        MatchResponse matchResponse = MatchResponse.of(match);
+        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
     }
 
     private MatchResponse createCaregiverMatch(Member requestMember, Member responseMember) {
         String generatedCaregiverProfileSnapshot = getCaregiverByMemberId(requestMember.getId()).generateCaregiverProfileSnapshot();
         Match match = matchRepository.save(MatchResponse.toEntityFirstCaregiver(requestMember, responseMember, generatedCaregiverProfileSnapshot));
         log.info("매칭 신청 성공 ! 요청 : {}, 수락 : {}", requestMember.getName(), responseMember.getName());
-        return MatchResponse.of(match);
+        MatchResponse matchResponse = MatchResponse.of(match);
+        return new MatchNotificationProxy(matchResponse, MatchNotificationMemberResponse.from(responseMember));
     }
 
 
