@@ -49,7 +49,8 @@ public class CaregiverControllerV1 {
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid CaregiverProfileCreateRequest caregiverProfileCreateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        CaregiverProfileDetailResponse caregiverProfileDetailResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), caregiverProfileCreateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
+        String savedCloudFrontUrl = presignedUrlService.getCloudFrontUrl("profiles", profileImageUrl);
+        CaregiverProfileDetailResponse caregiverProfileDetailResponse = caregiverService.saveCaregiverProfile(currentMember.getUsername(), caregiverProfileCreateRequest, savedCloudFrontUrl);
         return ResponseEntity.status(CREATED).body(caregiverProfileDetailResponse);
     }
 
@@ -78,7 +79,8 @@ public class CaregiverControllerV1 {
             @PathVariable Long memberId,
             @RequestBody @Valid CaregiverProfileUpdateRequest caregiverProfileUpdateRequest,
             @RequestParam(required = false) String profileImageUrl) {
-        caregiverService.updateCaregiverProfile(currentMember.getUsername(), memberId, caregiverProfileUpdateRequest, presignedUrlService.getSavedUrl(profileImageUrl));
+        String savedCloudFrontUrl = presignedUrlService.getCloudFrontUrl("profiles", profileImageUrl);
+        caregiverService.updateCaregiverProfile(currentMember.getUsername(), memberId, caregiverProfileUpdateRequest, savedCloudFrontUrl);
         return ResponseEntity.noContent().build();
     }
 
