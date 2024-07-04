@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: local # [local, prod]
+    include: oauth2
 
   application:
     name: backend
@@ -74,11 +75,19 @@ spring:
       enabled: true
       path: /h2-console
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    session:
+      store-type: redis
+
 ---
 spring:
   config:
     activate:
       on-profile: "prod"
+      include: oauth2
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
