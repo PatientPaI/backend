@@ -25,6 +25,7 @@ import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserCaregiver
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, new Address("hi", "ho", "ha"), 1, 1, "", "");
+            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, new Address("hi", "ho", "ha"), 1, 1, "", "", LocalDateTime.now(), LocalDateTime.now());
 
             // when & then
             mockMvc.perform(post("/api/v1/caregiver/profile")

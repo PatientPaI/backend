@@ -12,9 +12,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.matching.dto.response.MatchListResponse;
+import com.patientpal.backend.matching.dto.request.CreateMatchCaregiverRequest;
+import com.patientpal.backend.matching.dto.request.CreateMatchPatientRequest;
+import com.patientpal.backend.matching.dto.response.ReceivedMatchListResponse;
+import com.patientpal.backend.matching.dto.response.ReceivedMatchResponse;
+import com.patientpal.backend.matching.dto.response.RequestMatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
+import com.patientpal.backend.matching.dto.response.RequestMatchResponse;
 import com.patientpal.backend.matching.service.MatchService;
+import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import com.patientpal.backend.test.annotation.WithCustomMockUserPatient;
@@ -41,12 +47,15 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             MatchResponse response = MatchResponse.builder().build();
-            given(matchService.createMatch(any(String.class), any(Long.class))).willReturn(response);
+            CreateMatchPatientRequest request = CreateMatchPatientRequest.builder().build();
+            given(matchService.createMatchPatient(any(String.class), any(Long.class),
+                    any(CreateMatchPatientRequest.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/v1/matches")
+            mockMvc.perform(post("/api/v1/matches/patient")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .param("responseMemberId", "1"))
+                            .param("responseMemberId", "1")
+                            .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(response.getId()));
@@ -56,7 +65,7 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // when & then
-            mockMvc.perform(post("/api/v1/matches")
+            mockMvc.perform(post("/api/v1/matches/patient")
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("responseMemberId", "invalidId"))
                     .andDo(print())
@@ -72,13 +81,15 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             MatchResponse response = MatchResponse.builder().build();
-
-            given(matchService.createMatch(any(String.class), any(Long.class))).willReturn(response);
+            CreateMatchCaregiverRequest request = CreateMatchCaregiverRequest.builder().build();
+            given(matchService.createMatchCaregiver(any(String.class), any(Long.class),
+                    any(CreateMatchCaregiverRequest.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(post("/api/v1/matches")
+            mockMvc.perform(post("/api/v1/matches/caregiver")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .param("responseMemberId", "1"))
+                            .param("responseMemberId", "1")
+                            .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(response.getId()));
@@ -88,7 +99,7 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // when & then
-            mockMvc.perform(post("/api/v1/matches")
+            mockMvc.perform(post("/api/v1/matches/caregiver")
                             .contentType(MediaType.APPLICATION_JSON)
                             .param("responseMemberId", "invalidId"))
                     .andDo(print())
@@ -135,11 +146,13 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 성공한다() throws Exception {
             // given
-            MatchResponse response1 = MatchResponse.builder().build();
-            MatchResponse response2 = MatchResponse.builder().build();
-            List<MatchResponse> responses = List.of(response1, response2);
-            PageImpl<MatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10), responses.size());
-            MatchListResponse listResponse = new MatchListResponse(responses, 0, matchPage.getTotalPages(),
+            RequestMatchResponse response1 = RequestMatchResponse.builder().build();
+            RequestMatchResponse response2 = RequestMatchResponse.builder().build();
+            List<RequestMatchResponse> responses = List.of(response1, response2);
+            PageImpl<RequestMatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10),
+                    responses.size());
+            RequestMatchListResponse listResponse = new RequestMatchListResponse(responses, 0,
+                    matchPage.getTotalPages(),
                     matchPage.getTotalElements());
             given(matchService.getRequestMatches(any(String.class), any(), any())).willReturn(listResponse);
 
@@ -158,11 +171,13 @@ public class MatchControllerTest extends CommonControllerSliceTest {
         @Test
         @WithCustomMockUserPatient
         void 성공한다() throws Exception {
-            MatchResponse response1 = MatchResponse.builder().build();
-            MatchResponse response2 = MatchResponse.builder().build();
-            List<MatchResponse> responses = List.of(response1, response2);
-            PageImpl<MatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10), responses.size());
-            MatchListResponse listResponse = new MatchListResponse(responses, 0, matchPage.getTotalPages(),
+            ReceivedMatchResponse response1 = ReceivedMatchResponse.builder().build();
+            ReceivedMatchResponse response2 = ReceivedMatchResponse.builder().build();
+            List<ReceivedMatchResponse> responses = List.of(response1, response2);
+            PageImpl<ReceivedMatchResponse> matchPage = new PageImpl<>(responses, PageRequest.of(0, 10),
+                    responses.size());
+            ReceivedMatchListResponse listResponse = new ReceivedMatchListResponse(responses, 0,
+                    matchPage.getTotalPages(),
                     matchPage.getTotalElements());
             given(matchService.getReceivedMatches(any(String.class), any(), any())).willReturn(listResponse);
 
