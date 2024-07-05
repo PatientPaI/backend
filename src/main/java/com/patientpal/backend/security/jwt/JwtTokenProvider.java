@@ -13,9 +13,11 @@ import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,14 +35,17 @@ public class JwtTokenProvider {
     public final long refreshTokenExpirationTime;
     public final long accessTokenExpirationTime;
 
+    private final RedisTemplate<String, Object> redisTemplate;
+
     public JwtTokenProvider(
-        @Value("${security.jwt.base64-secret}") String base64Secret,
-        @Value("${security.jwt.refresh-expiration-time}") long refreshTokenExpirationTime,
-        @Value("${security.jwt.access-expiration-time}") long accessTokenExpirationTime
+            @Value("${security.jwt.base64-secret}") String base64Secret,
+            @Value("${security.jwt.refresh-expiration-time}") long refreshTokenExpirationTime,
+            @Value("${security.jwt.access-expiration-time}") long accessTokenExpirationTime, RedisTemplate<String, Object> redisTemplate
     ) {
         this.base64Secret = base64Secret;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
+        this.redisTemplate = redisTemplate;
     }
 
     public String createToken(Authentication authentication, long expirationTime) {
@@ -101,10 +106,24 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             getAllClaimsFromToken(token);
+            String isInvalid = (String) redisTemplate.opsForValue().get(token);
+            if ("invalid".equals(isInvalid)) {
+                return false;
+            }
             return true;
         } catch (JwtException ex) {
             log.trace("Invalid JWT token trace: {}", ex.toString());
             return false;
         }
+    }
+
+    public void invalidateToken(String token) {
+        Long expiration = getExpiration(token);
+        redisTemplate.opsForValue().set(token, "invalid", expiration, TimeUnit.MILLISECONDS);
+    }
+
+    public Long getExpiration(String token) {
+        var expiration = getAllClaimsFromToken(token).getBody().getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
     }
 }

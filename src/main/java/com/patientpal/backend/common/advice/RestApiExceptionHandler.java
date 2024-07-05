@@ -7,9 +7,11 @@ import com.patientpal.backend.webhook.service.DiscordWebhookService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -58,4 +60,12 @@ public class RestApiExceptionHandler {
         log.error(e.getMessage(), e);
         return new ResponseEntity<>(response, response.getStatus());
     }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    protected ResponseEntity<ErrorResponse> handleMissingRequestCookieException(MissingRequestCookieException e) {
+        var response = ErrorResponse.of(ErrorCode.INVALID_INPUT_VALUE);
+        log.debug("Required cookie is missing: {}", e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }

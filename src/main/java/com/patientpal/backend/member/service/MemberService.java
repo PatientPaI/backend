@@ -13,6 +13,7 @@ import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.repository.PatientRepository;
+import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,6 +58,36 @@ public class MemberService {
         }
     }
 
+    @Transactional
+    public Long saveSocialUser(Oauth2SignUpRequest request) {
+        try {
+            String username = request.getUsername();
+
+            if (request.getRole() == Role.CAREGIVER) {
+                Caregiver caregiver = Caregiver.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .build();
+                return caregiverRepository.save(caregiver).getId();
+            } else if (request.getRole() == Role.USER) {
+                Patient patient = Patient.builder()
+                        .username(username)
+                        .password(passwordEncoder.encode(request.getPassword()))
+                        .role(request.getRole())
+                        .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .build();
+                return patientRepository.save(patient).getId();
+            } else {
+                throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getEmail());
+        }
+    }
+
+
     @Transactional(readOnly = true)
     public MemberResponse findByUsername(String username) {
         Member foundMember = memberRepository.findByUsernameOrThrow(username);
@@ -70,5 +101,10 @@ public class MemberService {
 
     public void deleteByUsername(String username) {
         memberRepository.deleteByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByUsername(String username) {
+        return memberRepository.existsByUsername(username);
     }
 }

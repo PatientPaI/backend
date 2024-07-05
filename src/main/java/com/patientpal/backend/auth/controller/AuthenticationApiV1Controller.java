@@ -6,8 +6,17 @@ import com.patientpal.backend.auth.dto.SignUpRequest;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.JwtTokenService;
+import com.patientpal.backend.common.exception.BusinessException;
+import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.service.MemberService;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
+import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
+import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
+import com.patientpal.backend.security.oauth.dto.Oauth2SignUpResponse;
+import com.patientpal.backend.security.oauth.userinfo.CustomOauth2UserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,16 +24,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.patientpal.backend.common.exception.ErrorCode.INVALID_USERNAME;
+import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
 
 @Tag(name = "인증", description = "인증 API")
 @RestController
@@ -65,6 +87,48 @@ public class AuthenticationApiV1Controller {
         return ResponseEntity.created(URI.create("/api/v1/members/" + memberService.save(request))).build();
     }
 
+    @GetMapping("/oauth2/register")
+    @Operation(summary = "소셜 회원가입 정보 가져오기", description = "소셜 로그인 후 회원가입 페이지에서 필요한 정보를 가져온다.")
+    @ApiResponse(responseCode = "200", description = "소셜 회원가입 정보 가져오기 성공",
+            content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
+    public ResponseEntity<Oauth2SignUpResponse> getOauth2UserInfo(HttpSession session) {
+        Oauth2SignUpResponse response = createOauth2SignUpResponse(session);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/oauth2/register")
+    @Operation(summary = "소셜 회원가입", description = "소셜 로그인 후 추가 정보를 입력받아 회원가입을 한다.")
+    @ApiResponse(responseCode = "201", description = "회원가입 성공",
+            content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
+    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(@Valid @RequestBody Oauth2SignUpRequest signupForm,
+                                                                    HttpSession session) {
+        String username = getUsername(signupForm, session);
+
+        memberService.saveSocialUser(signupForm);
+
+        Member member = getMember(username);
+        String token = generateToken(member, signupForm.getProvider(), signupForm.getEmail(), signupForm.getName());
+
+        session.setAttribute("token", token);
+
+        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, signupForm.getEmail(), signupForm.getName(), signupForm.getRole().name(), signupForm.getProvider(), token);
+
+        return ResponseEntity.created(URI.create("/api/v1/members/" + member.getId())).body(response);
+    }
+
+    @GetMapping("/logout")
+    @Operation(summary = "로그아웃", description = "사용자를 로그아웃한다.")
+    public void logout(HttpServletRequest req, HttpServletResponse resp,
+                         @CookieValue("refresh_token") String refreshToken) {
+        if (refreshToken != null) {
+            jwtTokenProvider.invalidateToken(refreshToken);
+        }
+        new SecurityContextLogoutHandler()
+                .logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
+        resp.setStatus(HttpServletResponse.SC_FOUND);
+        resp.setHeader("Location", "/login");
+    }
+
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie refreshTokenCookie = new Cookie("refresh_token", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -74,4 +138,50 @@ public class AuthenticationApiV1Controller {
         refreshTokenCookie.setMaxAge((int) (jwtTokenProvider.refreshTokenExpirationTime / 1000));
         response.addCookie(refreshTokenCookie);
     }
+
+    private Oauth2SignUpResponse createOauth2SignUpResponse(HttpSession session) {
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+        Role role = (Role) session.getAttribute("role");
+        String provider = (String) session.getAttribute("provider");
+        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
+
+        if (username == null || username.isEmpty()) {
+            throw new BusinessException(INVALID_USERNAME, "Username is not set in session");
+        }
+
+        Member member = memberService.getUserByUsername(username);
+
+        if (member == null) {
+            throw new EntityNotFoundException(MEMBER_NOT_EXIST, "Member not found with username: " + username);
+        }
+
+        return Oauth2SignUpResponse.fromMember(member, email, name, role.name(), provider, token);
+    }
+
+    private String generateToken(Member member, String provider, String email, String name) {
+        CustomOauth2UserInfo userInfo = CustomOauth2UserInfo.of(provider, Map.of("email", email, "name", name));
+        String password = member.getPassword() != null ? member.getPassword() : "DUMMY_PASSWORD";
+        CustomOauth2UserPrincipal principal = new CustomOauth2UserPrincipal(member.getUsername(), password, Collections.singletonList(new SimpleGrantedAuthority(member.getRole().name())));
+        principal.setUserInfo(userInfo);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
+        return jwtTokenProvider.createAccessToken(authentication);
+    }
+
+    private String getUsername(Oauth2SignUpRequest signupForm, HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        signupForm.setUsername(username);
+        return username;
+    }
+
+    private Member getMember(String username) {
+        Member member = memberService.getUserByUsername(username);
+        if (member == null) {
+            throw new BusinessException(ErrorCode.MEMBER_NOT_EXIST, "Member not found with username: " + username);
+        }
+        return member;
+    }
 }
+

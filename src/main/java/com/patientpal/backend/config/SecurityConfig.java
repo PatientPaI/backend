@@ -1,11 +1,16 @@
 package com.patientpal.backend.config;
 
+import com.patientpal.backend.member.domain.Role;
+import com.patientpal.backend.member.service.MemberService;
 import com.patientpal.backend.security.jwt.JwtAccessDeniedHandler;
 import com.patientpal.backend.security.jwt.JwtAuthTokenFilter;
 import com.patientpal.backend.security.jwt.JwtAuthenticationEntryPoint;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
+import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.CustomOauth2UserService;
 import java.util.Collections;
+import java.util.Map;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,10 +29,12 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private static final String REDIRECT_URI_PARAM_COOKIE_NAME = "redirect_uri";
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final CustomOauth2UserService customOauth2UserService;
+    private final OAuth2ClientConfig oAuth2ClientConfig;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,30 +42,81 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
-        return http
-                .securityMatcher("/api/**")
-                    .csrf(AbstractHttpConfigurer::disable)
-                    .formLogin(AbstractHttpConfigurer::disable)
-                    .httpBasic(AbstractHttpConfigurer::disable)
-                    .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
-                    .authorizeHttpRequests(auth -> auth
-                            .anyRequest().permitAll())
-                    .exceptionHandling(handler -> handler
-                            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                            .accessDeniedHandler(jwtAccessDeniedHandler))
-                    .addFilterBefore(new JwtAuthTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                    .sessionManagement(session -> session
-                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    public SecurityFilterChain filterChain(final HttpSecurity http, MemberService memberService) throws Exception {
+         http
+            .securityMatcher("/api/**")
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll())
+                .exceptionHandling(handler -> handler
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler))
+                .addFilterBefore(new JwtAuthTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // TODO: 향후 OAuth2 로그인 기능을 이어서 구현해야 함
-            // .oauth2Login(oauth -> oauth
-            //         .userInfoEndpoint(userInfo -> userInfo
-            //                 .userService(customOauth2UserService))
-            //         .authorizationEndpoint(authorization -> authorization
-            //                 .baseUri("/login/oauth2/authorize"))
-            //         .redirectionEndpoint(redirection -> redirection
-            //                 .baseUri("/login/oauth2/code/{code}"))
-            .build();
+            .oauth2Login(oauth -> oauth
+                    .clientRegistrationRepository(oAuth2ClientConfig.clientRegistrationRepository())
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(customOauth2UserService))
+                    .authorizationEndpoint(authorization -> authorization
+                            .baseUri("/login/oauth2/authorize"))
+                    .redirectionEndpoint(redirection -> redirection
+                            .baseUri("/login/oauth2/code/{code}"))
+
+                    .successHandler((request, response, authentication) -> {
+                        CustomOauth2UserPrincipal userPrincipal = (CustomOauth2UserPrincipal) authentication.getPrincipal();
+                        Map<String, Object> attributes = userPrincipal.getAttributes();
+
+                        String registrationId = (String) attributes.get("registrationId");
+                        String email = null;
+                        String name = null;
+                        Role role = Role.USER;
+
+                        if ("google".equals(registrationId)) {
+                            email = (String) attributes.get("email");
+                            name = (String) attributes.get("name");
+                        } else if ("kakao".equals(registrationId)) {
+                            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+                            Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
+                            email = (String) kakaoAccount.get("email");
+                            name = (String) kakaoProfile.get("nickname");
+                        } else if ("naver".equals(registrationId)) {
+                            email = (String) attributes.get("email");
+                            name = (String) attributes.get("name");
+                        }
+
+                        String redirectUri = (String) request.getSession().getAttribute(REDIRECT_URI_PARAM_COOKIE_NAME);
+                        if (redirectUri == null) {
+                            redirectUri = "/";
+                        }
+
+                        if (email != null && memberService.existsByUsername(email)) {
+                            String token = jwtTokenProvider.createAccessToken(authentication);
+                            response.addHeader("Authorization", "Bearer " + token);
+                            response.sendRedirect(redirectUri);
+                        } else {
+                            HttpSession session = request.getSession();
+                            session.setAttribute("email", email);
+                            session.setAttribute("name", name);
+                            session.setAttribute("role", role);
+                            session.setAttribute("provider", registrationId);
+                            String username = createUniqueUsername(email, memberService);
+                            session.setAttribute("username", username);
+                            response.sendRedirect("/api/v1/auth/oauth2/register");
+                        }
+                    })
+            )
+                 .logout(logout -> logout
+                         .logoutUrl("/logout")
+                         .logoutSuccessUrl("/")
+                         .invalidateHttpSession(true)
+                         .deleteCookies("JSESSIONID", "refresh_token"));
+
+        return http.build();
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
@@ -71,5 +129,15 @@ public class SecurityConfig {
             config.setAllowCredentials(true);
             return config;
         };
+    }
+
+    private String createUniqueUsername(String baseName, MemberService memberService) {
+        String username = baseName;
+        int count = 1;
+        while (memberService.existsByUsername(username)) {
+            username = baseName + count;
+            count++;
+        }
+        return username;
     }
 }
