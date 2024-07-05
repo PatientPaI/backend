@@ -37,6 +37,7 @@ public class PresignedUrlService {
     }
 
     public String getCloudFrontUrl(String prefix, String wholeUrl) {
+        if (wholeUrl == null) return null;
         String urlWithoutParams = wholeUrl.split("\\?")[0];
         String fileName = urlWithoutParams.substring(urlWithoutParams.lastIndexOf('/') + 1);
         if (!prefix.isEmpty()) {
