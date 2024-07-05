@@ -37,6 +37,8 @@ public class MemberService {
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
+                        .isCompleteProfile(false)
+                        .isProfilePublic(false)
                         .build();
                 caregiver.encodePassword(passwordEncoder);
                 return caregiverRepository.save(caregiver).getId();
@@ -47,6 +49,8 @@ public class MemberService {
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
+                        .isCompleteProfile(false)
+                        .isProfilePublic(false)
                         .build();
                 patient.encodePassword(passwordEncoder);
                 return patientRepository.save(patient).getId();
