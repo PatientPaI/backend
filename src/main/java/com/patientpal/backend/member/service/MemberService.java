@@ -20,11 +20,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final CaregiverRepository caregiverRepository;
@@ -106,5 +108,10 @@ public class MemberService {
     @Transactional(readOnly = true)
     public boolean existsByUsername(String username) {
         return memberRepository.existsByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> findUsernamesStartingWith(String baseName) {
+        return memberRepository.findUsernameStartingWith(baseName);
     }
 }
