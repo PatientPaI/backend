@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -111,7 +112,15 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> findUsernamesStartingWith(String baseName) {
-        return memberRepository.findUsernameStartingWith(baseName);
+    public List<String> findUsernamesStartingWith(String username) {
+        validateUsername(username);
+        return memberRepository.findUsernameStartingWith(username);
+    }
+
+    private void validateUsername(String username) {
+        Pattern BASE_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9]*$");
+        if (!BASE_NAME_PATTERN.matcher(username).matches()) {
+            throw new IllegalArgumentException("Invalid base name: " + username);
+        }
     }
 }

@@ -23,6 +23,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByUsername(String username);
 
-    @Query("select m.username from Member m where m.username like :baseName%")
-    List<String> findUsernameStartingWith(@Param("baseName") String baseName);
+    @Query("select m.username from Member m where m.username like :username%")
+    List<String> findUsernameStartingWith(@Param("username") String username);
 }
