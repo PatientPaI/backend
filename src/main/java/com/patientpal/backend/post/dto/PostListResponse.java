@@ -1,11 +1,10 @@
 package com.patientpal.backend.post.dto;
 
 import com.patientpal.backend.post.domain.Post;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
