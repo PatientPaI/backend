@@ -2,6 +2,7 @@ package com.patientpal.backend.post.service;
 
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.common.page.domain.Paginator;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.post.domain.Post;
 import com.patientpal.backend.post.domain.PostType;
@@ -23,12 +24,13 @@ public class PostService {
 
     // TODO: wjdwwidz paging 처리
     @Transactional(readOnly = true)
-    public List<Post> getPosts() {
-        return postRepository.findAll();
-    }
-
     public List<Post> getNotices() {
         return postRepository.findAllByPostType(PostType.NOTICE);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Post> getFreePosts() {
+        return postRepository.findAllByPostType(PostType.FREE);
     }
 
     @Transactional(readOnly = true)
@@ -37,7 +39,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post createPost(Member member, PostCreateRequest createRequest) {
+    public Post createNoticePost(Member member, PostCreateRequest createRequest) {
         Post post = Post.builder()
                 .member(member)
                 .title(createRequest.getTitle())
@@ -63,10 +65,7 @@ public class PostService {
         postRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
-    public List<Post> getFreePosts() {
-        return postRepository.findAllByPostType(PostType.FREE);
-    }
+
 
     @Transactional
     public Post createFreePost(Member member, PostCreateRequest createRequest) {
