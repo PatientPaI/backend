@@ -10,7 +10,6 @@ import com.patientpal.backend.post.libs.RoleType;
 import com.patientpal.backend.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +46,7 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.CREATED)
     public PostCreateResponse create(@RequestBody PostCreateRequest createRequest, @AuthenticationPrincipal User currentMember) {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
-        Post post = postService.createPost(member, createRequest);
+        Post post = postService.createNoticePost(member, createRequest);
         return new PostCreateResponse(post);
     }
 
