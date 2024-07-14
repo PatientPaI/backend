@@ -56,7 +56,7 @@ public class DiscordWebhookService {
 
     private DiscordMessage createMessage(Exception ex, WebRequest request) {
         return DiscordMessage.builder()
-                .content("# :fire: 에러 발생 비이이이이사아아아앙 :rotating_light:")
+                .content("# :fire: 에러 발생 :rotating_light:")
                 .embeds(
                         List.of(
                                 Embed.builder()

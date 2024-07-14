@@ -10,10 +10,11 @@ public class MatchNotificationProxy extends MatchResponse implements Notificatio
     private final MatchNotificationMemberResponse memberResponseNotification;
 
     public MatchNotificationProxy(MatchResponse matchResponse, MatchNotificationMemberResponse memberResponseNotification) {
-        super(matchResponse.getId(), matchResponse.getRequestMemberId(), matchResponse.getReceivedMemberId(),
+        super(matchResponse.getId(), matchResponse.getRequestMemberName(), matchResponse.getReceivedMemberName(),
                 matchResponse.getCreatedDate(),
                 matchResponse.getMatchStatus(), matchResponse.getReadStatus(), matchResponse.getFirstRequest(),
-                matchResponse.getPatientProfileSnapshot(), matchResponse.getCaregiverProfileSnapshot());
+                matchResponse.getCareStartDateTime(), matchResponse.getCareEndDateTime(), matchResponse.getTotalAmount(), matchResponse.getRequestMemberCurrentSignificant(),
+                matchResponse.getIsNok(), matchResponse.getNokName(), matchResponse.getNokContact());
         this.memberResponseNotification = memberResponseNotification;
         this.matchResponse = matchResponse;
     }

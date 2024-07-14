@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
@@ -26,6 +27,7 @@ import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import com.patientpal.backend.test.annotation.WithCustomMockUserCaregiver;
 import com.patientpal.backend.test.annotation.WithCustomMockUserPatient;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +66,8 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", "", null, "", "", "", "",
-                    Gender.MALE);
+            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", Gender.MALE, null, new Address("", "", ""), "", "", "", "",
+                    " ", true, LocalDateTime.now(), LocalDateTime.now());
 
             // when & then
             mockMvc.perform(post("/api/v1/patient/profile")
