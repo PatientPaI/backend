@@ -15,6 +15,7 @@ public class PostListResponse {
     private String title;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String postType;
 
     public PostListResponse(Post post) {
         this.id = post.getId();
@@ -23,5 +24,6 @@ public class PostListResponse {
         this.title = post.getTitle();
         this.createdAt = post.getCreatedDate();
         this.updatedAt = post.getLastModifiedDate();
+        this.postType = post.getPostType().toString();
     }
 }
