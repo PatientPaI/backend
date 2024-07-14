@@ -9,6 +9,7 @@ import com.patientpal.backend.post.dto.*;
 import com.patientpal.backend.post.libs.RoleType;
 import com.patientpal.backend.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -24,14 +25,10 @@ public class NoticeController {
     private final PostService postService;
     private final MemberService memberService;
 
-    // TODO: wjdwwidz paging 처리
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public List<PostListResponse> list() {
-        List<Post> posts = postService.getNotices();
-        return posts.stream()
-                .map(PostListResponse::new)
-                .toList();
+    public Page<PostListResponse> list (@RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<Post> posts = this.postService.getList(page);
+        return posts.map(PostListResponse::new);
     }
 
     @GetMapping("/{id}")
