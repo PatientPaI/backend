@@ -39,7 +39,7 @@ public class BoardController {
 
     @GetMapping
     public Page<PostListResponse> list (@RequestParam(value = "page", defaultValue = "0") int page) {
-        Page<Post> posts = this.postService.getList(page);
+        Page<Post> posts = this.postService.getFreePostList(page);
         return posts.map(PostListResponse::new);
     }
 
