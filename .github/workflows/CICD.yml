@@ -58,6 +58,9 @@ jobs:
             export KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
             export NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
             export NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+            
+            export SPRING_REDIS_HOST=redis
+            export SPRING_REDIS_PORT=6379
 
             cd /home/ubuntu
             docker-compose pull
