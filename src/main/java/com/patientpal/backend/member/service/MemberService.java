@@ -47,7 +47,7 @@ public class MemberService {
                 caregiver.encodePassword(passwordEncoder);
                 return caregiverRepository.save(caregiver).getId();
             }
-            if (request.getRole() == Role.USER) {
+            else if (request.getRole() == Role.USER) {
                 Patient patient = Patient.builder().
                         username(request.getUsername())
                         .password(request.getPassword())
@@ -58,8 +58,15 @@ public class MemberService {
                         .build();
                 patient.encodePassword(passwordEncoder);
                 return patientRepository.save(patient).getId();
+            } else {
+                Member member = Member.builder()
+                        .username(request.getUsername())
+                        .password(request.getPassword())
+                        .role(Role.ADMIN)
+                        .provider(Provider.LOCAL)
+                        .build();
+                return memberRepository.save(member).getId();
             }
-            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }
@@ -87,7 +94,13 @@ public class MemberService {
                         .build();
                 return patientRepository.save(patient).getId();
             } else {
-                throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
+                Member member = Member.builder()
+                        .username(request.getUsername())
+                        .password(request.getPassword())
+                        .role(Role.ADMIN)
+                        .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .build();
+                return memberRepository.save(member).getId();
             }
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getEmail());
