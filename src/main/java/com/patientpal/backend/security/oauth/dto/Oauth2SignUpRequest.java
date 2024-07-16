@@ -40,4 +40,5 @@ public class Oauth2SignUpRequest {
         this.provider = provider;
         this.username = username;
     }
+
 }

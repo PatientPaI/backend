@@ -1,10 +1,13 @@
 package com.patientpal.backend.caregiver.service;
 
+import static com.patientpal.backend.member.domain.Member.*;
+
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
+import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
@@ -43,6 +46,8 @@ public class CaregiverService {
                 caregiverProfileCreateRequest.getExperienceYears(),
                 caregiverProfileCreateRequest.getSpecialization(),
                 caregiverProfileCreateRequest.getCaregiverSignificant(),
+                caregiverProfileCreateRequest.getWantCareStartDate(),
+                caregiverProfileCreateRequest.getWantCareEndDate(),
                 profileImageUrl);
         log.info("프로필 등록 성공: ID={}, NAME={}", caregiver.getId(), caregiver.getName());
         return CaregiverProfileDetailResponse.of(caregiver);
@@ -50,8 +55,8 @@ public class CaregiverService {
 
     public CaregiverProfileDetailResponse getProfile(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
-        if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        if (isNotOwner(username, caregiver)) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         return CaregiverProfileDetailResponse.of(caregiver);
     }
@@ -59,17 +64,19 @@ public class CaregiverService {
     @Transactional
     public void updateCaregiverProfile(String username, Long memberId, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
-        if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        if (isNotOwner(username, caregiver)) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         String currentProfileImageUrl = caregiver.getProfileImageUrl();
 
-        getCaregiverByMemberId(memberId).updateDetailProfile(
+        caregiver.updateDetailProfile(
                 caregiverProfileUpdateRequest.getAddress(),
                 caregiverProfileUpdateRequest.getRating(),
                 caregiverProfileUpdateRequest.getExperienceYears(),
                 caregiverProfileUpdateRequest.getSpecialization(),
-                caregiverProfileUpdateRequest.getCaregiverSignificant()
+                caregiverProfileUpdateRequest.getCaregiverSignificant(),
+                caregiverProfileUpdateRequest.getWantCareStartDate(),
+                caregiverProfileUpdateRequest.getWantCareEndDate()
         );
 
         if (profileImageUrl == null) {
@@ -82,22 +89,11 @@ public class CaregiverService {
         }
     }
 
-    // @Transactional //세부 프로필 삭제가 필요한가? 어차피 프로필 공개/비공개를 설정해두면 비공개로 하면 삭제 안해도 되는거 아닌가?
-    // public void deleteCaregiverProfile(String username, Long memberId) {
-    //     Member currentMember = getMember(username);
-    //     Caregiver caregiver = getCaregiver(memberId);
-    //     if (hasOnGoingMatches(caregiver.getId())) {
-    //         throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
-    //     }
-    //     // caregiverRepository.delete(caregiver);
-    // }
-
-
     @Transactional
     public void registerCaregiverProfileToMatchList(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
-        if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        if (isNotOwner(username, caregiver)) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         if (!caregiver.getIsCompleteProfile()) {
             throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
@@ -108,8 +104,8 @@ public class CaregiverService {
     @Transactional
     public void unregisterCaregiverProfileToMatchList(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
-        if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        if (isNotOwner(username, caregiver)) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         caregiver.setIsProfilePublic(false);
     }
@@ -125,8 +121,8 @@ public class CaregiverService {
     @Transactional
     public void deleteCaregiverProfileImage(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
-        if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+        if (isNotOwner(username, caregiver)) {
+            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         caregiver.deleteProfileImage();
     }

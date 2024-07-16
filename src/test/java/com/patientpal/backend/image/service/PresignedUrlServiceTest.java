@@ -57,7 +57,7 @@ class PresignedUrlServiceTest {
         String savedUrl = presignedUrlService.getCloudFrontUrl(PROFILE_PREFIX, PRESIGNED_URL);
 
         // then
-        assertThat(savedUrl).isEqualTo(CLOUD_FRONT_URL);
+        assertThat(savedUrl).isEqualTo(CLOUD_FRONT_URL+"?h=50");
     }
 
     @Test
