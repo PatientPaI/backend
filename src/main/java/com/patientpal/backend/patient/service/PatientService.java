@@ -15,10 +15,12 @@ import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
+import com.patientpal.backend.view.ViewService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final MemberRepository memberRepository;
+    private final ViewService viewService;
 
     @Transactional
     public PatientProfileDetailResponse savePatientProfile(String username, PatientProfileCreateRequest patientProfileCreateRequest, String profileImageUrl) {
@@ -48,8 +51,9 @@ public class PatientService {
                 patientProfileCreateRequest.getPatientSignificant(),
                 patientProfileCreateRequest.getCareRequirements(),
                 profileImageUrl);
+        patient.setIsCompleteProfile(true);
         log.info("프로필 등록 성공: ID={}, NAME={}", patient.getId(), patient.getName());
-        return PatientProfileDetailResponse.of(patient);
+        return PatientProfileDetailResponse.of(patient, 0);
     }
 
     private void validateAuthorization(Member currentMember) {
@@ -61,9 +65,10 @@ public class PatientService {
     public PatientProfileDetailResponse getProfile(String username, Long memberId) {
         Patient patient = getPatientByMemberId(memberId);
         if (!username.equals(patient.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+            viewService.addProfileView(memberId, username);
         }
-        return PatientProfileDetailResponse.of(patient);
+        long profileViewCount = viewService.getProfileViewCount(memberId);
+        return PatientProfileDetailResponse.of(patient, profileViewCount);
     }
 
     @Transactional
@@ -102,6 +107,8 @@ public class PatientService {
             throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
         }
         patient.setIsProfilePublic(true);
+        patient.setProfilePublicTime(LocalDateTime.now());
+
     }
 
     @Transactional
@@ -132,8 +139,21 @@ public class PatientService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 
-    public CaregiverProfileListResponse searchPageOrderBy(ProfileSearchCondition condition, Pageable pageable) {
-        Page<CaregiverProfileResponse> search = patientRepository.searchCaregiverProfilesOrderBy(condition, pageable);
+    public CaregiverProfileListResponse searchPageOrderByViews(ProfileSearchCondition condition, Long lastIndex, Integer lastViewCounts, Pageable pageable) {
+
+        Slice<CaregiverProfileResponse> searchWithViews = patientRepository.searchCaregiverProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
+        return CaregiverProfileListResponse.from(searchWithViews);
+    }
+    //
+    // public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
+    //
+    //     Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
+    //     return CaregiverProfileListResponse.from(searchByReviewCounts);
+    // }
+
+    public CaregiverProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
+
+        Slice<CaregiverProfileResponse> search = patientRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         return CaregiverProfileListResponse.from(search);
     }
 }
