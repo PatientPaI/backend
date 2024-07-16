@@ -2,7 +2,6 @@ package com.patientpal.backend.matching.domain;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.patientpal.backend.common.BaseEntity;
 import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,15 +12,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
@@ -29,7 +29,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Table(name = "matches")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Match extends BaseEntity {
+public class Match {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "match_id")
@@ -54,23 +54,47 @@ public class Match extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FirstRequest firstRequest;
 
-    @Lob
-    @Setter
-    private String patientProfileSnapshot;
+    @Column(updatable = false)
+    @CreatedDate
+    private LocalDateTime createdDate;
 
-    @Lob
-    @Setter
-    private String caregiverProfileSnapshot;
+    @Column(nullable = false)
+    private LocalDateTime careStartDateTime;
+
+    @Column(nullable = false)
+    private LocalDateTime careEndDateTime;
+
+    private Long totalAmount;
+
+    private String requestMemberCurrentSignificant;
+
+    private String requestMemberName;
+
+    private String receivedMemberName;
+
+    private Boolean isNok;
+
+    private String nokName;
+
+    private String nokContact;
 
     @Builder
     public Match(@NonNull Member requestMember, @NonNull Member receivedMember, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
-                 FirstRequest firstRequest, String patientProfileSnapshot, String caregiverProfileSnapshot) {
+                 FirstRequest firstRequest, LocalDateTime careStartDateTime, LocalDateTime careEndDateTime, Long totalAmount, String requestMemberCurrentSignificant,
+                 String requestMemberName, String receivedMemberName, Boolean isNok, String nokName, String nokContact) {
         this.requestMember = requestMember;
         this.receivedMember = receivedMember;
         this.matchStatus = matchStatus;
         this.readStatus = readStatus;
         this.firstRequest = firstRequest;
-        this.patientProfileSnapshot = patientProfileSnapshot;
-        this.caregiverProfileSnapshot = caregiverProfileSnapshot;
+        this.careStartDateTime = careStartDateTime;
+        this.careEndDateTime = careEndDateTime;
+        this.totalAmount = totalAmount;
+        this.requestMemberCurrentSignificant = requestMemberCurrentSignificant;
+        this.requestMemberName = requestMemberName;
+        this.receivedMemberName = receivedMemberName;
+        this.isNok = isNok;
+        this.nokName = nokName;
+        this.nokContact = nokContact;
     }
 }

@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -61,20 +62,7 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
     private MemberService memberService;
 
     @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
-
-
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        objectMapper = new ObjectMapper();
-    }
 
     @Nested
     class 사용자가_로그인_시에 {

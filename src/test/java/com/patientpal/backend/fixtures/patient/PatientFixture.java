@@ -23,12 +23,16 @@ public class PatientFixture {
     public static final String UPDATE_NOK_NAME = "업데이트 보호자이름";
     public static final String UPDATE_NOK_CONTACT = "010-6543-2109";
     public static final String UPDATE_PATIENT_SIGNIFICANT = "업데이트 환자 특이사항";
+    public static final String UPDATE_REAL_CARE_PLACE = "업데이트 환자 간병 장소";
+    public static final String PATIENT_REAL_CARE_PLACE = "환자 간병 장소";
 
     public static Patient defaultPatient() {
         return Patient.builder()
                 .username(PATIENT_USERNAME)
                 .contact(PATIENT_PHONE_NUMBER)
                 .address(PATIENT_ADDRESS)
+                .isNok(false)
+                .realCarePlace(PATIENT_REAL_CARE_PLACE)
                 .nokName(NOK_NAME)
                 .nokContact(NOK_CONTACT)
                 .patientSignificant(PATIENT_SIGNIFICANT)
@@ -40,6 +44,8 @@ public class PatientFixture {
                 .contact(PATIENT_PHONE_NUMBER)
                 .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
                 .gender(Gender.MALE)
+                .isNok(false)
+                .realCarePlace(PATIENT_REAL_CARE_PLACE)
                 .name(NAME)
                 .address(PATIENT_ADDRESS)
                 .nokName(NOK_NAME)
@@ -51,6 +57,8 @@ public class PatientFixture {
     public static PatientProfileUpdateRequest updatePatientProfileRequest() {
         return PatientProfileUpdateRequest.builder()
                 .address(UPDATE_PATIENT_ADDRESS)
+                .isNok(true)
+                .realCarePlace(UPDATE_REAL_CARE_PLACE)
                 .nokName(UPDATE_NOK_NAME)
                 .nokContact(UPDATE_NOK_CONTACT)
                 .patientSignificant(UPDATE_PATIENT_SIGNIFICANT)
@@ -62,6 +70,8 @@ public class PatientFixture {
                 .memberId(1L)
                 .contact(PATIENT_PHONE_NUMBER)
                 .address(PATIENT_ADDRESS)
+                .isNok(false)
+                .realCarePlace(PATIENT_REAL_CARE_PLACE)
                 .nokName(NOK_NAME)
                 .nokContact(NOK_CONTACT)
                 .patientSignificant(PATIENT_SIGNIFICANT)

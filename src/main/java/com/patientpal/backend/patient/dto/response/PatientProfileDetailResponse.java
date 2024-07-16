@@ -26,9 +26,13 @@ public class PatientProfileDetailResponse {
 
     private Address address;
 
+    private Boolean isNok;
+
     private String nokName;
 
     private String nokContact;
+
+    private String realCarePlace;
 
     private String patientSignificant;
 
@@ -41,17 +45,21 @@ public class PatientProfileDetailResponse {
     private long viewCount;
 
     @Builder
-    public PatientProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, String contact, Gender gender, int age, Address address, String nokName, String nokContact,
-                                        String patientSignificant, String careRequirements, Boolean isProfilePublic, String image, long viewCount) {
+    public PatientProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age,
+                                        String contact, Gender gender, Address address, Boolean isNok, String nokName,
+                                        String nokContact, String realCarePlace, String patientSignificant,
+                                        String careRequirements, Boolean isProfilePublic, String image, long viewCount) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
+        this.age = age;
         this.contact = contact;
         this.gender = gender;
-        this.age = age;
         this.address = address;
+        this.isNok = isNok;
         this.nokName = nokName;
         this.nokContact = nokContact;
+        this.realCarePlace = realCarePlace;
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
         this.isProfilePublic = isProfilePublic;
@@ -68,6 +76,8 @@ public class PatientProfileDetailResponse {
                 .contact(patient.getContact())
                 .gender(patient.getGender())
                 .address(patient.getAddress())
+                .isNok(patient.getIsNok())
+                .realCarePlace(patient.getRealCarePlace())
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())
                 .patientSignificant(patient.getPatientSignificant())

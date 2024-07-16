@@ -67,9 +67,7 @@ public class PatientControllerV1 {
     @Operation(summary = "환자 프로필 조회", description = "현재 로그인된 사용자의 환자 프로필을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "환자 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
     @GetMapping("/profile/{memberId}")
-    public ResponseEntity<PatientProfileDetailResponse> getPatientProfile(
-            @AuthenticationPrincipal User currentMember,
-            @PathVariable Long memberId) {
+    public ResponseEntity<PatientProfileDetailResponse> getPatientProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
         return ResponseEntity.status(OK).body(patientService.getProfile(currentMember.getUsername(), memberId));
     }
 
@@ -86,12 +84,18 @@ public class PatientControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "환자 프로필 삭제", description = "환자 프로필 정보를 삭제합니다. - 다른 환자로 변경 가능")
+    @ApiResponse(responseCode = "204", description = "환자 프로필 삭제 성공")
+    @DeleteMapping("/profile/{memberId}")
+    public ResponseEntity<Void> deletePatientProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
+        patientService.deletePatientProfile(currentMember.getUsername(), memberId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "환자 프로필 이미지 삭제", description = "환자 프로필에서 이미지를 삭제합니다.")
     @ApiResponse(responseCode = "204", description = "환자 프로필 이미지 삭제 성공")
     @DeleteMapping("{memberId}/image")
-    public ResponseEntity<Void> deletePatientProfileImage(
-            @AuthenticationPrincipal User currentMember,
-            @PathVariable Long memberId) {
+    public ResponseEntity<Void> deletePatientProfileImage(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
         patientService.deletePatientProfileImage(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }
@@ -99,9 +103,7 @@ public class PatientControllerV1 {
     @Operation(summary = "환자 프로필 매칭 리스트에 등록", description = "환자 프로필을 매칭 리스트에 등록합니다.")
     @ApiResponse(responseCode = "204", description = "환자 프로필 매칭 리스트 등록 성공")
     @PostMapping("/profile/{memberId}/register/toMatchList")
-    public ResponseEntity<Void> registerPatientProfileToMatchList(
-            @AuthenticationPrincipal User currentMember,
-            @PathVariable Long memberId) {
+    public ResponseEntity<Void> registerPatientProfileToMatchList(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
         patientService.registerPatientProfileToMatchList(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }
@@ -109,9 +111,7 @@ public class PatientControllerV1 {
     @Operation(summary = "환자 프로필 매칭 리스트에서 제거", description = "환자 프로필을 매칭 리스트에서 제거합니다.")
     @ApiResponse(responseCode = "204", description = "환자 프로필 매칭 리스트 제거 성공")
     @PostMapping("/profile/{memberId}/unregister/toMatchList")
-    public ResponseEntity<Void> unregisterPatientProfileToMatchList(
-            @AuthenticationPrincipal User currentMember,
-            @PathVariable Long memberId) {
+    public ResponseEntity<Void> unregisterPatientProfileToMatchList(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
         patientService.unregisterPatientProfileToMatchList(currentMember.getUsername(), memberId);
         return ResponseEntity.noContent().build();
     }

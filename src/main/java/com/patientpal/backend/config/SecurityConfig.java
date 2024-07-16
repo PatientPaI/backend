@@ -8,7 +8,10 @@ import com.patientpal.backend.security.jwt.JwtAuthenticationEntryPoint;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
 import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.CustomOauth2UserService;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -132,12 +135,36 @@ public class SecurityConfig {
     }
 
     private String createUniqueUsername(String baseName, MemberService memberService) {
+        List<String> existingUsernames = memberService.findUsernamesStartingWith(baseName);
         String username = baseName;
         int count = 1;
-        while (memberService.existsByUsername(username)) {
-            username = baseName + count;
+        while (existingUsernames.contains(username)) {
+            username = baseName + getHash(count);
             count++;
         }
         return username;
     }
+
+    private String getHash(int count) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(String.valueOf(count).getBytes());
+            return bytesToHex(hash).substring(0, 8);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating hash", e);
+        }
+    }
+
+    private String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
 }

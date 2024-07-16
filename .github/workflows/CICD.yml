@@ -51,16 +51,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull leehusung/patientpal:latest
-            docker stop patientpal-be || true
-            docker rm patientpal-be || true
-            docker run -d --name patientpal-be -p 8080:8080 \
-              -e JASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }} \
-              -e PROD_PROFILE=prod \
-              -e GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} \
-              -e GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-              -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
-              -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
-              -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
-              -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
-              leehusung/patientpal:latest
+            cd /home/ubuntu
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d
