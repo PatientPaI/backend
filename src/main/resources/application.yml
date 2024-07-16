@@ -12,6 +12,12 @@ spring:
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+
 server:
   port: 8080
 
@@ -98,6 +104,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
+      password: ${SPRING_REDIS_PASSWORD}
 
 discord:
   webhook:

@@ -114,6 +114,7 @@ public class MemberService {
     public boolean existsByUsername(String username) {
         return memberRepository.existsByUsername(username);
     }
+
     @Transactional(readOnly = true)
     public List<String> findUsernamesStartingWith(String username) {
         validateUsername(username);

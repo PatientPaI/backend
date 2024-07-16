@@ -30,6 +30,7 @@ public class Oauth2SignUpRequest {
 
     @NotBlank
     private String username;
+
     @Builder(toBuilder = true)
     public Oauth2SignUpRequest(String email, String name, String password, Role role, String provider, String username) {
         this.email = email;
