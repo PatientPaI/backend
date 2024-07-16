@@ -58,6 +58,7 @@ jobs:
             export KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
             export NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
             export NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
+
             cd /home/ubuntu
             docker-compose pull
             docker-compose down
