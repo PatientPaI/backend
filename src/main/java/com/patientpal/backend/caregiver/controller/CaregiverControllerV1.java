@@ -6,7 +6,9 @@ import static org.springframework.http.HttpStatus.OK;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.caregiver.service.CaregiverService;
+import com.patientpal.backend.common.utils.PageableUtil;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -114,12 +117,24 @@ public class CaregiverControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "환자 찾기", description = "지역, 이름, 성별, 나이로 환자를 검색합니다. sort='field',asc/desc로 정렬 가능합니다. ")
+    @Operation(summary = "환자 찾기", description = "지역, 이름, 성별, 나이로 환자를 검색합니다.")
     @ApiResponse(responseCode = "200", description = "조건에 해당하는 환자 찾기 성공")
     @GetMapping("/search")
-    public ResponseEntity<PatientProfileListResponse> searchPatients(ProfileSearchCondition condition,
-                                                                       @PageableDefault(size = 5) Pageable pageable) {
-        final PatientProfileListResponse searchedProfiles = caregiverService.searchPageOrderBy(condition, pageable);
+    public ResponseEntity<PatientProfileListResponse> searchCaregivers(ProfileSearchCondition condition,
+                                                                         @RequestParam(required = false) Long lastIndex,
+                                                                         @RequestParam(required = false) LocalDateTime lastProfilePublicTime,
+                                                                         @RequestParam(required = false) Integer lastViewCounts,
+                                                                         @RequestParam(required = false) Integer lastReviewCounts,
+                                                                         @PageableDefault(size = 5) Pageable pageable) {
+        String sort = PageableUtil.getSortAsString(pageable);
+        PatientProfileListResponse searchedProfiles = null;
+        if (sort.equals("viewCounts")) {
+            searchedProfiles = caregiverService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
+        } else if (sort.equals("reviewCounts")) {
+            // searchedProfiles = patientService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
+        } else {
+            searchedProfiles = caregiverService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
+        }
         return ResponseEntity.status(OK).body(searchedProfiles);
     }
 }

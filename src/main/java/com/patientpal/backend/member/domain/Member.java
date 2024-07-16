@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -36,7 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "member_type")
 @SuperBuilder
-public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 CustomOauth2UserService 여기서 Member 빌드할 때 걸리네
+public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -86,6 +87,8 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
     @Column(length = 512)
     @Setter
     private String profileImageUrl;
+
+    private int viewCounts;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -168,4 +171,9 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
     public boolean isNotOwner(Long id) {
         return !Objects.equals(this.id, id);
     }
+
+    public void changeViewCount(Long value) {
+        this.viewCounts = Math.toIntExact(value);
+    }
+
 }

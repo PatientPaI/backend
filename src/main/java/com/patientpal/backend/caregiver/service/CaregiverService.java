@@ -4,6 +4,8 @@ import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -13,10 +15,13 @@ import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
 import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.view.ViewService;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +33,7 @@ public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
     private final MemberRepository memberRepository;
+    private final ViewService viewService;
 
     @Transactional
     public CaregiverProfileDetailResponse saveCaregiverProfile(String username, CaregiverProfileCreateRequest caregiverProfileCreateRequest, String profileImageUrl) {
@@ -44,16 +50,21 @@ public class CaregiverService {
                 caregiverProfileCreateRequest.getSpecialization(),
                 caregiverProfileCreateRequest.getCaregiverSignificant(),
                 profileImageUrl);
+        caregiver.setIsCompleteProfile(true);
         log.info("프로필 등록 성공: ID={}, NAME={}", caregiver.getId(), caregiver.getName());
-        return CaregiverProfileDetailResponse.of(caregiver);
+        return CaregiverProfileDetailResponse.of(caregiver, 0);
     }
 
     public CaregiverProfileDetailResponse getProfile(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
+        // if (!member.getIsCompleteProfile()) {
+        //     throw new IllegalArgumentException("프로필 작성을 먼저 완료해야 다른 회원의 프로필을 볼 수 있습니다.");
+        // }
         if (!username.equals(caregiver.getUsername())) {
-            throw new BusinessException(ErrorCode.AUTHORIZATION_FAILED);
+            viewService.addProfileView(memberId, username);
         }
-        return CaregiverProfileDetailResponse.of(caregiver);
+        long profileViewCount = viewService.getProfileViewCount(memberId);
+        return CaregiverProfileDetailResponse.of(caregiver, profileViewCount);
     }
 
     @Transactional
@@ -82,17 +93,6 @@ public class CaregiverService {
         }
     }
 
-    // @Transactional //세부 프로필 삭제가 필요한가? 어차피 프로필 공개/비공개를 설정해두면 비공개로 하면 삭제 안해도 되는거 아닌가?
-    // public void deleteCaregiverProfile(String username, Long memberId) {
-    //     Member currentMember = getMember(username);
-    //     Caregiver caregiver = getCaregiver(memberId);
-    //     if (hasOnGoingMatches(caregiver.getId())) {
-    //         throw new CanNotDeleteException(ErrorCode.CAN_NOT_DELETE_PROFILE);
-    //     }
-    //     // caregiverRepository.delete(caregiver);
-    // }
-
-
     @Transactional
     public void registerCaregiverProfileToMatchList(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
@@ -103,6 +103,7 @@ public class CaregiverService {
             throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
         }
         caregiver.setIsProfilePublic(true);
+        caregiver.setProfilePublicTime(LocalDateTime.now());
     }
 
     @Transactional
@@ -131,8 +132,21 @@ public class CaregiverService {
         caregiver.deleteProfileImage();
     }
 
-    public PatientProfileListResponse searchPageOrderBy(ProfileSearchCondition condition, Pageable pageable) {
-        Page<PatientProfileResponse> search = caregiverRepository.searchPatientProfilesOrderBy(condition, pageable);
+    public PatientProfileListResponse searchPageOrderByViews(ProfileSearchCondition condition, Long lastIndex, Integer lastViewCounts, Pageable pageable) {
+
+        Slice<PatientProfileResponse> searchWithViews = caregiverRepository.searchPatientProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
+        return PatientProfileListResponse.from(searchWithViews);
+    }
+    //
+    // public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
+    //
+    //     Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
+    //     return CaregiverProfileListResponse.from(searchByReviewCounts);
+    // }
+
+    public PatientProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
+
+        Slice<PatientProfileResponse> search = caregiverRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         return PatientProfileListResponse.from(search);
     }
 }
