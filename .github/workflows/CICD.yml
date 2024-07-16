@@ -51,13 +51,13 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            export JASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
             export GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             export GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             export KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
             export KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
             export NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}
             export NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}
-            export JASYPT_ENCRYPTOR_PASSWORD=${{ secrets.JASYPT_ENCRYPTOR_PASSWORD }}
             cd /home/ubuntu
             docker-compose pull
             docker-compose down
