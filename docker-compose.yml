@@ -20,8 +20,7 @@ services:
       
       SPRING_REDIS_HOST: ${SPRING_REDIS_HOST}
       SPRING_REDIS_PORT: ${SPRING_REDIS_PORT}
-      SPRING_REDIS_PASSWORD:
-
+      SPRING_REDIS_PASSWORD: ${SPRING_REDIS_PASSWORD}
 
   redis:
     image: redis:alpine
