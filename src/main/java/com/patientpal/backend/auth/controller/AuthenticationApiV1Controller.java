@@ -172,7 +172,10 @@ public class AuthenticationApiV1Controller {
 
     private String getUsername(Oauth2SignUpRequest signupForm, HttpSession session) {
         String username = (String) session.getAttribute("username");
-        signupForm.setUsername(username);
+        signupForm
+                .toBuilder()
+                .username(username)
+                .build();
         return username;
     }
 

@@ -61,20 +61,7 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
     private MemberService memberService;
 
     @Autowired
-    private WebApplicationContext context;
-
-    @Autowired
     private JwtTokenProvider jwtTokenProvider;
-
-
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        objectMapper = new ObjectMapper();
-    }
 
     @Nested
     class 사용자가_로그인_시에 {
