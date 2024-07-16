@@ -6,6 +6,7 @@ import com.patientpal.backend.member.domain.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,36 +35,33 @@ public class Caregiver extends Member {
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final String caregiverSignificant) {
+    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final String caregiverSignificant,
+                                    final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate) {
         updateAddress(address);
+        updateWantCareStartDate(wantCareStartDate);
+        updateWantCareEndDate(wantCareEndDate);
         this.rating = rate;
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    //TODO 나이 예외 처리
-    //EX. 011012-1408293 => 126살로 나옴.
-
     public void registerDetailProfile(final String name, final Address address, final String contact, final String residentRegistrationNumber, final Gender gender,
-                                      final int experienceYears, final String specialization, final String caregiverSignificant, String profileImageUrl) {
+                                      final int experienceYears, final String specialization, final String caregiverSignificant,
+                                      final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate, String profileImageUrl) {
         updateName(name);
         updateAddress(address);
         updateContact(contact);
         updateResidentRegistrationNumber(residentRegistrationNumber);
         updateGender(gender);
         updateProfileImage(profileImageUrl);
+        updateIsCompleteProfile();
+        updateAge(getAgeByResidentRegistrationNumber(residentRegistrationNumber));
+        updateWantCareStartDate(wantCareStartDate);
+        updateWantCareEndDate(wantCareEndDate);
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public String generateCaregiverProfileSnapshot() {
-        return String.format("Caregiver Snapshot - Name: %s, Address: %s, Experience: %d years, CaregiverSignificant: %s, Specialization: %s",
-                this.getName(),
-                this.getAddress(),
-                this.getExperienceYears(),
-                this.getCaregiverSignificant(),
-                this.getSpecialization());
-    }
 }

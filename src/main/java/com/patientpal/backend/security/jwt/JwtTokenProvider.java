@@ -40,6 +40,7 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${security.jwt.base64-secret}") String base64Secret,
             @Value("${security.jwt.refresh-expiration-time}") long refreshTokenExpirationTime,
+
             @Value("${security.jwt.access-expiration-time}") long accessTokenExpirationTime,
             RedisTemplate<String, Object> redisTemplate
     ) {

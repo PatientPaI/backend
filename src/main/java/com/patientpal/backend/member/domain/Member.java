@@ -17,6 +17,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "member_type")
 @SuperBuilder
-public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 CustomOauth2UserService 여기서 Member 빌드할 때 걸리네
+public  class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -74,6 +75,8 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    //TODO 현재 프로필 등록 시 주소 한글 입력 안됨. 영어만 가능
+    //TODO CreatedDate/last~가 현재 시간보다 -9시간 으로 저장되는 문제
     @Embedded
     private Address address;
 
@@ -99,17 +102,13 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
         this.password = passwordEncoder.encode(this.password);
     }
 
-    public void chanceProfileVisible(Member member) {
-        if (member.getIsProfilePublic()) {
-            this.isProfilePublic = false;
-        } else {
-            this.isProfilePublic = true;
-        }
-    }
-
     public void changePassword(PasswordEncoder passwordEncoder, String newPassword) {
         this.password = newPassword;
         encodePassword(passwordEncoder);
+    }
+
+    public void updateIsCompleteProfile() {
+        this.isCompleteProfile = true;
     }
 
     public void updateAddress(Address address) {
@@ -133,6 +132,22 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
         this.name = name;
     }
 
+    public void updateAge(int ageByResidentRegistrationNumber) {
+        this.age = ageByResidentRegistrationNumber;
+    }
+
+    public void delete() {
+        this.name = null;
+        this.isCompleteProfile = false;
+        this.isProfilePublic = false;
+        this.address = null;
+        this.gender = null;
+        this.residentRegistrationNumber = null;
+        this.contact = null;
+        this.profileImageUrl = null;
+        this.age = 0;
+    }
+
     public void deleteProfileImage() {
         this.profileImageUrl = null;
     }
@@ -141,7 +156,15 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
         this.profileImageUrl = profileImageUrl;
     }
 
-    public static int getAge(String rrn) {
+    public void updateWantCareStartDate(final LocalDateTime wantCareStartDate) {
+        this.wantCareStartDate = wantCareStartDate;
+    }
+
+    public void updateWantCareEndDate(final LocalDateTime wantCareEndDate) {
+        this.wantCareEndDate = wantCareEndDate;
+    }
+
+    public int getAgeByResidentRegistrationNumber(String rrn) {
         String birthDateString = rrn.substring(0, 6);
         int century;
 
@@ -165,7 +188,7 @@ public  class Member extends BaseTimeEntity { //abstract 붙이고 싶은데 Cus
         return Period.between(birthDate, currentDate).getYears();
     }
 
-    public boolean isNotOwner(Long id) {
-        return !Objects.equals(this.id, id);
+    public static boolean isNotOwner(final String username, final Member member) {
+        return !Objects.equals(username, member.getUsername());
     }
 }

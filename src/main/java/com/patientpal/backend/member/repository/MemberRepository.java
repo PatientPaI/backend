@@ -25,4 +25,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select m.username from Member m where m.username like :username%")
     List<String> findUsernameStartingWith(@Param("username") String username);
+
 }
