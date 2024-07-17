@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local # [local, prod]
+    active: prod # [local, prod]
     include: oauth2
 
   application:
@@ -14,7 +14,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       password:
 
@@ -105,11 +105,11 @@ spring:
     hibernate:
       ddl-auto: none
 
-  data:
-    redis:
-      host: ${SPRING_REDIS_HOST}
-      port: ${SPRING_REDIS_PORT}
-      password: ${SPRING_REDIS_PASSWORD}
+#  data:
+#    redis:
+#      host: ${SPRING_REDIS_HOST}
+#      port: ${SPRING_REDIS_PORT}
+#      password: ${SPRING_REDIS_PASSWORD}
 
 discord:
   webhook:
