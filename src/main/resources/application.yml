@@ -40,7 +40,7 @@ springdoc:
 
 patientpal:
   openapi:
-    dev-url: http://localhost:8080
+    dev-url: http://3.35.178.244:8080
     prod-url: https://patientpal.site
 
 cloud:
