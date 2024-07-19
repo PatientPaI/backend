@@ -4,6 +4,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.common.TimeTrace;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
@@ -18,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "환자", description = "환자 프로필 관리 API")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("api/v1/patient")
 public class PatientControllerV1 {
 
@@ -45,6 +48,7 @@ public class PatientControllerV1 {
     @Operation(summary = "환자 프로필 생성", description = "환자 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
     @PostMapping("/profile")
+    @TimeTrace
     public ResponseEntity<PatientProfileDetailResponse> createPatientProfile(
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest,
