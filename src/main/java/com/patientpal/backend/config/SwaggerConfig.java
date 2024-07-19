@@ -27,6 +27,7 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         final Server devServer = new Server();
         devServer.setUrl(devUrl);
+
         final Server prodServer = new Server();
         prodServer.setUrl(prodUrl);
 
