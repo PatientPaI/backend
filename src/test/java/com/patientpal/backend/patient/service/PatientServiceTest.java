@@ -25,6 +25,7 @@ import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
+import com.patientpal.backend.view.ViewService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +45,7 @@ class PatientServiceTest {
     private PatientRepository patientRepository;
 
     @Mock
-    private MatchRepository matchRepository;
+    private ViewService viewService;
 
     @Mock
     private MemberRepository memberRepository;

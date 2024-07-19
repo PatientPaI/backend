@@ -23,6 +23,7 @@ import com.patientpal.backend.fixtures.patient.PatientFixture;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
+import com.patientpal.backend.view.ViewService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -40,6 +41,9 @@ class CaregiverServiceTest {
 
     @Mock
     private CaregiverRepository caregiverRepository;
+
+    @Mock
+    private ViewService viewService;
 
     @Mock
     private MemberRepository memberRepository;
@@ -109,6 +113,8 @@ class CaregiverServiceTest {
         @Test
         void 조회를_성공한다() {
             // given
+            when(caregiverRepository.findById(caregiver.getId())).thenReturn(Optional.of(caregiver));
+
             CaregiverProfileDetailResponse response = caregiverService.getProfile(caregiver.getUsername(), caregiver.getId());
 
             // then

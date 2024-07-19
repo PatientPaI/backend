@@ -38,9 +38,11 @@ public class CaregiverProfileDetailResponse {
 
     private String image;
 
+    private long viewCount;
+
     @Builder
     public CaregiverProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age, String contact, Gender gender, Address address, float rating, int experienceYears,
-                                          String specialization, String caregiverSignificant, Boolean isInMatchList, String image) {
+                                          String specialization, String caregiverSignificant, Boolean isInMatchList, String image, long viewCount) {
         this.memberId = memberId;
         this.name = name;
         this.residentRegistrationNumber = residentRegistrationNumber;
@@ -54,9 +56,10 @@ public class CaregiverProfileDetailResponse {
         this.caregiverSignificant = caregiverSignificant;
         this.isInMatchList = isInMatchList;
         this.image = image;
+        this.viewCount = viewCount;
     }
 
-    public static CaregiverProfileDetailResponse of(Caregiver caregiver) {
+    public static CaregiverProfileDetailResponse of(Caregiver caregiver, long profileViewCount) {
         return CaregiverProfileDetailResponse.builder()
                 .memberId(caregiver.getId())
                 .name(caregiver.getName())
@@ -71,6 +74,7 @@ public class CaregiverProfileDetailResponse {
                 .caregiverSignificant(caregiver.getCaregiverSignificant())
                 .isInMatchList(caregiver.getIsProfilePublic())
                 .image(caregiver.getProfileImageUrl())
+                .viewCount(profileViewCount)
                 .build();
     }
 }

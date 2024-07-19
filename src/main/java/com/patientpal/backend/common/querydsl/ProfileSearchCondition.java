@@ -8,13 +8,7 @@ import lombok.Setter;
 @Setter
 public class ProfileSearchCondition {
 
-    //TODO
-    //가까운 순 정렬 -> 경도 위도 따야하나
-    //후기 많은 순
-    //최신 순
-
-    private String firstAddress;
-    private String secondAddress;
+    private String addr;
 
     private Gender gender;
 
@@ -22,6 +16,7 @@ public class ProfileSearchCondition {
 
     private Integer experienceYearsGoe;
 
-    // TODO 이후 프로필 주민번호 기반으로 나이 계산 후 추가
-    // private Integer ageLoe;
+    private String keyword;
+
+    private Integer ageLoe;
 }

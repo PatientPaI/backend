@@ -4,12 +4,15 @@ import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Gender;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CaregiverProfileResponse {
+
+    private Long id;
 
     private String name;
 
@@ -27,9 +30,13 @@ public class CaregiverProfileResponse {
 
     private String image;
 
+    private Integer viewCounts;
+
+    @Builder
     @QueryProjection
-    public CaregiverProfileResponse(String name, int age, Gender gender, Address address, float rating,
-                                    int experienceYears, String specialization, String image) {
+    public CaregiverProfileResponse(Long id, String name, int age, Gender gender, Address address, float rating,
+                                    int experienceYears, String specialization, String image, Integer viewCounts) {
+        this.id = id;
         this.name = name;
         this.age = age;
         this.gender = gender;
@@ -38,5 +45,6 @@ public class CaregiverProfileResponse {
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.image = image;
+        this.viewCounts = viewCounts;
     }
 }
