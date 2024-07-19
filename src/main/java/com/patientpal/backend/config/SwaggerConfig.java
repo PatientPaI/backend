@@ -20,7 +20,6 @@ public class SwaggerConfig {
     ) {
         this.prodUrl = prodUrl;
     }
-
     @Bean
     public OpenAPI openAPI() {
         final Server prodServer = new Server();
