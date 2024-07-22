@@ -1,6 +1,7 @@
 package com.patientpal.backend.chat.domain;
 
 import com.patientpal.backend.common.BaseTimeEntity;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -8,8 +9,9 @@ import lombok.*;
 
 @Getter
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-
+@Entity
 public class Message extends BaseTimeEntity {
 
     //컬럼추가
@@ -19,10 +21,7 @@ public class Message extends BaseTimeEntity {
 
     private String content;
 
+    private Long senderId;
 
-    public Message(Long id, String content ) {
-        this.id  = id;
-        this.content = content;
-    }
-
+    private Long receiverId;
 }
