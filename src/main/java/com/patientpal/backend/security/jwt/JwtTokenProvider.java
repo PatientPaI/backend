@@ -54,6 +54,7 @@ public class JwtTokenProvider {
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
+        log.info("Creating token for user {}: Authorities - {}", authentication.getName(), authorities);
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
