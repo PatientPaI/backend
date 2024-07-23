@@ -1,6 +1,6 @@
 package com.patientpal.backend.chat;
 
-import com.patientpal.backend.chat.dto.ChatMessage;
+import com.patientpal.backend.chat.dto.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -11,7 +11,7 @@ public class ChatController {
 
     @MessageMapping("/hello")
     @SendTo("/topic/greetings")
-    public ChatMessage greeting(@Payload ChatMessage message) throws Exception {
-        return new ChatMessage("Hello, " + message.getContent());
+    public void greeting(@Payload Message message) {
+        System.out.println(message.toString());
     }
 }
