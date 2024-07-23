@@ -1,13 +1,13 @@
 package com.patientpal.backend.review.domain;
 
 import com.patientpal.backend.review.dto.ReviewRequest;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +27,8 @@ public class Review {
     @NotBlank
     private String reviewedName;
 
-    @Size(min = 1, max = 5)
+    @Min(1)
+    @Max(5)
     private int starRating;
 
     @NotBlank

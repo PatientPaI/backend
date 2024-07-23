@@ -27,10 +27,10 @@ public class ReviewService {
 
         // todo 계약이 이루어졌는지 확인하는 코드가 필요함
 
-        Review savedReview = SeavedReview(reviewRequest);
+        Review SavedReview = SavedReview(reviewRequest);
 
-        savedReview = reviewRepository.save(savedReview);
-        return ReviewResponse.fromReview(savedReview);
+        SavedReview = reviewRepository.save(SavedReview);
+        return ReviewResponse.fromReview(SavedReview);
     }
 
     @Transactional(readOnly = true)
@@ -79,8 +79,7 @@ public class ReviewService {
         double totalRating = reviews.stream()
                 .mapToDouble(Review::getCalculatedRating)
                 .sum();
-        double averageRating = reviews.isEmpty() ? 0 : totalRating / reviews.size();
-        return averageRating;
+        return reviews.isEmpty() ? 0 : totalRating / reviews.size();
     }
 
     private Review findReview(Long id) {
@@ -89,7 +88,7 @@ public class ReviewService {
                         "Review not found with id: " + id));
     }
 
-    private Review SeavedReview(ReviewRequest reviewRequest) {
+    private Review SavedReview(ReviewRequest reviewRequest) {
         return Review.builder()
                 .reviewerName(reviewRequest.getReviewerName())
                 .reviewedName(reviewRequest.getReviewedName())
