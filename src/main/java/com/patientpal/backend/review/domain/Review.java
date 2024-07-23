@@ -50,19 +50,13 @@ public class Review {
 
 
     public double getCalculatedRating() {
-        switch (this.starRating) {
-            case 1:
-                return -0.2;
-            case 2:
-                return -0.1;
-            case 3:
-                return 0.0;
-            case 4:
-                return 0.1;
-            case 5:
-                return 0.2;
-            default:
-                throw new IllegalArgumentException("Invalid star rating");
-        }
+        return switch (this.starRating) {
+            case 1 -> -0.2;
+            case 2 -> -0.1;
+            case 3 -> 0.0;
+            case 4 -> 0.1;
+            case 5 -> 0.2;
+            default -> throw new IllegalArgumentException("Invalid star rating");
+        };
     }
 }

@@ -105,9 +105,7 @@ class ReviewServiceTest {
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
             when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
-            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-                reviewService.getReview(1L);
-            });
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.getReview(1L));
 
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_NOT_FOUND);
         }
@@ -135,9 +133,7 @@ class ReviewServiceTest {
 
             ReviewRequest updateRequest = new ReviewRequest("John Doe", "Caregiver A", 4, "Good service");
 
-            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-                reviewService.updateReview(1L, updateRequest);
-            });
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest));
 
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_NOT_FOUND);
         }
@@ -160,9 +156,7 @@ class ReviewServiceTest {
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
             when(reviewRepository.existsById(1L)).thenReturn(false);
 
-            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-                reviewService.deleteReview(1L);
-            });
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.deleteReview(1L));
 
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_NOT_FOUND);
         }
