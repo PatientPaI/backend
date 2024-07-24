@@ -41,6 +41,8 @@ public enum ErrorCode {
     CAREGIVER_ALREADY_EXIST(HttpStatus.CONFLICT, "CA_002", "이미 가입된 간병인 프로필이 존재합니다."),
 
     PROFILE_NOT_COMPLETED(HttpStatus.NOT_FOUND, "PR_001", "프로필 작성이 완성되지 않았습니다."),
+
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV_001", "리뷰를 찾을 수 없습니다."),
     ;
 
     private final HttpStatus status;
