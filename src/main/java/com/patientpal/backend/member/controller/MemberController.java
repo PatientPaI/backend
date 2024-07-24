@@ -6,6 +6,7 @@ import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.dto.MemberCompleteProfileResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-    @GetMapping("/api/isCompleteProfile")
+    @GetMapping("/api/member/information")
     public ResponseEntity<MemberCompleteProfileResponse> getIsCompleteProfile(@AuthenticationPrincipal User user) {
-        Member member = memberRepository.findByUsername(user.getUsername()).orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST));
-        return ResponseEntity.status(HttpStatus.OK).body(MemberCompleteProfileResponse.of(member.getId(), member.getIsCompleteProfile()));
+        Member member = memberService.getUserByUsername(user.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).body(MemberCompleteProfileResponse.of(member.getId(), member.getName(), member.getIsCompleteProfile()));
     }
 }

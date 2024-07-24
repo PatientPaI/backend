@@ -63,10 +63,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
-    @Column(unique = true)
-    private String residentRegistrationNumber;
-
-    private int age;
+    private Integer age;
 
     @Column(unique = true)
     private String contact;
@@ -123,10 +120,6 @@ public class Member extends BaseTimeEntity {
         this.gender = gender;
     }
 
-    public void updateResidentRegistrationNumber(String residentRegistrationNumber) {
-        this.residentRegistrationNumber = residentRegistrationNumber;
-    }
-
     public void updateContact(String contact) {
         this.contact = contact;
     }
@@ -135,8 +128,8 @@ public class Member extends BaseTimeEntity {
         this.name = name;
     }
 
-    public void updateAge(int ageByResidentRegistrationNumber) {
-        this.age = ageByResidentRegistrationNumber;
+    public void updateAge(int age) {
+        this.age = age;
     }
 
     public void delete() {
@@ -145,7 +138,6 @@ public class Member extends BaseTimeEntity {
         this.isProfilePublic = false;
         this.address = null;
         this.gender = null;
-        this.residentRegistrationNumber = null;
         this.contact = null;
         this.profileImageUrl = null;
         this.age = 0;
@@ -165,30 +157,6 @@ public class Member extends BaseTimeEntity {
 
     public void updateWantCareEndDate(final LocalDateTime wantCareEndDate) {
         this.wantCareEndDate = wantCareEndDate;
-    }
-
-    public int getAgeByResidentRegistrationNumber(String rrn) {
-        String birthDateString = rrn.substring(0, 6);
-        int century;
-
-        char genderCode = rrn.charAt(7);
-        if (genderCode == '1' || genderCode == '2' || genderCode == '5' || genderCode == '6') {
-            century = 1900;
-        } else if (genderCode == '3' || genderCode == '4' || genderCode == '7' || genderCode == '8') {
-            century = 2000;
-        } else {
-            throw new IllegalArgumentException("Invalid RRN");
-        }
-
-        String birthYear = String.valueOf(century + Integer.parseInt(birthDateString.substring(0, 2)));
-        String birthMonthDay = birthDateString.substring(2);
-        String fullBirthDateString = birthYear + birthMonthDay;
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        LocalDate birthDate = LocalDate.parse(fullBirthDateString, formatter);
-
-        LocalDate currentDate = LocalDate.now();
-        return Period.between(birthDate, currentDate).getYears();
     }
 
     public static boolean isNotOwner(final String username, final Member member) {

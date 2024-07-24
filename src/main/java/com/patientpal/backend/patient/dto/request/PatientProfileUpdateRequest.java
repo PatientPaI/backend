@@ -20,6 +20,9 @@ public class PatientProfileUpdateRequest {
     private String nokContact;
 
     @NotNull
+    private Integer age;
+
+    @NotNull
     private String patientSignificant;
 
     private String careRequirements;
@@ -35,12 +38,13 @@ public class PatientProfileUpdateRequest {
     private LocalDateTime wantCareEndDate;
 
     @Builder
-    public PatientProfileUpdateRequest(Address address, String nokName, String nokContact, String patientSignificant,
+    public PatientProfileUpdateRequest(Address address, String nokName, String nokContact, Integer age, String patientSignificant,
                                        String careRequirements, String realCarePlace, Boolean isNok,
                                        LocalDateTime wantCareStartDate, LocalDateTime wantCareEndDate) {
         this.address = address;
         this.nokName = nokName;
         this.nokContact = nokContact;
+        this.age = age;
         this.patientSignificant = patientSignificant;
         this.careRequirements = careRequirements;
         this.realCarePlace = realCarePlace;

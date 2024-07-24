@@ -16,9 +16,7 @@ public class PatientProfileDetailResponse {
 
     private String name;
 
-    private String residentRegistrationNumber;
-
-    private int age;
+    private Integer age;
 
     private String contact;
 
@@ -45,13 +43,12 @@ public class PatientProfileDetailResponse {
     private long viewCount;
 
     @Builder
-    public PatientProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age,
+    public PatientProfileDetailResponse(Long memberId, String name, Integer age,
                                         String contact, Gender gender, Address address, Boolean isNok, String nokName,
                                         String nokContact, String realCarePlace, String patientSignificant,
                                         String careRequirements, Boolean isProfilePublic, String image, long viewCount) {
         this.memberId = memberId;
         this.name = name;
-        this.residentRegistrationNumber = residentRegistrationNumber;
         this.age = age;
         this.contact = contact;
         this.gender = gender;
@@ -71,7 +68,6 @@ public class PatientProfileDetailResponse {
         return PatientProfileDetailResponse.builder()
                 .memberId(patient.getId())
                 .name(patient.getName())
-                .residentRegistrationNumber(patient.getResidentRegistrationNumber())
                 .age(patient.getAge())
                 .contact(patient.getContact())
                 .gender(patient.getGender())

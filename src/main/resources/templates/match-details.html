@@ -45,12 +45,28 @@
 <div class="content">
     <table>
         <tr>
-            <th>Request Member ID</th>
+            <th>Request Member Name</th>
             <td th:text="${match.requestMemberName}"></td>
         </tr>
         <tr>
-            <th>Received Member ID</th>
+            <th>Received Member Name</th>
             <td th:text="${match.receivedMemberName}"></td>
+        </tr>
+        <tr>
+            <th>Request Member Contact</th>
+            <td th:text="${match.requestMemberContact}"></td>
+        </tr>
+        <tr>
+            <th>Received Member Contact</th>
+            <td th:text="${match.receivedMemberContact}"></td>
+        </tr>
+        <tr>
+            <th>Request Member Address</th>
+            <td th:text="${match.requestMemberAddress}"></td>
+        </tr>
+        <tr>
+            <th>Received Member Address</th>
+            <td th:text="${match.receivedMemberAddress}"></td>
         </tr>
         <tr>
             <th>Match Status</th>

@@ -19,6 +19,9 @@ public class CaregiverProfileUpdateRequest {
 
     private int experienceYears;
 
+    @NotNull
+    private Integer age;
+
     private String specialization;
 
     private String caregiverSignificant;
@@ -28,12 +31,13 @@ public class CaregiverProfileUpdateRequest {
     private LocalDateTime wantCareEndDate;
 
     @Builder
-    public CaregiverProfileUpdateRequest(Address address, float rating, int experienceYears, String specialization,
+    public CaregiverProfileUpdateRequest(Address address, float rating, int experienceYears, String specialization, Integer age,
                                          String caregiverSignificant, LocalDateTime wantCareStartDate, LocalDateTime wantCareEndDate) {
         this.address = address;
         this.rating = rating;
         this.experienceYears = experienceYears;
         this.specialization = specialization;
+        this.age = age;
         this.caregiverSignificant = caregiverSignificant;
         this.wantCareStartDate = wantCareStartDate;
         this.wantCareEndDate = wantCareEndDate;

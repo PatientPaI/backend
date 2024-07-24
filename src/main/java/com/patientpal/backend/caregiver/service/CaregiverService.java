@@ -47,7 +47,7 @@ public class CaregiverService {
         caregiver.registerDetailProfile(caregiverProfileCreateRequest.getName(),
                 caregiverProfileCreateRequest.getAddress(),
                 caregiverProfileCreateRequest.getContact(),
-                caregiverProfileCreateRequest.getResidentRegistrationNumber(),
+                caregiverProfileCreateRequest.getAge(),
                 caregiverProfileCreateRequest.getGender(),
                 caregiverProfileCreateRequest.getExperienceYears(),
                 caregiverProfileCreateRequest.getSpecialization(),
@@ -85,6 +85,7 @@ public class CaregiverService {
                 caregiverProfileUpdateRequest.getRating(),
                 caregiverProfileUpdateRequest.getExperienceYears(),
                 caregiverProfileUpdateRequest.getSpecialization(),
+                caregiverProfileUpdateRequest.getAge(),
                 caregiverProfileUpdateRequest.getCaregiverSignificant(),
                 caregiverProfileUpdateRequest.getWantCareStartDate(),
                 caregiverProfileUpdateRequest.getWantCareEndDate()
