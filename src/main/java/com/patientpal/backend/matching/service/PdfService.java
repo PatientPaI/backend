@@ -2,6 +2,7 @@ package com.patientpal.backend.matching.service;
 
 import com.lowagie.text.DocumentException;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -11,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 @Service
+@Timed("pdf")
 public class PdfService {
 
     private final TemplateEngine templateEngine;

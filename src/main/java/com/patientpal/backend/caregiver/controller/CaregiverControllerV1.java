@@ -7,6 +7,7 @@ import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateReques
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.caregiver.service.CaregiverSearchService;
 import com.patientpal.backend.caregiver.service.CaregiverService;
 import com.patientpal.backend.common.utils.PageableUtil;
 import com.patientpal.backend.image.dto.ImageNameDto;
@@ -43,6 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CaregiverControllerV1 {
 
     private final CaregiverService caregiverService;
+    private final CaregiverSearchService caregiverSearchService;
     private final PresignedUrlService presignedUrlService;
 
     @Operation(summary = "간병인 프로필 생성", description = "간병인 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
@@ -129,11 +131,11 @@ public class CaregiverControllerV1 {
         String sort = PageableUtil.getSortAsString(pageable);
         PatientProfileListResponse searchedProfiles = null;
         if (sort.equals("viewCounts")) {
-            searchedProfiles = caregiverService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
+            searchedProfiles = caregiverSearchService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
         } else if (sort.equals("reviewCounts")) {
             // searchedProfiles = patientService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
         } else {
-            searchedProfiles = caregiverService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
+            searchedProfiles = caregiverSearchService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         }
         return ResponseEntity.status(OK).body(searchedProfiles);
     }

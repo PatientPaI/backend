@@ -18,8 +18,24 @@ spring:
       port: 6379
       password:
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    env:
+      enabled: true
+
 server:
   port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 jasypt:
   encryptor:
@@ -103,12 +119,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-
-#  data:
-#    redis:
-#      host: ${SPRING_REDIS_HOST}
-#      port: ${SPRING_REDIS_PORT}
-#      password: ${SPRING_REDIS_PASSWORD}
 
 discord:
   webhook:
