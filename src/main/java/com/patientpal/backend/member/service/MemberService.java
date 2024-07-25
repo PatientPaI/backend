@@ -1,7 +1,6 @@
 package com.patientpal.backend.member.service;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
-import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
