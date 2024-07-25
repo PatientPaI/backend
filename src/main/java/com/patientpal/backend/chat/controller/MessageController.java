@@ -1,6 +1,7 @@
 package com.patientpal.backend.chat.controller;
 
-import com.patientpal.backend.chat.dto.WriteMessageRequest;
+import com.patientpal.backend.chat.dto.MessageCreateRequest;
+import com.patientpal.backend.chat.dto.MessageCreateResponse;
 import com.patientpal.backend.chat.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,9 +17,8 @@ public class MessageController {
     private final MessageService messageService;
 
     @PostMapping
-    public void create(@RequestBody WriteMessageRequest message) {
-        messageService.send(message);
+    public MessageCreateResponse create(@RequestBody MessageCreateRequest request) {
+        var message = messageService.createAndSendMessage(request);
+        return new MessageCreateResponse(message);
     }
-
-
 }
