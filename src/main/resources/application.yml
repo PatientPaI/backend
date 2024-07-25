@@ -103,6 +103,11 @@ spring:
     session:
       store-type: redis
 
+  task:
+    execution:
+      pool:
+        max-size: 16
+
 ---
 spring:
   config:
