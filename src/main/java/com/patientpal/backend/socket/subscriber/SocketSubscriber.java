@@ -1,4 +1,4 @@
-package com.patientpal.backend.socket.publisher.subscriber;
+package com.patientpal.backend.socket.subscriber;
 
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
 import com.patientpal.backend.chat.dto.SocketDirectSubscribeMessage;
