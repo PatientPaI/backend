@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class WriteMessageRequest {
+public class SocketDirectSubscribeMessage {
 
     private String content;
-    private Long chatId;
     private Long senderId;
+    private MessageType messageType;
 }
