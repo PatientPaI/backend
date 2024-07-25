@@ -12,10 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 public class ChatResponse {
 
+    private Long chatId;
     private ChatType chatType;
     private List<Long> managerIds;
 
     public ChatResponse(Chat chat) {
+        this.chatId = chat.getId();
         this.chatType = chat.getChatType();
         this.managerIds = chat.getMemberIds();
     }
