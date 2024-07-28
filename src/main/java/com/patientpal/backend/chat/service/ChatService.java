@@ -35,5 +35,16 @@ public class ChatService {
     public List<Chat> getMembersChat(Long memberId) {
         return chatRepository.findAllByMemberId(memberId);
     }
+
+    @Transactional
+    public void leaveChat(Long chatId, Long memberId) {
+        Chat chat = findChat(chatId);
+        if (chat.alone()) {
+            chat.leave(memberId);
+            return;
+        }
+
+        chatRepository.delete(chat);
+    }
 }
 
