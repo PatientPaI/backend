@@ -8,6 +8,7 @@ import com.patientpal.backend.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,11 @@ public class ChatService {
     @Transactional
     public Chat create(ChatCreateRequest request) {
         return chatRepository.save(request.toEntity());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Chat> getMembersChat(Long memberId) {
+        return chatRepository.findAllByMemberId(memberId);
     }
 }
 
