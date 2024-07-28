@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
 
-    @Query("select c from Chat c where json_contains(c.memberIds, :memberId)")
+    @Query(value = "SELECT * FROM Chat c WHERE JSON_CONTAINS(c.memberIds, :memberId, '$')", nativeQuery = true)
     List<Chat> findAllByMemberId(@Param("memberId") Long memberId);
 }
