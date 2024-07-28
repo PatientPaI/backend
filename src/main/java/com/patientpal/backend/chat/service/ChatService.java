@@ -39,7 +39,7 @@ public class ChatService {
     @Transactional
     public void leaveChat(Long chatId, Long memberId) {
         Chat chat = findChat(chatId);
-        if (chat.alone()) {
+        if (!chat.alone()) {
             chat.leave(memberId);
             return;
         }
