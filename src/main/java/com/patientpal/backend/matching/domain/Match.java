@@ -68,9 +68,7 @@ public class Match {
 
     private String requestMemberCurrentSignificant;
 
-    private String requestMemberName;
-
-    private String receivedMemberName;
+    private String realCarePlace;
 
     private Boolean isNok;
 
@@ -81,7 +79,7 @@ public class Match {
     @Builder
     public Match(@NonNull Member requestMember, @NonNull Member receivedMember, @NonNull MatchStatus matchStatus, @NonNull ReadStatus readStatus,
                  FirstRequest firstRequest, LocalDateTime careStartDateTime, LocalDateTime careEndDateTime, Long totalAmount, String requestMemberCurrentSignificant,
-                 String requestMemberName, String receivedMemberName, Boolean isNok, String nokName, String nokContact) {
+                 String realCarePlace, Boolean isNok, String nokName, String nokContact) {
         this.requestMember = requestMember;
         this.receivedMember = receivedMember;
         this.matchStatus = matchStatus;
@@ -91,8 +89,7 @@ public class Match {
         this.careEndDateTime = careEndDateTime;
         this.totalAmount = totalAmount;
         this.requestMemberCurrentSignificant = requestMemberCurrentSignificant;
-        this.requestMemberName = requestMemberName;
-        this.receivedMemberName = receivedMemberName;
+        this.realCarePlace = realCarePlace;
         this.isNok = isNok;
         this.nokName = nokName;
         this.nokContact = nokContact;

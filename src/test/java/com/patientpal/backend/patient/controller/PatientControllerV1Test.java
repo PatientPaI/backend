@@ -58,7 +58,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value(response.getName()))
-                    .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
+                    .andExpect(jsonPath("$.age").value(response.getAge()))
                     .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 
@@ -66,7 +66,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", "", Gender.MALE, null, new Address("", "", ""), "", "", "", "",
+            PatientProfileCreateRequest request = new PatientProfileCreateRequest("", 0, Gender.MALE, null, new Address("", "", ""), "", "", "", "",
                     " ", true, LocalDateTime.now(), LocalDateTime.now());
 
             // when & then
@@ -93,7 +93,7 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
-                    .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
+                    .andExpect(jsonPath("$.age").value(response.getAge()))
                     .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 

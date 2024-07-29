@@ -14,7 +14,7 @@ public class PatientFixture {
     public static final String NAME = "환자 이름";
     public static final String NOK_NAME = "보호자이름";
     public static final String NOK_CONTACT = "010-8765-4321";
-    public static final String RESIDENT_REGISTRATION_NUMBER = "121212-121212";
+    public static final Integer AGE = 70;
     public static final String PATIENT_SIGNIFICANT = "환자 특이사항";
     public static final String PATIENT_USERNAME = "환자 아이디";
 
@@ -30,6 +30,7 @@ public class PatientFixture {
         return Patient.builder()
                 .username(PATIENT_USERNAME)
                 .contact(PATIENT_PHONE_NUMBER)
+                .age(AGE)
                 .address(PATIENT_ADDRESS)
                 .isNok(false)
                 .realCarePlace(PATIENT_REAL_CARE_PLACE)
@@ -42,7 +43,7 @@ public class PatientFixture {
     public static PatientProfileCreateRequest createPatientProfileRequest() {
         return PatientProfileCreateRequest.builder()
                 .contact(PATIENT_PHONE_NUMBER)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .age(AGE)
                 .gender(Gender.MALE)
                 .isNok(false)
                 .realCarePlace(PATIENT_REAL_CARE_PLACE)
@@ -57,6 +58,7 @@ public class PatientFixture {
     public static PatientProfileUpdateRequest updatePatientProfileRequest() {
         return PatientProfileUpdateRequest.builder()
                 .address(UPDATE_PATIENT_ADDRESS)
+                .age(AGE)
                 .isNok(true)
                 .realCarePlace(UPDATE_REAL_CARE_PLACE)
                 .nokName(UPDATE_NOK_NAME)
@@ -68,6 +70,7 @@ public class PatientFixture {
     public static PatientProfileDetailResponse createPatientProfileResponse() {
         return PatientProfileDetailResponse.builder()
                 .memberId(1L)
+                .age(AGE)
                 .contact(PATIENT_PHONE_NUMBER)
                 .address(PATIENT_ADDRESS)
                 .isNok(false)

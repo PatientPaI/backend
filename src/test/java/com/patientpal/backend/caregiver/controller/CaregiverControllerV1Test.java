@@ -56,7 +56,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
                     .andDo(print())
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.name").value(response.getName()))
-                    .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
+                    .andExpect(jsonPath("$.age").value(response.getAge()))
                     .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 
@@ -64,7 +64,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserCaregiver
         void 잘못된_요청이면_예외가_발생한다() throws Exception {
             // given
-            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", "", "", null, new Address("hi", "ho", "ha"), 1, 1, "", "", LocalDateTime.now(), LocalDateTime.now());
+            CaregiverProfileCreateRequest request = new CaregiverProfileCreateRequest("", 15, "", null, new Address("hi", "ho", "ha"), 1, 1, "", "", LocalDateTime.now(), LocalDateTime.now());
 
             // when & then
             mockMvc.perform(post("/api/v1/caregiver/profile")
@@ -90,7 +90,7 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
-                    .andExpect(jsonPath("$.residentRegistrationNumber").value(response.getResidentRegistrationNumber()))
+                    .andExpect(jsonPath("$.age").value(response.getAge()))
                     .andExpect(jsonPath("$.contact").value(response.getContact()));
         }
 

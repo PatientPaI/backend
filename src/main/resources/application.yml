@@ -85,7 +85,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -112,7 +112,7 @@ spring:
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(uyv48BYctQJakgP+CtCpexc8sfHazuwXd+XH2ZVGeRnL1SD4f3272cV+Z21gYY7PN45UJVcluQYRVd4eVkwh0kscf5bILxCTzs5BiVp0JM6/Vq2CIuD/WJModD5P/M1hWxZaKmU0qywaaeHMLCNPH3EehJKkemVw37Zyko2IpPo=)
+    url: ENC(zJQaMwLjJk3XlZwS1MTNwUQYmeUj+vvA8/PZ5PGbT2du6jWeJWaF45Vlldqre/rdEKRr68MpXV/gvMdN+4sKuqBjERUZzCSy6o7TQTT2lzB+mUjdgxUKsnRtldBN5H8fj9RHPcvvcSmq3MHv2lHVhwWpssa76jgb/7xTGiXsui4KT0/2N2FFefsoIyn5CIuFszK13C7EFv/OKRs+BRYp41I2/eMndHTjtQE2o3TEJpY=)
     username: ENC(YvhNZJW8jdIHTxSfHYpIu33tu3yWyxAoWC9wQmFINy2HZ0RK4l8pd3idd2JiMzuk)
     password: ENC(ph6RlG+iJmNuBKF9qLEgiNSlrsXteKokbapXBZOEh4e8U5B7f+Qqb6Fzq+n5MA3S)
 

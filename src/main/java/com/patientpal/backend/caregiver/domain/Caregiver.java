@@ -35,28 +35,28 @@ public class Caregiver extends Member {
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final String caregiverSignificant,
+    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final int age, final String caregiverSignificant,
                                     final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate) {
         updateAddress(address);
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
+        updateAge(age);
         this.rating = rate;
         this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public void registerDetailProfile(final String name, final Address address, final String contact, final String residentRegistrationNumber, final Gender gender,
+    public void registerDetailProfile(final String name, final Address address, final String contact, final int age, final Gender gender,
                                       final int experienceYears, final String specialization, final String caregiverSignificant,
                                       final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate, String profileImageUrl) {
         updateName(name);
         updateAddress(address);
         updateContact(contact);
-        updateResidentRegistrationNumber(residentRegistrationNumber);
+        updateAge(age);
         updateGender(gender);
         updateProfileImage(profileImageUrl);
         updateIsCompleteProfile();
-        updateAge(getAgeByResidentRegistrationNumber(residentRegistrationNumber));
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
         this.experienceYears = experienceYears;
