@@ -4,12 +4,15 @@ import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.common.TimeTrace;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.patient.dto.request.PatientProfileCreateRequest;
 import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
+import com.patientpal.backend.common.utils.PageableUtil;
+import com.patientpal.backend.patient.service.PatientSearchService;
 import com.patientpal.backend.patient.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +20,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -36,15 +41,18 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "환자", description = "환자 프로필 관리 API")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("api/v1/patient")
 public class PatientControllerV1 {
 
     private final PatientService patientService;
+    private final PatientSearchService patientSearchService;
     private final PresignedUrlService presignedUrlService;
 
     @Operation(summary = "환자 프로필 생성", description = "환자 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
     @PostMapping("/profile")
+    @TimeTrace
     public ResponseEntity<PatientProfileDetailResponse> createPatientProfile(
             @AuthenticationPrincipal User currentMember,
             @RequestBody @Valid PatientProfileCreateRequest patientProfileCreateRequest,
@@ -114,11 +122,24 @@ public class PatientControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "간병인 찾기", description = "지역, 이름, 성별, 나이, 경력으로 간병인을 검색합니다. sort='field',asc/desc로 정렬 가능합니다. ")
+    @Operation(summary = "간병인 찾기", description = "지역, 이름, 성별, 나이로 간병인을 검색합니다.")
     @ApiResponse(responseCode = "200", description = "조건에 해당하는 간병인 찾기 성공")
     @GetMapping("/search")
-    public ResponseEntity<CaregiverProfileListResponse> searchCaregivers(ProfileSearchCondition condition, @PageableDefault(size = 5) Pageable pageable) {
-        final CaregiverProfileListResponse searchedProfiles = patientService.searchPageOrderBy(condition, pageable);
+    public ResponseEntity<CaregiverProfileListResponse> searchCaregivers(ProfileSearchCondition condition,
+                                                                         @RequestParam(required = false) Long lastIndex,
+                                                                         @RequestParam(required = false) LocalDateTime lastProfilePublicTime,
+                                                                         @RequestParam(required = false) Integer lastViewCounts,
+                                                                         @RequestParam(required = false) Integer lastReviewCounts,
+                                                                         @PageableDefault(size = 5) Pageable pageable) {
+        String sort = PageableUtil.getSortAsString(pageable);
+        CaregiverProfileListResponse searchedProfiles = null;
+        if (sort.equals("viewCounts")) {
+            searchedProfiles = patientSearchService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
+        } else if (sort.equals("reviewCounts")) {
+            // searchedProfiles = patientService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
+        } else {
+            searchedProfiles = patientSearchService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
+        }
         return ResponseEntity.status(OK).body(searchedProfiles);
     }
 }

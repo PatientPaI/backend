@@ -10,6 +10,7 @@ import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.CustomOauth2UserService;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +126,7 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+            config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://patientpal.site"));
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setExposedHeaders(Collections.singletonList("*"));

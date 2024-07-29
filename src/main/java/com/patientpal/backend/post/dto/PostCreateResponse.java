@@ -18,6 +18,8 @@ public class PostCreateResponse {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String postType;
+
 
     public PostCreateResponse(Post post) {
         this.id = post.getId();
@@ -27,5 +29,7 @@ public class PostCreateResponse {
         this.content = post.getContent();
         this.createdAt = post.getCreatedDate();
         this.updatedAt = post.getLastModifiedDate();
+        this.postType = post.getPostType().toString();
+
     }
 }

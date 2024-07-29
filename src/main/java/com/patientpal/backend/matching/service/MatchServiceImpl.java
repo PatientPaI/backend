@@ -41,6 +41,7 @@ import com.patientpal.backend.notification.annotation.NeedNotification;
 import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.repository.PatientRepository;
+import io.micrometer.core.annotation.Timed;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Timed("matches")
 @Transactional(readOnly = true)
 public class MatchServiceImpl implements MatchService {
 

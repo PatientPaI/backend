@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -12,22 +12,19 @@ public class PatientProfileListResponse {
 
     private List<PatientProfileResponse> patientProfileList;
     private int currentPage;
-    private int totalPages;
-    private long totalItems;
+    private boolean hasNext;
 
-    public PatientProfileListResponse(List<PatientProfileResponse> patientProfileList, int currentPage, int totalPages, long totalItems) {
+    public PatientProfileListResponse(List<PatientProfileResponse> patientProfileList, int currentPage, boolean hasNext) {
         this.patientProfileList = patientProfileList;
         this.currentPage = currentPage;
-        this.totalPages = totalPages;
-        this.totalItems = totalItems;
+        this.hasNext = hasNext;
     }
 
-    public static PatientProfileListResponse from(Page<PatientProfileResponse> search) {
+    public static PatientProfileListResponse from(Slice<PatientProfileResponse> search) {
         return new PatientProfileListResponse(
                 search.getContent(),
                 search.getNumber(),
-                search.getTotalPages(),
-                search.getTotalElements()
+                search.hasNext()
         );
     }
 }

@@ -1,7 +1,6 @@
 package com.patientpal.backend.member.service;
 
 import com.patientpal.backend.auth.dto.SignUpRequest;
-import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
@@ -67,8 +66,8 @@ public class MemberService {
                         .build();
                 return memberRepository.save(member).getId();
             }
-            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
 
+            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }

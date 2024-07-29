@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local # [local, prod]
+    active: prod # [local, prod]
     include: oauth2
 
   application:
@@ -14,12 +14,28 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
       password:
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  info:
+    java:
+      enabled: true
+    os:
+      enabled: true
+    env:
+      enabled: true
+
 server:
   port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 jasypt:
   encryptor:
@@ -40,8 +56,7 @@ springdoc:
 
 patientpal:
   openapi:
-    dev-url: http://localhost:8080
-    prod-url: http://3.35.178.244:8080
+    prod-url: https://patientpal.site
 
 cloud:
   aws:
@@ -70,7 +85,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -104,12 +119,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-
-  data:
-    redis:
-      host: ${SPRING_REDIS_HOST}
-      port: ${SPRING_REDIS_PORT}
-      password: ${SPRING_REDIS_PASSWORD}
 
 discord:
   webhook:

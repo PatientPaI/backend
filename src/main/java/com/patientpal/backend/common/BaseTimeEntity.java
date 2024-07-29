@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -25,6 +26,9 @@ public abstract class BaseTimeEntity {
     @LastModifiedDate
     private LocalDateTime lastModifiedDate;
 
+    @Setter
+    private LocalDateTime profilePublicTime;
+    
     public LocalDateTime wantCareStartDate;
 
     public LocalDateTime wantCareEndDate;

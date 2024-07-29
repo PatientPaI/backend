@@ -13,22 +13,15 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
-    private final String devUrl;
     private final String prodUrl;
 
     public SwaggerConfig(
-            @Value("${patientpal.openapi.dev-url}") final String devUrl,
             @Value("${patientpal.openapi.prod-url}") final String prodUrl
     ) {
-        this.devUrl = devUrl;
         this.prodUrl = prodUrl;
     }
-
     @Bean
     public OpenAPI openAPI() {
-        final Server devServer = new Server();
-        devServer.setUrl(devUrl);
-
         final Server prodServer = new Server();
         prodServer.setUrl(prodUrl);
 
@@ -49,7 +42,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(info)
-                .servers(List.of(devServer, prodServer))
+                .servers(List.of(prodServer))
                 .addSecurityItem(securityRequirement)
                 .components(new io.swagger.v3.oas.models.Components().addSecuritySchemes("Authorization", securityScheme));
     }

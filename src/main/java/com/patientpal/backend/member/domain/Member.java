@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
@@ -37,7 +38,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "member_type")
 @SuperBuilder
-public  class Member extends BaseTimeEntity {
+public class Member extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -89,6 +90,8 @@ public  class Member extends BaseTimeEntity {
     @Column(length = 512)
     @Setter
     private String profileImageUrl;
+
+    private int viewCounts;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -191,4 +194,9 @@ public  class Member extends BaseTimeEntity {
     public static boolean isNotOwner(final String username, final Member member) {
         return !Objects.equals(username, member.getUsername());
     }
+
+    public void changeViewCount(Long value) {
+        this.viewCounts = Math.toIntExact(value);
+    }
+
 }
