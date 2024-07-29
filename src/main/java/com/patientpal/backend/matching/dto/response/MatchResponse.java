@@ -22,10 +22,15 @@ public class MatchResponse {
     private Long id;
     private String requestMemberName;
     private String receivedMemberName;
+    private String requestMemberContact;
+    private String receivedMemberContact;
+    private String requestMemberAddress;
+    private String receivedMemberAddress;
     private LocalDateTime createdDate;
     private MatchStatus matchStatus;
     private ReadStatus readStatus;
     private FirstRequest firstRequest;
+    private String realCarePlace;
     private LocalDateTime careStartDateTime;
     private LocalDateTime careEndDateTime;
     private Long totalAmount;
@@ -35,17 +40,24 @@ public class MatchResponse {
     private String nokContact;
 
     @Builder
-    public MatchResponse(Long id, String requestMemberName, String receivedMemberName, LocalDateTime createdDate,
-                         MatchStatus matchStatus, ReadStatus readStatus, FirstRequest firstRequest,
-                         LocalDateTime careStartDateTime, LocalDateTime careEndDateTime, Long totalAmount,
-                         String requestMemberCurrentSignificant, Boolean isNok, String nokName, String nokContact) {
+    public MatchResponse(Long id, String requestMemberName, String receivedMemberName, String requestMemberContact,
+                         String receivedMemberContact, String requestMemberAddress, String receivedMemberAddress,
+                         LocalDateTime createdDate, MatchStatus matchStatus, ReadStatus readStatus,
+                         FirstRequest firstRequest, String realCarePlace, LocalDateTime careStartDateTime,
+                         LocalDateTime careEndDateTime, Long totalAmount, String requestMemberCurrentSignificant,
+                         Boolean isNok, String nokName, String nokContact) {
         this.id = id;
         this.requestMemberName = requestMemberName;
         this.receivedMemberName = receivedMemberName;
+        this.requestMemberContact = requestMemberContact;
+        this.receivedMemberContact = receivedMemberContact;
+        this.requestMemberAddress = requestMemberAddress;
+        this.receivedMemberAddress = receivedMemberAddress;
         this.createdDate = createdDate;
         this.matchStatus = matchStatus;
         this.readStatus = readStatus;
         this.firstRequest = firstRequest;
+        this.realCarePlace = realCarePlace;
         this.careStartDateTime = careStartDateTime;
         this.careEndDateTime = careEndDateTime;
         this.totalAmount = totalAmount;
@@ -58,11 +70,16 @@ public class MatchResponse {
     public static MatchResponse of(Match match) {
         return MatchResponse.builder()
                 .id(match.getId())
-                .requestMemberName(match.getRequestMemberName())
-                .receivedMemberName(match.getReceivedMemberName())
+                .requestMemberName(match.getRequestMember().getName())
+                .receivedMemberName(match.getReceivedMember().getName())
+                .requestMemberContact(match.getRequestMember().getContact())
+                .receivedMemberContact(match.getReceivedMember().getContact())
+                .requestMemberAddress(match.getRequestMember().getAddress().toString())
+                .receivedMemberAddress(match.getReceivedMember().getAddress().toString())
                 .matchStatus(match.getMatchStatus())
                 .readStatus(match.getReadStatus())
                 .firstRequest(match.getFirstRequest())
+                .realCarePlace(match.getRealCarePlace())
                 .careStartDateTime(match.getCareStartDateTime())
                 .careEndDateTime(match.getCareEndDateTime())
                 .totalAmount(match.getTotalAmount())
@@ -85,11 +102,10 @@ public class MatchResponse {
                 .careEndDateTime(createMatchRequest.getCareEndDateTime())
                 .totalAmount(createMatchRequest.getTotalAmount())
                 .requestMemberCurrentSignificant(createMatchRequest.getSignificant())
-                .isNok(patient.getIsNok())
+                .isNok(createMatchRequest.getIsNok())
+                .realCarePlace(createMatchRequest.getRealCarePlace())
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())
-                .requestMemberName(patient.getName())
-                .receivedMemberName(caregiver.getName())
                 .build();
     }
 
@@ -107,8 +123,6 @@ public class MatchResponse {
                 .isNok(patient.getIsNok())
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())
-                .requestMemberName(caregiver.getName())
-                .receivedMemberName(patient.getName())
                 .build();
     }
 

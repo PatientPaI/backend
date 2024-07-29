@@ -17,7 +17,7 @@ public class PatientProfileCreateRequest {
     private String name;
 
     @NotNull
-    private String residentRegistrationNumber;
+    private Integer age;
 
     @NotNull
     private Gender gender;
@@ -49,12 +49,12 @@ public class PatientProfileCreateRequest {
     private LocalDateTime wantCareEndDate;
 
     @Builder
-    public PatientProfileCreateRequest(String name, String residentRegistrationNumber, Gender gender, String contact,
+    public PatientProfileCreateRequest(String name, Integer age, Gender gender, String contact,
                                        Address address, String nokName, String nokContact, String patientSignificant,
                                        String careRequirements, String realCarePlace, Boolean isNok,
                                        LocalDateTime wantCareStartDate, LocalDateTime wantCareEndDate) {
         this.name = name;
-        this.residentRegistrationNumber = residentRegistrationNumber;
+        this.age = age;
         this.gender = gender;
         this.contact = contact;
         this.address = address;

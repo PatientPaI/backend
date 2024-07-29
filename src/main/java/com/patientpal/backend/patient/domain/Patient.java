@@ -43,7 +43,7 @@ public class Patient extends Member {
     }
 
     public void registerDetailProfile(final String name, final Address address, final String contact,
-                                      final String residentRegistrationNumber, final Gender gender,
+                                      final int age, final Gender gender,
                                       final String nokName, final String nokContact, final String patientSignificant,
                                       final String careRequirements, final String realCarePlace, final Boolean isNok,
                                       final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate,
@@ -51,7 +51,7 @@ public class Patient extends Member {
         updateName(name);
         updateAddress(address);
         updateContact(contact);
-        updateResidentRegistrationNumber(residentRegistrationNumber);
+        updateAge(age);
         updateGender(gender);
         updateProfileImage(profileImageUrl);
         updateIsCompleteProfile();
@@ -65,13 +65,14 @@ public class Patient extends Member {
         this.isNok = isNok;
     }
 
-    public void updateDetailProfile(final Address address, final String nokName, final String nokContact,
+    public void updateDetailProfile(final Address address, final String nokName, final String nokContact, final int age,
                                     final String patientSignificant, final String careRequirements,
                                     final String realCarePlace, final Boolean isNok,
                                     final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate) {
         updateAddress(address);
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
+        updateAge(age);
         this.nokName = nokName;
         this.nokContact = nokContact;
         this.patientSignificant = patientSignificant;

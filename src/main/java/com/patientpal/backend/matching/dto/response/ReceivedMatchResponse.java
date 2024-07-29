@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReceivedMatchResponse {
+    private Long matchId;
     private String requestMemberName;
     private LocalDateTime createdDate;
     private MatchStatus matchStatus;
@@ -19,9 +20,10 @@ public class ReceivedMatchResponse {
     private Long totalAmount;
 
     @Builder
-    public ReceivedMatchResponse(String requestMemberName, LocalDateTime createdDate, MatchStatus matchStatus,
+    public ReceivedMatchResponse(Long matchId, String requestMemberName, LocalDateTime createdDate, MatchStatus matchStatus,
                                 LocalDateTime careStartDateTime, LocalDateTime careEndDateTime,
                                 Long totalAmount) {
+        this.matchId = matchId;
         this.requestMemberName = requestMemberName;
         this.createdDate = createdDate;
         this.matchStatus = matchStatus;
@@ -32,6 +34,7 @@ public class ReceivedMatchResponse {
 
     public static ReceivedMatchResponse of(Match match) {
         return ReceivedMatchResponse.builder()
+                .matchId(match.getId())
                 .requestMemberName(match.getRequestMember().getName())
                 .matchStatus(match.getMatchStatus())
                 .careStartDateTime(match.getCareStartDateTime())

@@ -17,7 +17,7 @@ public class CaregiverProfileCreateRequest {
     private String name;
 
     @NotNull
-    private String residentRegistrationNumber;
+    private Integer age;
 
     // TODO 인증
     @NotNull
@@ -42,11 +42,11 @@ public class CaregiverProfileCreateRequest {
     private LocalDateTime wantCareEndDate;
 
     @Builder
-    public CaregiverProfileCreateRequest(String name, String residentRegistrationNumber, String contact, Gender gender,
+    public CaregiverProfileCreateRequest(String name, Integer age, String contact, Gender gender,
                                          Address address, float rating, int experienceYears, String specialization,
                                          String caregiverSignificant, LocalDateTime wantCareStartDate, LocalDateTime wantCareEndDate) {
         this.name = name;
-        this.residentRegistrationNumber = residentRegistrationNumber;
+        this.age = age;
         this.contact = contact;
         this.gender = gender;
         this.address = address;

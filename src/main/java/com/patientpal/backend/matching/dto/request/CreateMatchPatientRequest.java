@@ -23,7 +23,7 @@ public class CreateMatchPatientRequest {
 
     private String realCarePlace;
 
-    private boolean isNok;
+    private Boolean isNok;
 
     @Builder
     public CreateMatchPatientRequest(LocalDateTime careStartDateTime, LocalDateTime careEndDateTime, Long totalAmount,

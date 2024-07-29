@@ -15,7 +15,7 @@ public class CaregiverFixture {
     public static final String CAREGIVER_USERNAME = "간병";
     public static final float RATING = 4.5f;
     public static final int EXPERIENCE_YEARS = 5;
-    public static final String RESIDENT_REGISTRATION_NUMBER = "121212-121212";
+    public static final Integer AGE = 50;
     public static final String SPECIALIZATION = "노인 간병";
     public static final String CAREGIVER_SIGNIFICANT = "다양한 경험 보유";
 
@@ -29,7 +29,7 @@ public class CaregiverFixture {
         return Caregiver.builder()
                 .username(CAREGIVER_USERNAME)
                 .name(CAREGIVER_NAME)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .age(AGE)
                 .contact(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)
@@ -42,7 +42,7 @@ public class CaregiverFixture {
     public static CaregiverProfileCreateRequest createCaregiverProfileRequest() {
         return CaregiverProfileCreateRequest.builder()
                 .name(CAREGIVER_NAME)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .age(AGE)
                 .gender(Gender.MALE)
                 .contact(PHONE_NUMBER)
                 .address(ADDRESS)
@@ -57,6 +57,7 @@ public class CaregiverFixture {
         return CaregiverProfileUpdateRequest.builder()
                 .address(UPDATE_ADDRESS)
                 .rating(UPDATE_RATING)
+                .age(AGE)
                 .experienceYears(UPDATE_EXPERIENCE_YEARS)
                 .specialization(UPDATE_SPECIALIZATION)
                 .caregiverSignificant(UPDATE_CAREGIVER_SIGNIFICANT)
@@ -67,7 +68,7 @@ public class CaregiverFixture {
         return CaregiverProfileDetailResponse.builder()
                 .memberId(1L)
                 .name(CAREGIVER_NAME)
-                .residentRegistrationNumber(RESIDENT_REGISTRATION_NUMBER)
+                .age(AGE)
                 .contact(PHONE_NUMBER)
                 .address(ADDRESS)
                 .rating(RATING)

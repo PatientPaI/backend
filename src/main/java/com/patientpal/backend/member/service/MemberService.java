@@ -5,6 +5,7 @@ import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Provider;
@@ -58,7 +59,7 @@ public class MemberService {
                         .build();
                 patient.encodePassword(passwordEncoder);
                 return patientRepository.save(patient).getId();
-            } else {
+            } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
                         .username(request.getUsername())
                         .password(request.getPassword())
@@ -67,6 +68,8 @@ public class MemberService {
                         .build();
                 return memberRepository.save(member).getId();
             }
+
+            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getUsername());
         }
@@ -93,7 +96,7 @@ public class MemberService {
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
                 return patientRepository.save(patient).getId();
-            } else {
+            } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
                         .username(request.getUsername())
                         .password(request.getPassword())
@@ -102,6 +105,8 @@ public class MemberService {
                         .build();
                 return memberRepository.save(member).getId();
             }
+            throw new BusinessException(ErrorCode.UNSELECTED_ROLE);
+
         } catch (DataIntegrityViolationException e) {
             throw new AuthenticationException(ErrorCode.MEMBER_ALREADY_EXIST, request.getEmail());
         }

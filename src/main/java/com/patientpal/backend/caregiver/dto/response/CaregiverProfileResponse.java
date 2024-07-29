@@ -16,7 +16,7 @@ public class CaregiverProfileResponse {
 
     private String name;
 
-    private int age;
+    private Integer age;
 
     private Gender gender;
 
@@ -34,7 +34,7 @@ public class CaregiverProfileResponse {
 
     @Builder
     @QueryProjection
-    public CaregiverProfileResponse(Long id, String name, int age, Gender gender, Address address, float rating,
+    public CaregiverProfileResponse(Long id, String name, Integer age, Gender gender, Address address, float rating,
                                     int experienceYears, String specialization, String image, Integer viewCounts) {
         this.id = id;
         this.name = name;

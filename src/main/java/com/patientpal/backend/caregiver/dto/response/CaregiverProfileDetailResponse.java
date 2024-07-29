@@ -16,9 +16,7 @@ public class CaregiverProfileDetailResponse {
 
     private String name;
 
-    private String residentRegistrationNumber;
-
-    private int age;
+    private Integer age;
 
     private String contact;
 
@@ -41,11 +39,10 @@ public class CaregiverProfileDetailResponse {
     private long viewCount;
 
     @Builder
-    public CaregiverProfileDetailResponse(Long memberId, String name, String residentRegistrationNumber, int age, String contact, Gender gender, Address address, float rating, int experienceYears,
+    public CaregiverProfileDetailResponse(Long memberId, String name, int age, String contact, Gender gender, Address address, float rating, int experienceYears,
                                           String specialization, String caregiverSignificant, Boolean isInMatchList, String image, long viewCount) {
         this.memberId = memberId;
         this.name = name;
-        this.residentRegistrationNumber = residentRegistrationNumber;
         this.age = age;
         this.contact = contact;
         this.gender = gender;
@@ -63,7 +60,6 @@ public class CaregiverProfileDetailResponse {
         return CaregiverProfileDetailResponse.builder()
                 .memberId(caregiver.getId())
                 .name(caregiver.getName())
-                .residentRegistrationNumber(caregiver.getResidentRegistrationNumber())
                 .age(caregiver.getAge())
                 .contact(caregiver.getContact())
                 .gender(caregiver.getGender())

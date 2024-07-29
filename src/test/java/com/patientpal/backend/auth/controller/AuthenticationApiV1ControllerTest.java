@@ -1,6 +1,7 @@
 package com.patientpal.backend.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -153,12 +154,14 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
             session.setAttribute("email", "test@example.com");
             session.setAttribute("name", "Test User");
             session.setAttribute("role", Role.USER);
+            session.setAttribute("age", 70);
             session.setAttribute("provider", "google");
             session.setAttribute("username", "testuser");
 
             Member member = Member.builder()
                     .id(1L)
                     .username("testuser")
+                    .age(80)
                     .isProfilePublic(true)
                     .isCompleteProfile(true)
                     .build();
@@ -244,6 +247,7 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
                     .id(1L)
                     .username("testuser")
                     .isProfilePublic(true)
+                    .age(80)
                     .isCompleteProfile(true)
                     .role(Role.USER) // role 설정
                     .build();
