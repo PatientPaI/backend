@@ -17,6 +17,7 @@ import com.patientpal.backend.patient.dto.request.PatientProfileUpdateRequest;
 import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.view.ViewService;
+import io.micrometer.core.annotation.Timed;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Timed("patient.service")
 @Transactional(readOnly = true)
 public class PatientService {
 
@@ -151,21 +153,4 @@ public class PatientService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 
-    public CaregiverProfileListResponse searchPageOrderByViews(ProfileSearchCondition condition, Long lastIndex, Integer lastViewCounts, Pageable pageable) {
-
-        Slice<CaregiverProfileResponse> searchWithViews = patientRepository.searchCaregiverProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
-        return CaregiverProfileListResponse.from(searchWithViews);
-    }
-    //
-    // public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
-    //
-    //     Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
-    //     return CaregiverProfileListResponse.from(searchByReviewCounts);
-    // }
-
-    public CaregiverProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
-
-        Slice<CaregiverProfileResponse> search = patientRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
-        return CaregiverProfileListResponse.from(search);
-    }
 }

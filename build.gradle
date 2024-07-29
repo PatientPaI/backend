@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.5'
     id 'io.spring.dependency-management' version '1.1.4'
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 group = 'com.patientpal'
@@ -51,6 +52,9 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.session:spring-session-data-redis'
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
@@ -70,4 +74,8 @@ sourceSets {
 
 clean {
     delete file(generated)
+}
+
+springBoot {
+    buildInfo()
 }
