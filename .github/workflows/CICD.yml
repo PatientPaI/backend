@@ -54,14 +54,9 @@ jobs:
           port: 22
           source: "./deploy.sh"
           target: "/home/ubuntu/"
-
-      - name: Deploy to Dev
-        uses: appleboy/ssh-action@master
-        with:
-          username: ubuntu
-          host: ${{ secrets.EC2_HOST }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_TOKEN }}
             chmod +x /home/ubuntu/deploy.sh
             /home/ubuntu/deploy.sh
             docker image prune -f
+    
