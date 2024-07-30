@@ -125,8 +125,7 @@ public class AuthenticationApiV1Controller {
         }
         new SecurityContextLogoutHandler()
                 .logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
-        resp.setStatus(HttpServletResponse.SC_FOUND);
-        resp.setHeader("Location", "/login");
+        resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {

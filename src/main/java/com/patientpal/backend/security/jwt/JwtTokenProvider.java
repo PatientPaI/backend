@@ -121,12 +121,6 @@ public class JwtTokenProvider {
     }
 
     public void invalidateToken(String token) {
-        Long expiration = getExpiration(token);
-        redisTemplate.opsForValue().set(token, "invalid", expiration, TimeUnit.MILLISECONDS);
-    }
-
-    public Long getExpiration(String token) {
-        var expiration = getAllClaimsFromToken(token).getBody().getExpiration();
-        return expiration.getTime() - System.currentTimeMillis();
+        redisTemplate.opsForValue().set(token, "invalid", 1, TimeUnit.MILLISECONDS);
     }
 }

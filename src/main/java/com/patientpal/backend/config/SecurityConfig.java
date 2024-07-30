@@ -115,7 +115,7 @@ public class SecurityConfig {
                     })
             )
                  .logout(logout -> logout
-                         .logoutUrl("/logout")
+                         // .logoutUrl("/logout")
                          .logoutSuccessUrl("/")
                          .invalidateHttpSession(true)
                          .deleteCookies("JSESSIONID", "refresh_token"));
