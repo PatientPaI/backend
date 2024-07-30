@@ -18,6 +18,7 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String postType;
+    private int views;
 
 
     public PostResponse(Post post) {
@@ -29,5 +30,6 @@ public class PostResponse {
         this.createdAt = post.getCreatedDate();
         this.updatedAt = post.getLastModifiedDate();
         this.postType = post.getPostType().toString();
+        this.views = post.getViews();
     }
 }
