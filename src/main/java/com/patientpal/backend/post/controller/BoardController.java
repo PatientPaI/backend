@@ -43,11 +43,11 @@ public class BoardController {
         return posts.map(PostListResponse::new);
     }
 
-    // TODO : member 게시판 접근권한 논의 필요
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public PostResponse get(@PathVariable("id") Long id) {
         Post post = postService.getPost(id);
+        postService.udpateView(id);
         return new PostResponse(post);
     }
 
@@ -79,5 +79,4 @@ public class BoardController {
         Member member = memberService.getUserByUsername(currentMember.getUsername());
         postService.deletePost(member, id);
     }
-
 }
