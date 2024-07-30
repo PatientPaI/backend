@@ -1,7 +1,6 @@
 package com.patientpal.backend.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -11,10 +10,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patientpal.backend.auth.dto.SignInRequest;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
@@ -33,21 +30,15 @@ import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-
-import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @AutoKoreanDisplayName
 @SuppressWarnings("NonAsciiCharacters")
@@ -64,6 +55,9 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Nested
     class 사용자가_로그인_시에 {
