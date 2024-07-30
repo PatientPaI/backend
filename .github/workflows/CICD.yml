@@ -55,9 +55,9 @@ jobs:
             docker-compose pull
             if docker-compose ps | grep web-green; then
               docker-compose up -d web-blue && docker-compose stop web-green
-              sed -i 's/web_green/web_blue/' /etc/nginx/nginx.conf
+              sudo sed -i 's/web_green/web_blue/' /etc/nginx/nginx.conf
             else
               docker-compose up -d web-green && docker-compose stop web-blue
-              sed -i 's/web_blue/web_green/' /etc/nginx/nginx.conf
+              sudo sed -i 's/web_blue/web_green/' /etc/nginx/nginx.conf
             fi
-            nginx -s reload
+            sudo nginx -s reload
