@@ -22,7 +22,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/api/member/information")
+    @GetMapping("/api/v1/member/information")
     public ResponseEntity<MemberCompleteProfileResponse> getIsCompleteProfile(@AuthenticationPrincipal User user) {
         Member member = memberService.getUserByUsername(user.getUsername());
         return ResponseEntity.status(HttpStatus.OK).body(MemberCompleteProfileResponse.of(member.getId(), member.getName(), member.getIsCompleteProfile()));
