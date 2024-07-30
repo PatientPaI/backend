@@ -55,6 +55,7 @@ jobs:
           source: "./deploy.sh"
           target: "/home/ubuntu/"
           script: |
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKERHUB_TOKEN }}
             chmod +x /home/ubuntu/deploy.sh
             /home/ubuntu/deploy.sh
             docker image prune -f
