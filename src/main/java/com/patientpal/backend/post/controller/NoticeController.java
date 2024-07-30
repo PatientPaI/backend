@@ -46,6 +46,7 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse get(@PathVariable("id") Long id) {
         Post post = postService.getPost(id);
+        postService.udpateView(id);
         return new PostResponse(post);
     }
 
