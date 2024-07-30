@@ -91,7 +91,7 @@ public class PostService {
     }
 
     @Transactional
-    public int udpateView(Long id){
+    public int updateView(Long id){
         return postRepository.updateView(id);
     }
 }

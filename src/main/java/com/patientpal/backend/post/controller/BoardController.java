@@ -47,7 +47,7 @@ public class BoardController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse get(@PathVariable("id") Long id) {
         Post post = postService.getPost(id);
-        postService.udpateView(id);
+        postService.updateView(id);
         return new PostResponse(post);
     }
 
