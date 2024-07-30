@@ -4,24 +4,25 @@ import com.patientpal.backend.auth.dto.SignUpRequest;
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthenticationException;
+import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.domain.Provider;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.dto.MemberResponse;
 import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
+import java.util.List;
+import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -136,6 +137,12 @@ public class MemberService {
     public List<String> findUsernamesStartingWith(String username) {
         validateUsername(username);
         return memberRepository.findUsernameStartingWith(username);
+    }
+
+    @Transactional(readOnly = true)
+    public Member findMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST));
     }
 
     private void validateUsername(String username) {

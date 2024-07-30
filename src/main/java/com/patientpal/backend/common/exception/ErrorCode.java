@@ -43,7 +43,8 @@ public enum ErrorCode {
     PROFILE_NOT_COMPLETED(HttpStatus.NOT_FOUND, "PR_001", "프로필 작성이 완성되지 않았습니다."),
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV_001", "리뷰를 찾을 수 없습니다."),
-    ;
+
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CH_001", "채팅이 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;
