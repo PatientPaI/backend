@@ -5,11 +5,16 @@ import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.matching.domain.Match;
+import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.member.domain.Member;
+import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.review.domain.Review;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,13 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final MemberRepository memberRepository;
     private final CaregiverRepository caregiverRepository;
+    private final MatchRepository matchRepository;
 
     @Transactional
     public ReviewResponse createReview(ReviewRequest reviewRequest) {
 
-        // todo 계약이 이루어졌는지 확인하는 코드가 필요함
-
+        validateMath(reviewRequest);
         Review SavedReview = SavedReview(reviewRequest);
 
         SavedReview = reviewRepository.save(SavedReview);
@@ -89,11 +95,24 @@ public class ReviewService {
     }
 
     private Review SavedReview(ReviewRequest reviewRequest) {
+        Member reviewer = memberRepository.findById(reviewRequest.getReviewer().getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewer not found"));
+        Member reviewed = memberRepository.findById(reviewRequest.getReviewed().getId())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewed member not found"));
+
         return Review.builder()
-                .reviewerName(reviewRequest.getReviewerName())
-                .reviewedName(reviewRequest.getReviewedName())
+                .reviewer(reviewer)
+                .reviewed(reviewed)
                 .starRating(reviewRequest.getStarRating())
                 .content(reviewRequest.getContent())
                 .build();
+    }
+
+    private void validateMath(ReviewRequest reviewRequest) {
+        Optional<Match> match = matchRepository.findCompleteMatchForCaregiver(
+                reviewRequest.getReviewed().getId());
+        if (match.isEmpty()) {
+            throw new IllegalArgumentException("리뷰를 작성할 수 없습니다. 매칭이 완료되지 않았습니다.");
+        }
     }
 }

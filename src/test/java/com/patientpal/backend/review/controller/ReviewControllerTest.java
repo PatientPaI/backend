@@ -1,5 +1,6 @@
 package com.patientpal.backend.review.controller;
 
+import static com.patientpal.backend.review.fixtures.MemberFixture.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -15,8 +16,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
+import com.patientpal.backend.review.fixtures.MemberFixture;
 import com.patientpal.backend.review.service.ReviewService;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
@@ -35,6 +38,9 @@ class ReviewControllerTest extends CommonControllerSliceTest {
     @Autowired
     private ReviewService reviewService;
 
+    private Member reviewer = createMember(1L, "reviewerUsername", "John Doe");
+    private Member reviewed = createMember(2L, "reviewedUsername", "Caregiver A");
+
     @Nested
     class 리뷰_생성 {
 
@@ -42,8 +48,8 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception {
             //given
-            ReviewRequest reviewRequest = new ReviewRequest("John Doe", "Caregiver A", 5, "Excellent service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Excellent service");
+            ReviewRequest reviewRequest = new ReviewRequest(reviewer, reviewed, 5, "Excellent service");
+            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 5, "Excellent service");
 
             when(reviewService.createReview(any(ReviewRequest.class))).thenReturn(reviewResponse);
 
@@ -53,7 +59,9 @@ class ReviewControllerTest extends CommonControllerSliceTest {
                             .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
                     .andExpect(jsonPath("$.starRating").value(5))
                     .andExpect(jsonPath("$.content").value("Excellent service"));
@@ -67,7 +75,7 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Excellent service");
+            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 5, "Excellent service");
 
             when(reviewService.getReview(1L)).thenReturn(reviewResponse);
 
@@ -75,7 +83,9 @@ class ReviewControllerTest extends CommonControllerSliceTest {
             mockMvc.perform(get("/api/v1/reviews/1"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
                     .andExpect(jsonPath("$.starRating").value(5))
                     .andExpect(jsonPath("$.content").value("Excellent service"));
@@ -90,8 +100,10 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewRequest reviewRequest = new ReviewRequest("John Doe", "Caregiver A", 5, "Good service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Good service");
+            ReviewRequest reviewRequest = new ReviewRequest(reviewer, reviewed, 3, "Good service");
+            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 3, "Good service");
+
+
 
             when(reviewService.updateReview(eq(1L), any(ReviewRequest.class))).thenReturn(reviewResponse);
 
@@ -101,9 +113,11 @@ class ReviewControllerTest extends CommonControllerSliceTest {
                     .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
-                    .andExpect(jsonPath("$.starRating").value(5))
+                    .andExpect(jsonPath("$.starRating").value(3))
                     .andExpect(jsonPath("$.content").value("Good service"));
         }
     }

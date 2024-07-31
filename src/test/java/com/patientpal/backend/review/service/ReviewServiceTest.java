@@ -1,13 +1,23 @@
 package com.patientpal.backend.review.service;
 
+import static com.patientpal.backend.review.fixtures.CaregiverFixture.createCaregiver;
+import static com.patientpal.backend.review.fixtures.MatchFixture.createMatch;
+import static com.patientpal.backend.review.fixtures.MemberFixture.createMember;
+import static com.patientpal.backend.review.fixtures.ReviewFixture.createReview;
+import static com.patientpal.backend.review.fixtures.ReviewFixture.createReviewRequest;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import com.patientpal.backend.matching.domain.Match;
+import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.domain.MatchStatus;
+import com.patientpal.backend.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +36,8 @@ import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
+import org.springframework.context.annotation.Bean;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
@@ -38,6 +50,12 @@ class ReviewServiceTest {
     @Mock
     private CaregiverRepository caregiverRepository;
 
+    @Mock
+    private MatchRepository matchRepository;
+
+    @Mock
+    private MemberRepository memberRepository;
+
     @InjectMocks
     private ReviewService reviewService;
 
@@ -45,28 +63,14 @@ class ReviewServiceTest {
     private Review review;
     private ReviewRequest reviewRequest;
 
+    private Match match;
+
     @BeforeEach
     void setUp() {
-        caregiver = Caregiver.builder()
-                .id(1L)
-                .name("Caregiver A")
-                .address(new Address("12345", "Seoul", "Gangnam"))
-                .build();
-
-
-        review = Review.builder()
-                .reviewerName("John Doe")
-                .reviewedName("Caregiver A")
-                .starRating(5)
-                .content("Excellent service")
-                .build();
-
-        reviewRequest = ReviewRequest.builder()
-                .reviewerName("John Doe")
-                .reviewedName("Caregiver A")
-                .starRating(5)
-                .content("Excellent service")
-                .build();
+        caregiver = createCaregiver();
+        review = createReview();
+        reviewRequest = createReviewRequest();
+        match = createMatch();
     }
 
     @Nested
@@ -74,12 +78,15 @@ class ReviewServiceTest {
 
         @Test
         void 성공적으로_리뷰를_생성한다() {
+            when(matchRepository.findCompleteMatchForCaregiver(anyLong())).thenReturn(Optional.of(match));
             when(reviewRepository.save(any(Review.class))).thenReturn(review);
+            when(memberRepository.findById(reviewRequest.getReviewer().getId())).thenReturn(Optional.of(reviewRequest.getReviewer()));
+            when(memberRepository.findById(reviewRequest.getReviewed().getId())).thenReturn(Optional.of(reviewRequest.getReviewed()));
 
             ReviewResponse reviewResponse = reviewService.createReview(reviewRequest);
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewerName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewedName());
+            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewer().getName());
+            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewed().getName());
             assertThat(reviewResponse.getStarRating()).isEqualTo(review.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(review.getContent());
         }
@@ -95,8 +102,8 @@ class ReviewServiceTest {
 
             ReviewResponse reviewResponse = reviewService.getReview(1L);
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewerName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewedName());
+            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewer().getName());
+            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewed().getName());
             assertThat(reviewResponse.getStarRating()).isEqualTo(review.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(review.getContent());
         }
@@ -118,11 +125,11 @@ class ReviewServiceTest {
         void 성공적으로_리뷰를_수정한다() {
             when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
 
-            ReviewRequest updateRequest = new ReviewRequest("John Doe", "Caregiver A", 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(review.getReviewer(), review.getReviewed(), 4, "Good service");
             ReviewResponse reviewResponse = reviewService.updateReview(1L, updateRequest);
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(updateRequest.getReviewerName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(updateRequest.getReviewedName());
+            assertThat(reviewResponse.getReviewerName()).isEqualTo(updateRequest.getReviewer().getName());
+            assertThat(reviewResponse.getReviewedName()).isEqualTo(updateRequest.getReviewed().getName());
             assertThat(reviewResponse.getStarRating()).isEqualTo(updateRequest.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(updateRequest.getContent());
         }
@@ -131,7 +138,7 @@ class ReviewServiceTest {
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
             when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
-            ReviewRequest updateRequest = new ReviewRequest("John Doe", "Caregiver A", 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(review.getReviewer(), review.getReviewed(), 4, "Good service");
 
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest));
 
@@ -173,13 +180,13 @@ class ReviewServiceTest {
             );
 
             List<Review> reviewsForA = Arrays.asList(
-                    Review.builder().reviewerName("John").reviewedName("Caregiver A").starRating(5).content("Great!").build(),
-                    Review.builder().reviewerName("Jane").reviewedName("Caregiver A").starRating(4).content("Good").build()
+                    Review.builder().reviewer(createMember(1L, "john_doe", "John Doe")).reviewed(caregiver).starRating(5).content("Great!").build(),
+                    Review.builder().reviewer(createMember(2L, "jane_doe", "Jane Doe")).reviewed(caregiver).starRating(4).content("Good").build()
             );
 
             List<Review> reviewsForB = Arrays.asList(
-                    Review.builder().reviewerName("Tom").reviewedName("Caregiver B").starRating(3).content("Okay").build(),
-                    Review.builder().reviewerName("Jerry").reviewedName("Caregiver B").starRating(2).content("Not good").build()
+                    Review.builder().reviewer(createMember(3L, "tom_cat", "Tom")).reviewed(createMember(2L, "caregiver_b", "Caregiver B")).starRating(3).content("Okay").build(),
+                    Review.builder().reviewer(createMember(4L, "jerry_mouse", "Jerry")).reviewed(createMember(2L, "caregiver_b", "Caregiver B")).starRating(2).content("Not good").build()
             );
 
             when(caregiverRepository.findByRegion("Seoul")).thenReturn(caregivers);
