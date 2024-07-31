@@ -56,5 +56,6 @@ jobs:
             sudo dos2unix /home/ubuntu/deploy.sh
             sudo chmod +x /home/ubuntu/deploy.sh
             sudo docker-compose -f /home/ubuntu/docker-compose.yml pull
+            dos2unix /home/ubuntu/deploy.sh
             /home/ubuntu/deploy.sh
             sudo docker image prune -f
