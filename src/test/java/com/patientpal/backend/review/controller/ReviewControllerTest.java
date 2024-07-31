@@ -1,6 +1,6 @@
 package com.patientpal.backend.review.controller;
 
-import static com.patientpal.backend.review.fixtures.MemberFixture.*;
+import static com.patientpal.backend.review.fixtures.MemberFixture.createMember;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -19,7 +19,6 @@ import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
-import com.patientpal.backend.review.fixtures.MemberFixture;
 import com.patientpal.backend.review.service.ReviewService;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
