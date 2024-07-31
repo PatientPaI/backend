@@ -53,7 +53,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            sudo docker-compose -f /home/ubuntu/docker-compose.yml pull
+            sudo dos2unix /home/ubuntu/deploy.sh
             sudo chmod +x /home/ubuntu/deploy.sh
+            sudo docker-compose -f /home/ubuntu/docker-compose.yml pull
             /home/ubuntu/deploy.sh
             sudo docker image prune -f
