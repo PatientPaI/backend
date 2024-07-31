@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @Entity
-@Table(name = "CHATS")
+@Table(name = "chats")
 public class Chat extends BaseTimeEntity {
 
     private static final int DIRECT_CHAT_MEMBER_SIZE = 2;
