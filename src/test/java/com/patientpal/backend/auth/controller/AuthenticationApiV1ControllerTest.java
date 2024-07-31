@@ -71,9 +71,6 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
     @MockBean
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    @InjectMocks
-    private AuthenticationApiV1Controller authenticationApiV1Controller;
-
     @Nested
     class 사용자가_로그인_시에 {
 
