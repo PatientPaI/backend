@@ -28,8 +28,4 @@ public abstract class BaseTimeEntity {
 
     @Setter
     private LocalDateTime profilePublicTime;
-    
-    public LocalDateTime wantCareStartDate;
-
-    public LocalDateTime wantCareEndDate;
 }

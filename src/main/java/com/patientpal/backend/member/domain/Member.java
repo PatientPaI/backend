@@ -90,6 +90,10 @@ public class Member extends BaseTimeEntity {
 
     private int viewCounts;
 
+    public LocalDateTime wantCareStartDate;
+
+    public LocalDateTime wantCareEndDate;
+
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
         this.password = password;
