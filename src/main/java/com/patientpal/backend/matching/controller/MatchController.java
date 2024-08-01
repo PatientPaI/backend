@@ -212,7 +212,7 @@ public class MatchController {
 
         HttpHeaders headers = new HttpHeaders();
         //TODO 밑 inline 헤더가 제대로 동작하는지 테스트 해봐야 함.
-        headers.add("Content-Disposition", "inline; filename=" + matchResponse.getRequestMemberName() + ".pdf");
+        headers.add("Content-Disposition", "attachment; filename=" + matchResponse.getRequestMemberName() + ".pdf");
 
         return ResponseEntity
                 .ok()
