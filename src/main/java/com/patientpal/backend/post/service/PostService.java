@@ -41,7 +41,14 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Post getPost(Long id) {
+    public Post getNoticePost (Long id) {
+        postRepository.findPostByPostTypeAndId(PostType.NOTICE, id);
+        return findPost(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Post getFreePost (Long id) {
+        postRepository.findPostByPostTypeAndId(PostType.FREE, id);
         return findPost(id);
     }
 
@@ -94,4 +101,7 @@ public class PostService {
     public int updateView(Long id){
         return postRepository.updateView(id);
     }
+
+    // public Post getPost(Long id) {
+    // }
 }
