@@ -11,7 +11,7 @@ public enum ErrorCode {
 
     AUTHORIZATION_FAILED(HttpStatus.FORBIDDEN, "AR_001", "권한이 없습니다."),
 
-    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AU_001", "이메일 또는 비밀번호가 일치하지 않습니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "AU_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
     UNSUPPORTED_OAUTH2_PROVIDER(HttpStatus.BAD_REQUEST, "AU_002", "지원하지 않는 OAuth2 프로바이더입니다."),
     UNSELECTED_ROLE(HttpStatus.BAD_REQUEST, "AU_003", "역할이 선택되지 않았습니다."),
     INVALID_USERNAME(HttpStatus.BAD_REQUEST, "AU_004", "유효하지 않은 사용자 이름입니다."),
@@ -20,7 +20,7 @@ public enum ErrorCode {
     INVALID_RESIDENT_REGISTRATION_NUMBER(HttpStatus.NON_AUTHORITATIVE_INFORMATION, "V_002", "유효하지 않은 주민등록번호입니다."),
 
     MEMBER_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "M_001", "이미 가입된 계정이 존재합니다."),
-    MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M_002", "해당 멤버는 존재하지 않습니다."),
+    MEMBER_NOT_EXIST(HttpStatus.BAD_REQUEST, "M_002", "해당 계정은 존재하지 않습니다."),
     NOT_COMPLETE_PROFILE(HttpStatus.NOT_FOUND, "M_003", "프로필이 등록되어 있지 않습니다."),
     CAN_NOT_DELETE_PROFILE(HttpStatus.BAD_REQUEST, "M_004", "진행 중인 매칭이 있어 프로필을 삭제할 수 없습니다."),
 

@@ -21,7 +21,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     void deleteByUsername(String username);
 
-    boolean existsByUsername(String username);
+    Boolean existsByUsername(String username);
 
     @Query("select m.username from Member m where m.username like :username%")
     List<String> findUsernameStartingWith(@Param("username") String username);
