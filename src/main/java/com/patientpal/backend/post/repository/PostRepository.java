@@ -12,8 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p FROM Post p WHERE p.postType = :postType AND p.id = :id")
-    Optional<Post> findPostByPostTypeAndId(PostType postType, long id);
+    Optional<Post> findPostByIdAndPostType(long id, PostType postType);
 
     Page<Post> findAllByPostType(PostType postType, Pageable pageable);
 
