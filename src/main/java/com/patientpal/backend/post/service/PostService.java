@@ -42,15 +42,17 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Post getNoticePost (Long id) {
-        postRepository.findPostByPostTypeAndId(PostType.NOTICE, id);
-        return findPost(id);
+        return postRepository.findPostByIdAndPostType(id, PostType.NOTICE)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     public Post getFreePost (Long id) {
-        postRepository.findPostByPostTypeAndId(PostType.FREE, id);
-        return findPost(id);
+        return postRepository.findPostByIdAndPostType(id, PostType.FREE)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
     }
+
+
 
     @Transactional
     public Post createNoticePost(Member member, PostCreateRequest createRequest) {
