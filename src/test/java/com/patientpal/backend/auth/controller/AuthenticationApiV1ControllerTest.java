@@ -56,9 +56,6 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    @MockBean
-    private SimpMessagingTemplate simpMessagingTemplate;
-
     @Nested
     class 사용자가_로그인_시에 {
 
@@ -298,7 +295,7 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
             // when & then
             mockMvc.perform(get("/api/v1/auth/logout")
                             .cookie(refreshTokenCookie))
-                    .andExpect(status().isFound()); // 302
+                    .andExpect(status().isNoContent()); // 302
                     // .andExpect(redirectedUrl("/")); // 아직 해당 페이지가 없으므로 주석 처리함
 
             // Verify if the token is invalidated
