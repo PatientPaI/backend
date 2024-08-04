@@ -66,10 +66,9 @@ https://patientpal.site
   ![cicd구조 최종](https://github.com/user-attachments/assets/d0a7903a-aca4-4650-bbd7-1bba5d73b957)
 
 
-
 ## 🏠 Crews (Members)
 
 | Backend | Backend | Backend | Frontend | Frontend |
 |:----------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|
-| <img src="https://avatars.githubusercontent.com/u/128116509?v=4" width=100px alt="LHS"/> | <img src="https://avatars.githubusercontent.com/u/88189246?v=4" width=100px alt="JeongHye"/> | <img src="https://avatars.githubusercontent.com/u/?v=4" width=100px alt="nanomi"/> | <img src="https://avatars.githubusercontent.com/u/132726283?v=4" width=100px alt="JyKim"/> | <img src="https://avatars.githubusercontent.com/u/84013707?v=4" width=100px alt="shgusgh12"/> |
-|                          [LeeHusung](https://github.com/LeeHusung)                           |                          [wjdwwidz](https://github.com/wjdwwidz)                           |                        [nanomi](https://github.com/nanomi)        |                   [jykim29](https://
+| <img src="https://avatars.githubusercontent.com/u/128116509?v=4" width=100px alt="LHS"/> | <img src="https://avatars.githubusercontent.com/u/88189246?v=4" width=100px alt="JeongHye"/> | <img src="https://avatars.githubusercontent.com/u/72293953?v=4" width=100px alt="nanomi"/> | <img src="https://avatars.githubusercontent.com/u/132726283?v=4" width=100px alt="JyKim"/> | <img src="https://avatars.githubusercontent.com/u/84013707?v=4" width=100px alt="shgusgh12"/> |
+|                          [LeeHusung](https://github.com/LeeHusung)                           |                          [wjdwwidz](https://github.com/wjdwwidz)                           |                        [nanomi](https://github.com/nanomi-dev)        |                   [jykim29](https://github.com/jykim29)                           |                          [shgusgh12](https://github.com/shgusgh12)                           |
