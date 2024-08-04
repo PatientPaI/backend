@@ -6,13 +6,13 @@ import static org.springframework.http.HttpStatus.OK;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.caregiver.service.CaregiverSearchService;
 import com.patientpal.backend.caregiver.service.CaregiverService;
 import com.patientpal.backend.common.utils.PageableUtil;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -67,14 +67,14 @@ public class CaregiverControllerV1 {
         return presignedUrlService.getPresignedUrl("profiles", imageName);
     }
 
-    @Operation(summary = "간병인 프로필 조회", description = "현재 로그인된 사용자의 간병인 프로필을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "간병인 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
-    @GetMapping("/profile/{memberId}")
-    public ResponseEntity<CaregiverProfileDetailResponse> getCaregiverProfile(
-            @AuthenticationPrincipal User currentMember,
-            @PathVariable Long memberId) {
-        return ResponseEntity.status(OK).body(caregiverService.getProfile(currentMember.getUsername(), memberId));
+    @Operation(summary = "내 프로필 조회 - 간병인", description = "현재 로그인된 사용자의 간병인 프로필을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "내 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
+    @GetMapping("/profile")
+    public ResponseEntity<CaregiverProfileDetailResponse> getCaregiverMyProfile(
+            @AuthenticationPrincipal User currentMember) {
+        return ResponseEntity.status(OK).body(caregiverService.getMyProfile(currentMember.getUsername()));
     }
+
 
     @Operation(summary = "간병인 프로필 수정", description = "간병인 프로필 정보를 수정합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 수정 성공")
@@ -138,5 +138,12 @@ public class CaregiverControllerV1 {
             searchedProfiles = caregiverSearchService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         }
         return ResponseEntity.status(OK).body(searchedProfiles);
+    }
+
+    @Operation(summary = "환자 프로필 조회", description = "해당 id의 환자 프로필을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "환자 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
+    @GetMapping("/profile/{memberId}")
+    public ResponseEntity<PatientProfileDetailResponse> getPatientOtherProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
+        return ResponseEntity.status(OK).body(caregiverService.getOtherProfile(currentMember.getUsername(), memberId));
     }
 }

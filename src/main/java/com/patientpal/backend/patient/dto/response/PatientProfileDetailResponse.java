@@ -64,7 +64,7 @@ public class PatientProfileDetailResponse {
         this.viewCount = viewCount;
     }
 
-    public static PatientProfileDetailResponse of(Patient patient, long profileViewCount) {
+    public static PatientProfileDetailResponse of(Patient patient) {
         return PatientProfileDetailResponse.builder()
                 .memberId(patient.getId())
                 .name(patient.getName())
@@ -80,7 +80,7 @@ public class PatientProfileDetailResponse {
                 .careRequirements(patient.getCareRequirements())
                 .isProfilePublic(patient.getIsProfilePublic())
                 .image(patient.getProfileImageUrl())
-                .viewCount(profileViewCount)
+                .viewCount(patient.getViewCounts())
                 .build();
     }
 }

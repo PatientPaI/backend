@@ -24,8 +24,7 @@ public class RedisPort {
         Map<Long, Long> map = new HashMap<>();
         for (String key : keys) {
             Long memberId = extractMemberIdFromKey(key);
-            //밑 if문이 true라는 것은 기존에 key가 존재한다는 뜻. 즉 중복 memberId가 있다는 뜻.
-            if (map.put(memberId, redisTemplate.opsForHyperLogLog().size(key)) != null) { // 기존에 key 존재 시, key에 해당하는 value 반환, key 미존재 시, null 반환
+            if (map.put(memberId, redisTemplate.opsForHyperLogLog().size(key)) != null) {
                 throw new IllegalStateException("Duplicate key");
             }
         }
@@ -34,5 +33,13 @@ public class RedisPort {
 
     private Long extractMemberIdFromKey(String key) {
         return Long.valueOf(key.substring(HYPERLOGLOG_KEY_PREFIX.length()));
+    }
+
+    public void deleteAllViewCounts(Set<Long> memberIds) {
+        for (Long memberId : memberIds) {
+            String key = HYPERLOGLOG_KEY_PREFIX + memberId;
+            redisTemplate.delete(key);
+        }
+        log.info("동기화 후 Redis 데이터 삭제 완료");
     }
 }

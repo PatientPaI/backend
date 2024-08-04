@@ -70,6 +70,7 @@ public class PatientFixture {
     public static PatientProfileDetailResponse createPatientProfileResponse() {
         return PatientProfileDetailResponse.builder()
                 .memberId(1L)
+                .name(NAME)
                 .age(AGE)
                 .contact(PATIENT_PHONE_NUMBER)
                 .address(PATIENT_ADDRESS)
