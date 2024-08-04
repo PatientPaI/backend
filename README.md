@@ -43,10 +43,13 @@ https://patientpal.site
 
 ---
 
-- 프론트엔드
+<div align="center">
 
-![프론트 기술스택](https://github.com/user-attachments/assets/7557ee08-2ced-4386-b867-e9c575d5c4cd)
+### 프론트엔드
 
+<img src="https://github.com/user-attachments/assets/7557ee08-2ced-4386-b867-e9c575d5c4cd" alt="프론트 기술스택" width="600">
+
+</div>
 
 - 백엔드
 
