@@ -3,6 +3,7 @@ package com.patientpal.backend.patient.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.common.TimeTrace;
 import com.patientpal.backend.image.dto.ImageNameDto;
@@ -70,11 +71,11 @@ public class PatientControllerV1 {
         return presignedUrlService.getPresignedUrl("profiles", imageName);
     }
 
-    @Operation(summary = "환자 프로필 조회", description = "현재 로그인된 사용자의 환자 프로필을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "환자 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
-    @GetMapping("/profile/{memberId}")
-    public ResponseEntity<PatientProfileDetailResponse> getPatientProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
-        return ResponseEntity.status(OK).body(patientService.getProfile(currentMember.getUsername(), memberId));
+    @Operation(summary = "내 프로필 조회 - 환자", description = "현재 로그인된 사용자의 환자 프로필을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "내 프로필 조회 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
+    @GetMapping("/profile")
+    public ResponseEntity<PatientProfileDetailResponse> getPatientMyProfile(@AuthenticationPrincipal User currentMember) {
+        return ResponseEntity.status(OK).body(patientService.getMyProfile(currentMember.getUsername()));
     }
 
     @Operation(summary = "환자 프로필 수정", description = "환자 프로필 정보를 수정합니다.")
@@ -90,13 +91,13 @@ public class PatientControllerV1 {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "환자 프로필 삭제", description = "환자 프로필 정보를 삭제합니다. - 다른 환자로 변경 가능")
-    @ApiResponse(responseCode = "204", description = "환자 프로필 삭제 성공")
-    @DeleteMapping("/profile/{memberId}")
-    public ResponseEntity<Void> deletePatientProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
-        patientService.deletePatientProfile(currentMember.getUsername(), memberId);
-        return ResponseEntity.noContent().build();
-    }
+    // @Operation(summary = "환자 프로필 삭제", description = "환자 프로필 정보를 삭제합니다. - 다른 환자로 변경 가능")
+    // @ApiResponse(responseCode = "204", description = "환자 프로필 삭제 성공")
+    // @DeleteMapping("/profile/{memberId}")
+    // public ResponseEntity<Void> deletePatientProfile(@AuthenticationPrincipal User currentMember, @PathVariable Long memberId) {
+    //     patientService.deletePatientProfile(currentMember.getUsername(), memberId);
+    //     return ResponseEntity.noContent().build();
+    // }
 
     @Operation(summary = "환자 프로필 이미지 삭제", description = "환자 프로필에서 이미지를 삭제합니다.")
     @ApiResponse(responseCode = "204", description = "환자 프로필 이미지 삭제 성공")
@@ -142,4 +143,14 @@ public class PatientControllerV1 {
         }
         return ResponseEntity.status(OK).body(searchedProfiles);
     }
+
+    @Operation(summary = "간병인 프로필 조회", description = "해당 id의 간병인 프로필을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "간병인 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
+    @GetMapping("/profile/{memberId}")
+    public ResponseEntity<CaregiverProfileDetailResponse> getCaregiverOtherProfile(
+            @AuthenticationPrincipal User currentMember,
+            @PathVariable Long memberId) {
+        return ResponseEntity.status(OK).body(patientService.getOtherProfile(currentMember.getUsername(), memberId));
+    }
+
 }
