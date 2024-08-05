@@ -1,8 +1,10 @@
 package com.patientpal.backend.socket.subscriber;
 
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
+import com.patientpal.backend.chat.dto.SocketDirectMessage;
 import com.patientpal.backend.chat.dto.SocketDirectSubscribeMessage;
 import com.patientpal.backend.chat.service.MessageService;
+import com.patientpal.backend.socket.publisher.SocketPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Controller;
 public class SocketSubscriber {
 
     private final MessageService messageService;
+    private final SocketPublisher socketPublisher;
 
     @MessageMapping("/chat/{chatId}")
     public void subscribe(@DestinationVariable("chatId") Long chatId, @Payload SocketDirectSubscribeMessage message) {
@@ -28,5 +31,11 @@ public class SocketSubscriber {
                 .build();
 
         messageService.createMessage(request);
+
+        var directMessage = SocketDirectMessage.builder()
+                .content(message.getContent())
+                .build();
+
+        socketPublisher.sendMessage(chatId, directMessage);
     }
 }
