@@ -232,7 +232,7 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
     }
 
     private BooleanExpression addressEq(String address) {
-        return address == null ? null : member.address.addr.eq(address);
+        return address == null ? null : member.address.addr.like(address + "%");
     }
 
     private BooleanExpression nameEq(String name) {

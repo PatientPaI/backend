@@ -218,7 +218,7 @@ public class CaregiverRepositoryImpl implements CaregiverProfileSearchRepository
     }
 
     private BooleanExpression addressEq(String address) {
-        return address == null ? null : member.address.addr.eq(address);
+        return address == null ? null : member.address.addr.like(address + "%");
     }
 
     private BooleanExpression nameEq(String name) {
