@@ -25,7 +25,6 @@ public class CaregiverSearchService {
 
     @Cacheable(value = "patientProfiles", key = "'patient_search_views' + #condition.addr ?: 'all' + '_' + #condition.gender ?: 'all' + '_' + #condition.ageLoe ?: 'all' + '_page_' + #pageable.pageNumber", unless = "#result == null", cacheManager = "cacheManager")
     public PatientProfileListResponse searchPageOrderByViews(ProfileSearchCondition condition, Long lastIndex, Integer lastViewCounts, Pageable pageable) {
-        log.info("Cache miss for key: page_{}_{}", condition, pageable.getPageNumber());
         Slice<PatientProfileResponse> searchWithViews = caregiverRepository.searchPatientProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
         return PatientProfileListResponse.from(searchWithViews);
     }
@@ -38,7 +37,6 @@ public class CaregiverSearchService {
 
     @Cacheable(value = "patientProfiles", key = "'patient_search_default' + #condition.addr ?: 'all' + '_' + #condition.gender ?: 'all' + '_' + #condition.ageLoe ?: 'all' + '_page_' + #pageable.pageNumber", unless = "#result == null", cacheManager = "cacheManager")
     public PatientProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
-        log.info("Cache miss for key: page_{}_{}", condition, pageable.getPageNumber());
         Slice<PatientProfileResponse> search = caregiverRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         return PatientProfileListResponse.from(search);
     }
