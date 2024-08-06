@@ -38,7 +38,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 @AutoKoreanDisplayName
 @SuppressWarnings("NonAsciiCharacters")
-class ReviewControllerTest extends CommonControllerSliceTest {
+class ReviewsControllerTest extends CommonControllerSliceTest {
 
     @Autowired
     private ReviewService reviewService;

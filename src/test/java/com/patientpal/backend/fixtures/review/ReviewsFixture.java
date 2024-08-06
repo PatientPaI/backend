@@ -1,13 +1,13 @@
 package com.patientpal.backend.fixtures.review;
 
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.review.domain.Review;
+import com.patientpal.backend.review.domain.Reviews;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 
 public class ReviewsFixture {
-    public static Review createReview(Member reviewer, Member reviewed) {
-        return Review.builder()
+    public static Reviews createReview(Member reviewer, Member reviewed) {
+        return Reviews.builder()
                 .reviewer(reviewer)
                 .reviewed(reviewed)
                 .starRating(5)

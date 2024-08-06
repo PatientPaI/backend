@@ -26,7 +26,7 @@ import com.patientpal.backend.matching.domain.MatchRepository;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.review.domain.Review;
+import com.patientpal.backend.review.domain.Reviews;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
@@ -46,7 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("NonAsciiCharacters")
 @AutoKoreanDisplayName
-class ReviewServiceTest {
+class ReviewsServiceTest {
 
     @Mock
     private ReviewRepository reviewRepository;
@@ -67,7 +67,7 @@ class ReviewServiceTest {
     private ReviewService reviewService;
 
     private Caregiver caregiver;
-    private Review review;
+    private Reviews reviews;
     private ReviewRequest reviewRequest;
 
     private Match match;
@@ -83,7 +83,7 @@ class ReviewServiceTest {
         reviewed = defaultRoleCaregiver();
         caregiver = defaultCaregiver();
         match = createMatchForPatient(defaultRolePatient(),defaultRoleCaregiver());
-        review = createReview(reviewer, reviewed);
+        reviews = createReview(reviewer, reviewed);
         reviewRequest = createReviewRequest(reviewer, reviewed);
     }
 
@@ -99,12 +99,12 @@ class ReviewServiceTest {
             when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
             when(matchRepository.findCompleteMatchForMember(reviewer.getId())).thenReturn(Optional.of(match));
             when(memberRepository.findById(reviewed.getId())).thenReturn(Optional.of(reviewed));
-            when(reviewRepository.save(any(Review.class))).thenReturn(review);
+            when(reviewRepository.save(any(Reviews.class))).thenReturn(reviews);
 
             ReviewResponse reviewResponse = reviewService.createReview(reviewRequest, token);
 
-            assertThat(reviewResponse.getStarRating()).isEqualTo(review.getStarRating());
-            assertThat(reviewResponse.getContent()).isEqualTo(review.getContent());
+            assertThat(reviewResponse.getStarRating()).isEqualTo(reviews.getStarRating());
+            assertThat(reviewResponse.getContent()).isEqualTo(reviews.getContent());
         }
     }
 
@@ -114,14 +114,14 @@ class ReviewServiceTest {
 
         @Test
         void 리뷰를_성공적으로_조회한다() {
-            when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+            when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
 
             ReviewResponse reviewResponse = reviewService.getReview(1L);
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewer().getName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewed().getName());
-            assertThat(reviewResponse.getStarRating()).isEqualTo(review.getStarRating());
-            assertThat(reviewResponse.getContent()).isEqualTo(review.getContent());
+            assertThat(reviewResponse.getReviewerName()).isEqualTo(reviews.getReviewer().getName());
+            assertThat(reviewResponse.getReviewedName()).isEqualTo(reviews.getReviewed().getName());
+            assertThat(reviewResponse.getStarRating()).isEqualTo(reviews.getStarRating());
+            assertThat(reviewResponse.getContent()).isEqualTo(reviews.getContent());
         }
 
         @Test
@@ -139,9 +139,9 @@ class ReviewServiceTest {
 
         @Test
         void 성공적으로_리뷰를_수정한다() {
-            when(reviewRepository.findById(1L)).thenReturn(Optional.of(review));
+            when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
 
-            ReviewRequest updateRequest = new ReviewRequest(review.getReviewer(), review.getReviewed(), 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(reviews.getReviewer(), reviews.getReviewed(), 4, "Good service");
             ReviewResponse reviewResponse = reviewService.updateReview(1L, updateRequest);
 
             assertThat(reviewResponse.getReviewerName()).isEqualTo(updateRequest.getReviewer().getName());
@@ -154,7 +154,7 @@ class ReviewServiceTest {
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
             when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
-            ReviewRequest updateRequest = new ReviewRequest(review.getReviewer(), review.getReviewed(), 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(reviews.getReviewer(), reviews.getReviewed(), 4, "Good service");
 
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest));
 
@@ -195,14 +195,14 @@ class ReviewServiceTest {
                     Caregiver.builder().id(2L).name("간병 B").address(new Address("12345", "Seoul", "Gangnam")).build()
             );
 
-            List<Review> reviewsForA = Arrays.asList(
-                    Review.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(5).content("Great!").build(),
-                    Review.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(4).content("Good").build()
+            List<Reviews> reviewsForA = Arrays.asList(
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(5).content("Great!").build(),
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(4).content("Good").build()
             );
 
-            List<Review> reviewsForB = Arrays.asList(
-                    Review.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(3).content("Okay").build(),
-                    Review.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(2).content("Not good").build()
+            List<Reviews> reviewsForB = Arrays.asList(
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(3).content("Okay").build(),
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(2).content("Not good").build()
             );
 
             when(caregiverRepository.findByRegion("Seoul")).thenReturn(caregivers);

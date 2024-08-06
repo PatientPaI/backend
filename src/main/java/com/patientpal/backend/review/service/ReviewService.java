@@ -9,7 +9,7 @@ import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.review.domain.Review;
+import com.patientpal.backend.review.domain.Reviews;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
@@ -37,24 +37,24 @@ public class ReviewService {
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
 
         validateMath(reviewRequest);
-        Review SavedReview = SavedReview(reviewRequest, reviewer);
+        Reviews savedReviews = SavedReview(reviewRequest, reviewer);
 
-        SavedReview = reviewRepository.save(SavedReview);
-        return ReviewResponse.fromReview(SavedReview);
+        savedReviews = reviewRepository.save(savedReviews);
+        return ReviewResponse.fromReview(savedReviews);
     }
 
     @Transactional(readOnly = true)
     public ReviewResponse getReview(Long id) {
-        Review review = findReview(id);
-        return ReviewResponse.fromReview(review);
+        Reviews reviews = findReview(id);
+        return ReviewResponse.fromReview(reviews);
     }
 
     @Transactional
     public ReviewResponse updateReview(Long id, ReviewRequest reviewRequest) {
-        Review review = findReview(id);
-        review.updateReview(reviewRequest);
+        Reviews reviews = findReview(id);
+        reviews.updateReview(reviewRequest);
 
-        return ReviewResponse.fromReview(review);
+        return ReviewResponse.fromReview(reviews);
     }
 
     @Transactional
@@ -71,7 +71,7 @@ public class ReviewService {
 
         return caregivers.stream()
                 .map(caregiver -> {
-                    List<Review> reviews = reviewRepository.findByReviewedName(caregiver.getName());
+                    List<Reviews> reviews = reviewRepository.findByReviewedName(caregiver.getName());
                     double averageRating = calculateAverageRating(reviews);
                     return CaregiverRankingResponse.builder()
                             .id(caregiver.getId())
@@ -85,24 +85,24 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
-    private static double calculateAverageRating(List<Review> reviews) {
+    private static double calculateAverageRating(List<Reviews> reviews) {
         double totalRating = reviews.stream()
-                .mapToDouble(Review::getCalculatedRating)
+                .mapToDouble(Reviews::getCalculatedRating)
                 .sum();
         return reviews.isEmpty() ? 0 : totalRating / reviews.size();
     }
 
-    private Review findReview(Long id) {
+    private Reviews findReview(Long id) {
         return reviewRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND,
                         "Review not found with id: " + id));
     }
 
-    private Review SavedReview(ReviewRequest reviewRequest, Member reviewer) {
+    private Reviews SavedReview(ReviewRequest reviewRequest, Member reviewer) {
         Member reviewed = memberRepository.findById(reviewRequest.getReviewed().getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewed member not found"));
 
-        return Review.builder()
+        return Reviews.builder()
                 .reviewer(reviewer)
                 .reviewed(reviewed)
                 .starRating(reviewRequest.getStarRating())

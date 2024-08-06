@@ -1,6 +1,6 @@
 package com.patientpal.backend.review.dto;
 
-import com.patientpal.backend.review.domain.Review;
+import com.patientpal.backend.review.domain.Reviews;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -26,15 +26,15 @@ public class ReviewResponse {
         this.content = content;
     }
 
-    public static ReviewResponse fromReview(Review review) {
+    public static ReviewResponse fromReview(Reviews reviews) {
         return ReviewResponse.builder()
-                .id(review.getId())
-                .reviewerId(review.getReviewer().getId())
-                .reviewerName(review.getReviewer().getName())
-                .reviewedId(review.getReviewed().getId())
-                .reviewedName(review.getReviewed().getName())
-                .starRating(review.getStarRating())
-                .content(review.getContent())
+                .id(reviews.getId())
+                .reviewerId(reviews.getReviewer().getId())
+                .reviewerName(reviews.getReviewer().getName())
+                .reviewedId(reviews.getReviewed().getId())
+                .reviewedName(reviews.getReviewed().getName())
+                .starRating(reviews.getStarRating())
+                .content(reviews.getContent())
                 .build();
     }
 }

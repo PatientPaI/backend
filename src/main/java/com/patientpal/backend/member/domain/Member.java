@@ -2,7 +2,7 @@ package com.patientpal.backend.member.domain;
 
 import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
-import com.patientpal.backend.review.domain.Review;
+import com.patientpal.backend.review.domain.Reviews;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -88,10 +88,10 @@ public class Member extends BaseTimeEntity {
     private int viewCounts;
 
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> givenReviews = new ArrayList<>();
+    private List<Reviews> givenReviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> receivedReviews = new ArrayList<>();
+    private List<Reviews> receivedReviews = new ArrayList<>();
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;

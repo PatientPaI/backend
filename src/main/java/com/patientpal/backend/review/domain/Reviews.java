@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -21,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-public class Review {
+public class Reviews {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +42,7 @@ public class Review {
     private String content;
 
     @Builder
-    public Review(Member reviewer, Member reviewed, int starRating, String content) {
+    public Reviews(Member reviewer, Member reviewed, int starRating, String content) {
         this.reviewer = reviewer;
         this.reviewed = reviewed;
         this.starRating = starRating;
