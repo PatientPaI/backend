@@ -7,6 +7,8 @@ import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
 import io.micrometer.core.annotation.Timed;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -16,12 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Timed("caregiver.search")
 @Transactional(readOnly = true)
+@Slf4j
 public class CaregiverSearchService {
 
     private final CaregiverRepository caregiverRepository;
 
     public PatientProfileListResponse searchPageOrderByViews(ProfileSearchCondition condition, Long lastIndex, Integer lastViewCounts, Pageable pageable) {
-
         Slice<PatientProfileResponse> searchWithViews = caregiverRepository.searchPatientProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
         return PatientProfileListResponse.from(searchWithViews);
     }
@@ -33,7 +35,6 @@ public class CaregiverSearchService {
     // }
 
     public PatientProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
-
         Slice<PatientProfileResponse> search = caregiverRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         return PatientProfileListResponse.from(search);
     }

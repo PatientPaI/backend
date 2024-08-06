@@ -39,15 +39,21 @@ public class Post extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int views;
+
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
+
+
     @Builder
-    public Post(Member member, @NonNull String title, @NonNull String content, PostType postType) {
+    public Post(Member member, @NonNull String title, @NonNull String content, PostType postType, int view) {
         this.member = member;
         this.title = title;
         this.content = content;
         this.postType = postType;
+        this.views = views;
     }
 
     public void update(String title, String content) {

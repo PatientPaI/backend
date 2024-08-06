@@ -83,10 +83,10 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
-            given(caregiverService.getProfile(any(String.class), any())).willReturn(response);
+            given(caregiverService.getMyProfile(any(String.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(get("/api/v1/caregiver/profile/{memberId}", 1L))
+            mockMvc.perform(get("/api/v1/caregiver/profile"))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
@@ -98,10 +98,10 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserCaregiver
         void 프로필_미등록시에_예외가_발생한다() throws Exception {
             // given
-            given(caregiverService.getProfile(any(String.class), any())).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+            given(caregiverService.getMyProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
 
             // when & then
-            mockMvc.perform(get("/api/v1/caregiver/profile/{memberId}", 1L))
+            mockMvc.perform(get("/api/v1/caregiver/profile"))
                     .andDo(print())
                     .andExpect(status().isNotFound());
         }

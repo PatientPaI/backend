@@ -66,6 +66,7 @@ public class MemberService {
                         .role(Role.ADMIN)
                         .provider(Provider.LOCAL)
                         .build();
+                member.encodePassword(passwordEncoder);
                 return memberRepository.save(member).getId();
             }
 
@@ -129,7 +130,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
+    public Boolean existsByUsername(String username) {
         return memberRepository.existsByUsername(username);
     }
 

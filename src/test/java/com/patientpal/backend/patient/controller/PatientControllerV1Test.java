@@ -86,10 +86,10 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         void 성공한다() throws Exception {
             // given
             PatientProfileDetailResponse response = createPatientProfileResponse();
-            given(patientService.getProfile(any(String.class), any())).willReturn(response);
+            given(patientService.getMyProfile(any(String.class))).willReturn(response);
 
             // when & then
-            mockMvc.perform(get("/api/v1/patient/profile/{memberId}", 1L))
+            mockMvc.perform(get("/api/v1/patient/profile"))
                     .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value(response.getName()))
@@ -101,13 +101,25 @@ public class PatientControllerV1Test extends CommonControllerSliceTest {
         @WithCustomMockUserPatient
         void 프로필이_없으면_예외가_발생한다() throws Exception {
             // given
-            given(patientService.getProfile(any(String.class), any())).willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
+            given(patientService.getMyProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
 
             // when & then
-            mockMvc.perform(get("/api/v1/patient/profile/{memberId}", 1L))
+            mockMvc.perform(get("/api/v1/patient/profile"))
                     .andDo(print())
                     .andExpect(status().isNotFound());
         }
+    // }
+    //     @Test
+    //     @WithCustomMockUserPatient
+    //     void 프로필이_없으면_예외가_발생한다() throws Exception {
+    //         // given
+    //         given(patientService.getMyProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
+    //
+    //         // when & then
+    //         mockMvc.perform(get("/api/v1/patient/profile/{memberId}", 1L))
+    //                 .andDo(print())
+    //                 .andExpect(status().isNotFound());
+    //     }
     }
 
     @Nested

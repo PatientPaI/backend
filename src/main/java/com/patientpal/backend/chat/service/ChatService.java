@@ -33,7 +33,8 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<Chat> getMembersChat(Long memberId) {
-        return chatRepository.findAllByMemberId(memberId);
+        String memberIdJson = String.format("[%d]", memberId);
+        return chatRepository.findAllByMemberId(memberIdJson);
     }
 
     @Transactional

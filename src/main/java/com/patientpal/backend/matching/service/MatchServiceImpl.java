@@ -26,6 +26,7 @@ import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.matching.dto.request.CreateMatchCaregiverRequest;
 import com.patientpal.backend.matching.dto.request.CreateMatchPatientRequest;
 import com.patientpal.backend.matching.dto.response.CreateMatchResponse;
@@ -42,6 +43,7 @@ import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import io.micrometer.core.annotation.Timed;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -146,6 +148,9 @@ public class MatchServiceImpl implements MatchService {
         validateMatchAuthorization(findMatch, username);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
+        if (findMatch.getMatchStatus() == MatchStatus.ACCEPTED && findMatch.getCareEndDateTime().isBefore(LocalDateTime.now())) {
+            findMatch.setMatchStatus(MatchStatus.COMPLETED);
+        }
         return MatchResponse.of(findMatch);
     }
 

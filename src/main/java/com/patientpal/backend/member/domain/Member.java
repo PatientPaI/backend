@@ -60,6 +60,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
+    @Column(nullable = false)
     private Integer age;
 
     @Column(unique = true)
@@ -92,6 +93,12 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reviews> receivedReviews = new ArrayList<>();
+  
+    public LocalDateTime wantCareStartDate;
+
+    public LocalDateTime wantCareEndDate;
+
+    private int experienceYears;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -160,6 +167,11 @@ public class Member extends BaseTimeEntity {
 
     public void updateWantCareEndDate(final LocalDateTime wantCareEndDate) {
         this.wantCareEndDate = wantCareEndDate;
+    }
+
+
+    public void updateExperienceYears(final int experienceYears) {
+        this.experienceYears = experienceYears;
     }
 
     public static boolean isNotOwner(final String username, final Member member) {

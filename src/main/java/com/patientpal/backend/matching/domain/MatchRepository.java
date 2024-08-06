@@ -1,8 +1,10 @@
 package com.patientpal.backend.matching.domain;
 
+import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
@@ -20,4 +22,9 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
     @Query("SELECT m FROM Match m WHERE m.receivedMember.id = :memberId AND m.careEndDateTime < CURRENT_TIMESTAMP AND m.matchStatus = com.patientpal.backend.matching.domain.MatchStatus.COMPLETED")
     Optional<Match> findCompleteMatchForMember(@Param("memberId") Long memberId);
+
+
+    @Modifying
+    @Query("UPDATE Match m SET m.matchStatus = 'COMPLETED' WHERE m.matchStatus = 'ACCEPTED' AND m.careEndDateTime < :currentDate")
+    int updateCompletedMatches(@Param("currentDate") LocalDateTime currentDate);
 }

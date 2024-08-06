@@ -106,32 +106,20 @@ class CaregiverServiceTest {
         @BeforeEach
         void setUp() {
             when(caregiver.getId()).thenReturn(1L);
-            when(caregiverRepository.findById(caregiver.getId())).thenReturn(
-                    Optional.of(caregiver));
+            when(caregiverRepository.findById(caregiver.getId())).thenReturn(Optional.of(caregiver));
         }
 
         @Test
         void 조회를_성공한다() {
             // given
-            when(caregiverRepository.findById(caregiver.getId())).thenReturn(Optional.of(caregiver));
-
-            CaregiverProfileDetailResponse response = caregiverService.getProfile(caregiver.getUsername(), caregiver.getId());
+            when(memberRepository.findByUsername(caregiver.getUsername())).thenReturn(Optional.of(caregiver));
+            CaregiverProfileDetailResponse response = caregiverService.getMyProfile(caregiver.getUsername());
 
             // then
             assertNotNull(response);
             assertThat(response.getMemberId()).isEqualTo(caregiver.getId());
             assertThat(response.getName()).isEqualTo(caregiver.getName());
             assertThat(response.getSpecialization()).isEqualTo(caregiver.getSpecialization());
-        }
-
-        @Test
-        void 조회할_때_프로필이_없으면_예외가_발생한다() {
-            // given
-            when(caregiverRepository.findById(caregiver.getId())).thenReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> caregiverService.getProfile(caregiver.getUsername(), caregiver.getId()))
-                    .isInstanceOf(EntityNotFoundException.class);
         }
 
         @Test
