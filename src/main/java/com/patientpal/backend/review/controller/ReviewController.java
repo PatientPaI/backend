@@ -56,8 +56,9 @@ public class ReviewController {
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id,
-                                                       @RequestBody ReviewRequest reviewRequest) {
-        ReviewResponse reviewResponse = reviewService.updateReview(id, reviewRequest);
+                                                       @RequestBody ReviewRequest reviewRequest,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        ReviewResponse reviewResponse = reviewService.updateReview(id, reviewRequest, userDetails.getUsername());
         return ResponseEntity.ok(reviewResponse);
     }
 
@@ -65,8 +66,9 @@ public class ReviewController {
     @Operation(summary = "리뷰 삭제", description = "기존 리뷰를 삭제합니다.")
     @ApiResponse(responseCode = "200", description = "리뷰 삭제 성공")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
+        reviewService.deleteReview(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 

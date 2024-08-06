@@ -112,15 +112,15 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
             //given
             ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
             ReviewResponse reviewResponse = createReviewResponse();
+            String token = "valid-token";
 
-
-
-            when(reviewService.updateReview(eq(1L), any(ReviewRequest.class))).thenReturn(reviewResponse);
+            when(reviewService.updateReview(eq(1L), any(ReviewRequest.class), anyString())).thenReturn(reviewResponse);
 
             //when & then
             mockMvc.perform(put("/api/v1/reviews/1")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(reviewRequest)))
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1L))
                     .andExpect(jsonPath("$.reviewerId").value(1L))
@@ -137,12 +137,14 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
 
         @Test
         @WithMockUser
-        public void test() throws Exception{
+        public void 리뷰가_존재하면_삭제된다() throws Exception{
             //given
-            doNothing().when(reviewService).deleteReview(1L);
+            String token = "valid-token";
+            doNothing().when(reviewService).deleteReview(eq(1L), anyString());
 
             // when & then
-            mockMvc.perform(delete("/api/v1/reviews/1"))
+            mockMvc.perform(delete("/api/v1/reviews/1")
+                            .header("Authorization", "Bearer " + token))
                     .andExpect(status().isNoContent());
         }
 
@@ -150,10 +152,12 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 리뷰가_존재하지_않으면_예외가_발생한다() throws Exception {
             // given
-            doThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND)).when(reviewService).deleteReview(1L);
+            String token = "valid-token";
+            doThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND)).when(reviewService).deleteReview(eq(1L), anyString());
 
             // when & then
-            mockMvc.perform(delete("/api/v1/reviews/1"))
+            mockMvc.perform(delete("/api/v1/reviews/1")
+                            .header("Authorization", "Bearer " + token))
                     .andExpect(status().isNotFound());
         }
     }

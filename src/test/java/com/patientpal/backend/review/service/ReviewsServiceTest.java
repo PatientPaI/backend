@@ -139,24 +139,32 @@ class ReviewsServiceTest {
 
         @Test
         void 성공적으로_리뷰를_수정한다() {
-            when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
+            String token = "valid-token";
+            String username = reviewer.getUsername();
 
-            ReviewRequest updateRequest = new ReviewRequest(reviews.getReviewer(), reviews.getReviewed(), 4, "Good service");
-            ReviewResponse reviewResponse = reviewService.updateReview(1L, updateRequest);
+            lenient().when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
+            lenient().when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
+            lenient().when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(updateRequest.getReviewer().getName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(updateRequest.getReviewed().getName());
+            ReviewRequest updateRequest = new ReviewRequest(reviewer, reviewed, 4, "Good service");
+            ReviewResponse reviewResponse = reviewService.updateReview(1L, updateRequest, username);
+
             assertThat(reviewResponse.getStarRating()).isEqualTo(updateRequest.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(updateRequest.getContent());
         }
 
         @Test
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
-            when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
+            String token = "valid-token";
+            String username = reviewer.getUsername();
 
-            ReviewRequest updateRequest = new ReviewRequest(reviews.getReviewer(), reviews.getReviewed(), 4, "Good service");
+            lenient().when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
+            lenient().when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
+            lenient().when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
-            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest));
+            ReviewRequest updateRequest = new ReviewRequest(reviewer, reviewed, 4, "Good service");
+
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest, token));
 
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_NOT_FOUND);
         }
@@ -167,19 +175,27 @@ class ReviewsServiceTest {
 
         @Test
         void 성공적으로_리뷰를_삭제한다() {
-            when(reviewRepository.existsById(1L)).thenReturn(true);
+            String username = reviewer.getUsername();
+
+            when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
+            when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
             doNothing().when(reviewRepository).deleteById(1L);
 
-            reviewService.deleteReview(1L);
+            reviewService.deleteReview(1L, username);
 
             verify(reviewRepository, times(1)).deleteById(1L);
         }
 
         @Test
         void 리뷰가_존재하지_않으면_예외가_발생한다() {
-            when(reviewRepository.existsById(1L)).thenReturn(false);
+            String username = reviewer.getUsername();
 
-            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.deleteReview(1L));
+            lenient().when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
+            lenient().when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
+
+            EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+                reviewService.deleteReview(1L, username);
+            });
 
             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.REVIEW_NOT_FOUND);
         }

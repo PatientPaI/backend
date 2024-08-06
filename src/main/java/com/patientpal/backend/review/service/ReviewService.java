@@ -50,18 +50,30 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewResponse updateReview(Long id, ReviewRequest reviewRequest) {
+    public ReviewResponse updateReview(Long id, ReviewRequest reviewRequest, String username) {
+
         Reviews reviews = findReview(id);
+        Member reviewer = memberRepository.findByUsernameOrThrow(username);
+
+        if (!reviews.getReviewer().equals(reviewer)) {
+            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED,
+                    "You are not authorized to update this review");
+        }
         reviews.updateReview(reviewRequest);
 
         return ReviewResponse.fromReview(reviews);
     }
 
     @Transactional
-    public void deleteReview(Long id) {
-        if (!reviewRepository.existsById(id)) {
-            throw new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND, "Review not found with id: " + id);
+    public void deleteReview(Long id, String username) {
+        Reviews review = findReview(id);
+        Member reviewer = memberRepository.findByUsernameOrThrow(username);
+
+        if (!review.getReviewer().equals(reviewer)) {
+            throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED,
+                    "You are not authorized to delete this review");
         }
+
         reviewRepository.deleteById(id);
     }
 
