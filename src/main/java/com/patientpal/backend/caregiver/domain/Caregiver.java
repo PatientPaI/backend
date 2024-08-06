@@ -32,7 +32,7 @@ public class Caregiver extends Member {
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public void updateDetailProfile(final Address address, final float rate, final Integer experienceYears, final String specialization, final int age, final String caregiverSignificant,
+    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final int age, final String caregiverSignificant,
                                     final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate) {
         updateAddress(address);
         updateWantCareStartDate(wantCareStartDate);
@@ -45,7 +45,7 @@ public class Caregiver extends Member {
     }
 
     public void registerDetailProfile(final String name, final Address address, final String contact, final int age, final Gender gender,
-                                      final Integer experienceYears, final String specialization, final String caregiverSignificant,
+                                      final int experienceYears, final String specialization, final String caregiverSignificant,
                                       final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate, String profileImageUrl) {
         updateName(name);
         updateAddress(address);
