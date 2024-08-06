@@ -1,6 +1,11 @@
 package com.patientpal.backend.review.controller;
 
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCaregiver;
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewRequest;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewResponse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -15,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.service.ReviewService;
@@ -25,15 +31,23 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 
 @AutoKoreanDisplayName
 @SuppressWarnings("NonAsciiCharacters")
-class ReviewControllerTest extends CommonControllerSliceTest {
+class ReviewsControllerTest extends CommonControllerSliceTest {
 
     @Autowired
     private ReviewService reviewService;
+
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    private Member reviewer = defaultRolePatient();
+    private Member reviewed = defaultRoleCaregiver();
 
     @Nested
     class 리뷰_생성 {
@@ -42,18 +56,22 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception {
             //given
-            ReviewRequest reviewRequest = new ReviewRequest("John Doe", "Caregiver A", 5, "Excellent service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Excellent service");
+            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewResponse reviewResponse = createReviewResponse();
+            String token = "valid-token";
 
-            when(reviewService.createReview(any(ReviewRequest.class))).thenReturn(reviewResponse);
+            when(reviewService.createReview(any(ReviewRequest.class),anyString())).thenReturn(reviewResponse);
 
             //when & then
             mockMvc.perform(post("/api/v1/reviews")
+                            .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
                     .andExpect(jsonPath("$.starRating").value(5))
                     .andExpect(jsonPath("$.content").value("Excellent service"));
@@ -67,7 +85,7 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Excellent service");
+            ReviewResponse reviewResponse = createReviewResponse();
 
             when(reviewService.getReview(1L)).thenReturn(reviewResponse);
 
@@ -75,7 +93,9 @@ class ReviewControllerTest extends CommonControllerSliceTest {
             mockMvc.perform(get("/api/v1/reviews/1"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
                     .andExpect(jsonPath("$.starRating").value(5))
                     .andExpect(jsonPath("$.content").value("Excellent service"));
@@ -90,21 +110,25 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewRequest reviewRequest = new ReviewRequest("John Doe", "Caregiver A", 5, "Good service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, "John Doe", "Caregiver A", 5, "Good service");
+            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewResponse reviewResponse = createReviewResponse();
+            String token = "valid-token";
 
-            when(reviewService.updateReview(eq(1L), any(ReviewRequest.class))).thenReturn(reviewResponse);
+            when(reviewService.updateReview(eq(1L), any(ReviewRequest.class), anyString())).thenReturn(reviewResponse);
 
             //when & then
             mockMvc.perform(put("/api/v1/reviews/1")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(reviewRequest)))
+                            .header("Authorization", "Bearer " + token)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1L))
+                    .andExpect(jsonPath("$.reviewerId").value(1L))
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
+                    .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
                     .andExpect(jsonPath("$.starRating").value(5))
-                    .andExpect(jsonPath("$.content").value("Good service"));
+                    .andExpect(jsonPath("$.content").value("Excellent service"));
         }
     }
 
@@ -113,12 +137,14 @@ class ReviewControllerTest extends CommonControllerSliceTest {
 
         @Test
         @WithMockUser
-        public void test() throws Exception{
+        public void 리뷰가_존재하면_삭제된다() throws Exception{
             //given
-            doNothing().when(reviewService).deleteReview(1L);
+            String token = "valid-token";
+            doNothing().when(reviewService).deleteReview(eq(1L), anyString());
 
             // when & then
-            mockMvc.perform(delete("/api/v1/reviews/1"))
+            mockMvc.perform(delete("/api/v1/reviews/1")
+                            .header("Authorization", "Bearer " + token))
                     .andExpect(status().isNoContent());
         }
 
@@ -126,10 +152,12 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 리뷰가_존재하지_않으면_예외가_발생한다() throws Exception {
             // given
-            doThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND)).when(reviewService).deleteReview(1L);
+            String token = "valid-token";
+            doThrow(new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND)).when(reviewService).deleteReview(eq(1L), anyString());
 
             // when & then
-            mockMvc.perform(delete("/api/v1/reviews/1"))
+            mockMvc.perform(delete("/api/v1/reviews/1")
+                            .header("Authorization", "Bearer " + token))
                     .andExpect(status().isNotFound());
         }
     }

@@ -1,31 +1,38 @@
 package com.patientpal.backend.review.domain;
 
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
-public class Review {
+public class Reviews {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    private String reviewerName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewer_id", nullable = false)
+    private Member reviewer;
 
-    @NotBlank
-    private String reviewedName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewed_id", nullable = false)
+    private Member reviewed;
 
     @Min(1)
     @Max(5)
@@ -35,16 +42,16 @@ public class Review {
     private String content;
 
     @Builder
-    public Review(String reviewerName, String reviewedName, int starRating, String content) {
-        this.reviewerName = reviewerName;
-        this.reviewedName = reviewedName;
+    public Reviews(Member reviewer, Member reviewed, int starRating, String content) {
+        this.reviewer = reviewer;
+        this.reviewed = reviewed;
         this.starRating = starRating;
         this.content = content;
     }
 
     public void updateReview(ReviewRequest review) {
-        this.reviewerName = review.getReviewerName();
-        this.reviewedName = review.getReviewedName();
+        this.reviewer = review.getReviewer();
+        this.reviewed = review.getReviewed();
         this.starRating = review.getStarRating();
         this.content = review.getContent();
     }

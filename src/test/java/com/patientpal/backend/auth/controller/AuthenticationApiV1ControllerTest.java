@@ -56,6 +56,9 @@ class AuthenticationApiV1ControllerTest extends CommonControllerSliceTest {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
     @Nested
     class 사용자가_로그인_시에 {
 
