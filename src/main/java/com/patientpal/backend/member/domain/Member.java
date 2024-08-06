@@ -94,6 +94,8 @@ public class Member extends BaseTimeEntity {
 
     public LocalDateTime wantCareEndDate;
 
+    private Integer experienceYears;
+
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
         this.password = password;
@@ -161,6 +163,11 @@ public class Member extends BaseTimeEntity {
 
     public void updateWantCareEndDate(final LocalDateTime wantCareEndDate) {
         this.wantCareEndDate = wantCareEndDate;
+    }
+
+
+    public void updateExperienceYears(final Integer experienceYears) {
+        this.experienceYears = experienceYears;
     }
 
     public static boolean isNotOwner(final String username, final Member member) {

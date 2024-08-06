@@ -3,6 +3,7 @@ package com.patientpal.backend.patient.dto.response;
 import com.patientpal.backend.member.domain.Address;
 import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.patient.domain.Patient;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,11 +43,16 @@ public class PatientProfileDetailResponse {
 
     private long viewCount;
 
+    private LocalDateTime wantCareStartDate;
+
+    private LocalDateTime wantCareEndDate;
+
     @Builder
     public PatientProfileDetailResponse(Long memberId, String name, Integer age,
                                         String contact, Gender gender, Address address, Boolean isNok, String nokName,
                                         String nokContact, String realCarePlace, String patientSignificant,
-                                        String careRequirements, Boolean isProfilePublic, String image, long viewCount) {
+                                        String careRequirements, Boolean isProfilePublic, String image, long viewCount,
+                                        LocalDateTime wantCareStartDate, LocalDateTime wantCareEndDate) {
         this.memberId = memberId;
         this.name = name;
         this.age = age;
@@ -62,6 +68,8 @@ public class PatientProfileDetailResponse {
         this.isProfilePublic = isProfilePublic;
         this.image = image;
         this.viewCount = viewCount;
+        this.wantCareStartDate = wantCareStartDate;
+        this.wantCareEndDate = wantCareEndDate;
     }
 
     public static PatientProfileDetailResponse of(Patient patient) {
@@ -81,6 +89,8 @@ public class PatientProfileDetailResponse {
                 .isProfilePublic(patient.getIsProfilePublic())
                 .image(patient.getProfileImageUrl())
                 .viewCount(patient.getViewCounts())
+                .wantCareStartDate(patient.getWantCareStartDate())
+                .wantCareEndDate(patient.getWantCareEndDate())
                 .build();
     }
 }

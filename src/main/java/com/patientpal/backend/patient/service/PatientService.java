@@ -88,7 +88,6 @@ public class PatientService {
     }
 
     @Transactional
-    @CacheEvict(value = "patientProfiles", allEntries = true)
     public void updatePatientProfile(String username, Long memberId, PatientProfileUpdateRequest patientProfileUpdateRequest, String profileImageUrl) {
         Patient patient = getPatientByMemberId(memberId);
         if (isNotOwner(username, patient)) {
@@ -152,7 +151,6 @@ public class PatientService {
     }
 
     @Transactional
-    @CacheEvict(value = "patientProfiles", allEntries = true)
     public void deletePatientProfileImage(String username, Long memberId) {
         Patient patient = getPatientByMemberId(memberId);
         if (isNotOwner(username, patient)) {

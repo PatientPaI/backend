@@ -7,7 +7,6 @@ import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.matching.domain.ReadStatus;
 import com.patientpal.backend.matching.dto.request.CreateMatchCaregiverRequest;
 import com.patientpal.backend.matching.dto.request.CreateMatchPatientRequest;
-import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.patient.domain.Patient;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -26,6 +25,8 @@ public class MatchResponse {
     private String receivedMemberContact;
     private String requestMemberAddress;
     private String receivedMemberAddress;
+    private Integer requestMemberAge;
+    private Integer receivedMemberAge;
     private LocalDateTime createdDate;
     private MatchStatus matchStatus;
     private ReadStatus readStatus;
@@ -42,6 +43,7 @@ public class MatchResponse {
     @Builder
     public MatchResponse(Long id, String requestMemberName, String receivedMemberName, String requestMemberContact,
                          String receivedMemberContact, String requestMemberAddress, String receivedMemberAddress,
+                         Integer requestMemberAge, Integer receivedMemberAge,
                          LocalDateTime createdDate, MatchStatus matchStatus, ReadStatus readStatus,
                          FirstRequest firstRequest, String realCarePlace, LocalDateTime careStartDateTime,
                          LocalDateTime careEndDateTime, Long totalAmount, String requestMemberCurrentSignificant,
@@ -53,6 +55,8 @@ public class MatchResponse {
         this.receivedMemberContact = receivedMemberContact;
         this.requestMemberAddress = requestMemberAddress;
         this.receivedMemberAddress = receivedMemberAddress;
+        this.requestMemberAge = requestMemberAge;
+        this.receivedMemberAge = receivedMemberAge;
         this.createdDate = createdDate;
         this.matchStatus = matchStatus;
         this.readStatus = readStatus;
@@ -76,6 +80,8 @@ public class MatchResponse {
                 .receivedMemberContact(match.getReceivedMember().getContact())
                 .requestMemberAddress(match.getRequestMember().getAddress().toString())
                 .receivedMemberAddress(match.getReceivedMember().getAddress().toString())
+                .requestMemberAge(match.getRequestMember().getAge())
+                .receivedMemberAge(match.getReceivedMember().getAge())
                 .matchStatus(match.getMatchStatus())
                 .readStatus(match.getReadStatus())
                 .firstRequest(match.getFirstRequest())

@@ -76,7 +76,6 @@ public class CaregiverService {
         return PatientProfileDetailResponse.of(patient);
     }
     @Transactional
-    @CacheEvict(value = "caregiverProfiles", allEntries = true)
     public void updateCaregiverProfile(String username, Long memberId, CaregiverProfileUpdateRequest caregiverProfileUpdateRequest, String profileImageUrl) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
         if (isNotOwner(username, caregiver)) {
@@ -128,7 +127,6 @@ public class CaregiverService {
     }
 
     @Transactional
-    @CacheEvict(value = "caregiverProfiles", allEntries = true)
     public void deleteCaregiverProfileImage(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
         if (isNotOwner(username, caregiver)) {
