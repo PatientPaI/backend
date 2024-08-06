@@ -16,6 +16,7 @@ import com.patientpal.backend.review.repository.ReviewRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.patientpal.backend.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +29,15 @@ public class ReviewService {
     private final MemberRepository memberRepository;
     private final CaregiverRepository caregiverRepository;
     private final MatchRepository matchRepository;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
-    public ReviewResponse createReview(ReviewRequest reviewRequest) {
+    public ReviewResponse createReview(ReviewRequest reviewRequest, String token) {
+        String username = jwtTokenProvider.getUsernameFromToken(token);
+        Member reviewer = memberRepository.findByUsernameOrThrow(username);
 
         validateMath(reviewRequest);
-        Review SavedReview = SavedReview(reviewRequest);
+        Review SavedReview = SavedReview(reviewRequest, reviewer);
 
         SavedReview = reviewRepository.save(SavedReview);
         return ReviewResponse.fromReview(SavedReview);
@@ -94,9 +98,7 @@ public class ReviewService {
                         "Review not found with id: " + id));
     }
 
-    private Review SavedReview(ReviewRequest reviewRequest) {
-        Member reviewer = memberRepository.findById(reviewRequest.getReviewer().getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewer not found"));
+    private Review SavedReview(ReviewRequest reviewRequest, Member reviewer) {
         Member reviewed = memberRepository.findById(reviewRequest.getReviewed().getId())
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewed member not found"));
 
@@ -109,8 +111,8 @@ public class ReviewService {
     }
 
     private void validateMath(ReviewRequest reviewRequest) {
-        Optional<Match> match = matchRepository.findCompleteMatchForCaregiver(
-                reviewRequest.getReviewed().getId());
+        Optional<Match> match = matchRepository.findCompleteMatchForMember(
+                reviewRequest.getReviewer().getId());
         if (match.isEmpty()) {
             throw new IllegalArgumentException("리뷰를 작성할 수 없습니다. 매칭이 완료되지 않았습니다.");
         }

@@ -1,7 +1,11 @@
 package com.patientpal.backend.review.controller;
 
-import static com.patientpal.backend.review.fixtures.MemberFixture.createMember;
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCaregiver;
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewRequest;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewResponse;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -27,7 +31,9 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 
 @AutoKoreanDisplayName
@@ -37,8 +43,11 @@ class ReviewControllerTest extends CommonControllerSliceTest {
     @Autowired
     private ReviewService reviewService;
 
-    private Member reviewer = createMember(1L, "reviewerUsername", "John Doe");
-    private Member reviewed = createMember(2L, "reviewedUsername", "Caregiver A");
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    private Member reviewer = defaultRolePatient();
+    private Member reviewed = defaultRoleCaregiver();
 
     @Nested
     class 리뷰_생성 {
@@ -47,13 +56,15 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception {
             //given
-            ReviewRequest reviewRequest = new ReviewRequest(reviewer, reviewed, 5, "Excellent service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 5, "Excellent service");
+            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewResponse reviewResponse = createReviewResponse();
+            String token = "valid-token";
 
-            when(reviewService.createReview(any(ReviewRequest.class))).thenReturn(reviewResponse);
+            when(reviewService.createReview(any(ReviewRequest.class),anyString())).thenReturn(reviewResponse);
 
             //when & then
             mockMvc.perform(post("/api/v1/reviews")
+                            .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(reviewRequest)))
                     .andExpect(status().isCreated())
@@ -74,7 +85,7 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 5, "Excellent service");
+            ReviewResponse reviewResponse = createReviewResponse();
 
             when(reviewService.getReview(1L)).thenReturn(reviewResponse);
 
@@ -99,8 +110,8 @@ class ReviewControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewRequest reviewRequest = new ReviewRequest(reviewer, reviewed, 3, "Good service");
-            ReviewResponse reviewResponse = new ReviewResponse(1L, 1L, "John Doe", 2L, "Caregiver A", 3, "Good service");
+            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewResponse reviewResponse = createReviewResponse();
 
 
 
@@ -116,8 +127,8 @@ class ReviewControllerTest extends CommonControllerSliceTest {
                     .andExpect(jsonPath("$.reviewerName").value("John Doe"))
                     .andExpect(jsonPath("$.reviewedId").value(2L))
                     .andExpect(jsonPath("$.reviewedName").value("Caregiver A"))
-                    .andExpect(jsonPath("$.starRating").value(3))
-                    .andExpect(jsonPath("$.content").value("Good service"));
+                    .andExpect(jsonPath("$.starRating").value(5))
+                    .andExpect(jsonPath("$.content").value("Excellent service"));
         }
     }
 

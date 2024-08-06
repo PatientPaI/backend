@@ -2,6 +2,7 @@ package com.patientpal.backend.member.domain;
 
 import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
+import com.patientpal.backend.review.domain.Review;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -14,13 +15,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -89,6 +86,12 @@ public class Member extends BaseTimeEntity {
     private String profileImageUrl;
 
     private int viewCounts;
+
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> givenReviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> receivedReviews = new ArrayList<>();
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;

@@ -2,7 +2,6 @@ package com.patientpal.backend.review.controller;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
-
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
@@ -14,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,8 +36,9 @@ public class ReviewController {
     @ApiResponse(responseCode = "201", description = "리뷰가 성공적으로 생성됨",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @PostMapping
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest) {
-        ReviewResponse reviewResponse = reviewService.createReview(reviewRequest);
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        ReviewResponse reviewResponse = reviewService.createReview(reviewRequest, userDetails.getUsername());
         return ResponseEntity.status(CREATED).body(reviewResponse);
     }
 

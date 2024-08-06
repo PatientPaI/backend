@@ -1,15 +1,17 @@
 package com.patientpal.backend.review.service;
 
-import static com.patientpal.backend.review.fixtures.CaregiverFixture.createCaregiver;
-import static com.patientpal.backend.review.fixtures.MatchFixture.createMatch;
-import static com.patientpal.backend.review.fixtures.MemberFixture.createMember;
-import static com.patientpal.backend.review.fixtures.ReviewFixture.createReview;
-import static com.patientpal.backend.review.fixtures.ReviewFixture.createReviewRequest;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.defaultCaregiver;
+import static com.patientpal.backend.fixtures.match.MatchFixture.createMatchForPatient;
+import static com.patientpal.backend.fixtures.member.MemberFixture.createDefaultMember;
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCaregiver;
+import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReview;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,11 +24,13 @@ import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
 import com.patientpal.backend.member.domain.Address;
+import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.review.domain.Review;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
+import com.patientpal.backend.security.jwt.JwtTokenProvider;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +60,9 @@ class ReviewServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
+
     @InjectMocks
     private ReviewService reviewService;
 
@@ -65,12 +72,19 @@ class ReviewServiceTest {
 
     private Match match;
 
+    private Member reviewer;
+    private Member reviewed;
+
+
+
     @BeforeEach
     void setUp() {
-        caregiver = createCaregiver();
-        review = createReview();
-        reviewRequest = createReviewRequest();
-        match = createMatch();
+        reviewer = defaultRolePatient();
+        reviewed = defaultRoleCaregiver();
+        caregiver = defaultCaregiver();
+        match = createMatchForPatient(defaultRolePatient(),defaultRoleCaregiver());
+        review = createReview(reviewer, reviewed);
+        reviewRequest = createReviewRequest(reviewer, reviewed);
     }
 
     @Nested
@@ -78,15 +92,17 @@ class ReviewServiceTest {
 
         @Test
         void 성공적으로_리뷰를_생성한다() {
-            when(matchRepository.findCompleteMatchForCaregiver(anyLong())).thenReturn(Optional.of(match));
+            String token = "valid-token";
+            String username = reviewer.getUsername();
+
+            when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
+            when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
+            when(matchRepository.findCompleteMatchForMember(reviewer.getId())).thenReturn(Optional.of(match));
+            when(memberRepository.findById(reviewed.getId())).thenReturn(Optional.of(reviewed));
             when(reviewRepository.save(any(Review.class))).thenReturn(review);
-            when(memberRepository.findById(reviewRequest.getReviewer().getId())).thenReturn(Optional.of(reviewRequest.getReviewer()));
-            when(memberRepository.findById(reviewRequest.getReviewed().getId())).thenReturn(Optional.of(reviewRequest.getReviewed()));
 
-            ReviewResponse reviewResponse = reviewService.createReview(reviewRequest);
+            ReviewResponse reviewResponse = reviewService.createReview(reviewRequest, token);
 
-            assertThat(reviewResponse.getReviewerName()).isEqualTo(review.getReviewer().getName());
-            assertThat(reviewResponse.getReviewedName()).isEqualTo(review.getReviewed().getName());
             assertThat(reviewResponse.getStarRating()).isEqualTo(review.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(review.getContent());
         }
@@ -176,28 +192,28 @@ class ReviewServiceTest {
         void 성공적으로_상위_간병인을_조회한다() {
             List<Caregiver> caregivers = Arrays.asList(
                     caregiver,
-                    Caregiver.builder().id(2L).name("Caregiver B").address(new Address("12345", "Seoul", "Gangnam")).build()
+                    Caregiver.builder().id(2L).name("간병 B").address(new Address("12345", "Seoul", "Gangnam")).build()
             );
 
             List<Review> reviewsForA = Arrays.asList(
-                    Review.builder().reviewer(createMember(1L, "john_doe", "John Doe")).reviewed(caregiver).starRating(5).content("Great!").build(),
-                    Review.builder().reviewer(createMember(2L, "jane_doe", "Jane Doe")).reviewed(caregiver).starRating(4).content("Good").build()
+                    Review.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(5).content("Great!").build(),
+                    Review.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(4).content("Good").build()
             );
 
             List<Review> reviewsForB = Arrays.asList(
-                    Review.builder().reviewer(createMember(3L, "tom_cat", "Tom")).reviewed(createMember(2L, "caregiver_b", "Caregiver B")).starRating(3).content("Okay").build(),
-                    Review.builder().reviewer(createMember(4L, "jerry_mouse", "Jerry")).reviewed(createMember(2L, "caregiver_b", "Caregiver B")).starRating(2).content("Not good").build()
+                    Review.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(3).content("Okay").build(),
+                    Review.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(2).content("Not good").build()
             );
 
             when(caregiverRepository.findByRegion("Seoul")).thenReturn(caregivers);
-            when(reviewRepository.findByReviewedName("Caregiver A")).thenReturn(reviewsForA);
-            when(reviewRepository.findByReviewedName("Caregiver B")).thenReturn(reviewsForB);
+            lenient().when(reviewRepository.findByReviewedName("간병")).thenReturn(reviewsForA);
+            lenient().when(reviewRepository.findByReviewedName("간병 B")).thenReturn(reviewsForB);
 
             List<CaregiverRankingResponse> rankingResponses = reviewService.getTopCaregiversByRating("Seoul");
 
             assertThat(rankingResponses).hasSize(2);
-            assertThat(rankingResponses.get(0).getName()).isEqualTo("Caregiver A");
-            assertThat(rankingResponses.get(1).getName()).isEqualTo("Caregiver B");
+            assertThat(rankingResponses.get(0).getName()).isEqualTo("간병");
+            assertThat(rankingResponses.get(1).getName()).isEqualTo("간병 B");
         }
     }
 }

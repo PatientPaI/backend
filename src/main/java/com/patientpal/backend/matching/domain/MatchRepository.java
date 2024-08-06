@@ -18,6 +18,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     boolean existsPendingMatch(@Param("requestMemberId") Long requestMemberId,
                                @Param("receivedMemberId") Long receivedMemberId);
 
-    @Query("SELECT m FROM Match m WHERE m.receivedMember.id = :caregiverId AND m.careEndDateTime < CURRENT_TIMESTAMP AND m.matchStatus = com.patientpal.backend.matching.domain.MatchStatus.COMPLETED")
-    Optional<Match> findCompleteMatchForCaregiver(@Param("caregiverId") Long caregiverId);
+    @Query("SELECT m FROM Match m WHERE m.receivedMember.id = :memberId AND m.careEndDateTime < CURRENT_TIMESTAMP AND m.matchStatus = com.patientpal.backend.matching.domain.MatchStatus.COMPLETED")
+    Optional<Match> findCompleteMatchForMember(@Param("memberId") Long memberId);
 }
