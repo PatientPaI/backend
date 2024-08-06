@@ -56,7 +56,7 @@ public class CaregiverProfileDetailResponse {
         this.viewCount = viewCount;
     }
 
-    public static CaregiverProfileDetailResponse of(Caregiver caregiver, long profileViewCount) {
+    public static CaregiverProfileDetailResponse of(Caregiver caregiver) {
         return CaregiverProfileDetailResponse.builder()
                 .memberId(caregiver.getId())
                 .name(caregiver.getName())
@@ -70,7 +70,7 @@ public class CaregiverProfileDetailResponse {
                 .caregiverSignificant(caregiver.getCaregiverSignificant())
                 .isInMatchList(caregiver.getIsProfilePublic())
                 .image(caregiver.getProfileImageUrl())
-                .viewCount(profileViewCount)
+                .viewCount(caregiver.getViewCounts())
                 .build();
     }
 }

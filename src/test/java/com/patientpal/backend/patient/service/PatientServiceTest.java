@@ -114,25 +114,15 @@ class PatientServiceTest {
         @Test
         void 조회를_성공한다() {
             // given
-            when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
+            when(memberRepository.findByUsername(patient.getUsername())).thenReturn(Optional.of(patient));
 
             // when
-            PatientProfileDetailResponse response = patientService.getProfile(patient.getUsername(), patient.getId());
+            PatientProfileDetailResponse response = patientService.getMyProfile(patient.getUsername());
 
             // then
             assertNotNull(response);
             assertThat(response.getMemberId()).isEqualTo(patient.getId());
             assertThat(response.getNokContact()).isEqualTo(patient.getNokContact());
-        }
-
-        @Test
-        void 조회할_때_프로필이_없으면_예외가_발생한다() {
-            // given
-            when(patientRepository.findById(patient.getId())).thenReturn(Optional.empty());
-
-            // when & then
-            assertThatThrownBy(() -> patientService.getProfile(patient.getUsername(), patient.getId()))
-                    .isInstanceOf(EntityNotFoundException.class);
         }
 
         @Test

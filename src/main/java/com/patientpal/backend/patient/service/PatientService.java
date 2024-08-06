@@ -2,8 +2,11 @@ package com.patientpal.backend.patient.service;
 
 import static com.patientpal.backend.member.domain.Member.isNotOwner;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
@@ -21,6 +24,7 @@ import io.micrometer.core.annotation.Timed;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -33,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class PatientService {
 
+    private final CaregiverRepository caregiverRepository;
     private final PatientRepository patientRepository;
     private final MemberRepository memberRepository;
     private final ViewService viewService;
@@ -59,19 +64,31 @@ public class PatientService {
                 profileImageUrl);
         patient.setIsCompleteProfile(true);
         log.info("프로필 등록 성공: ID={}, NAME={}", patient.getId(), patient.getName());
-        return PatientProfileDetailResponse.of(patient, 0);
+        return PatientProfileDetailResponse.of(patient);
     }
 
-    public PatientProfileDetailResponse getProfile(String username, Long memberId) {
-        Patient patient = getPatientByMemberId(memberId);
-        if (!username.equals(patient.getUsername())) {
+    public PatientProfileDetailResponse getMyProfile(String username) {
+        return PatientProfileDetailResponse.of(getPatientByMemberId(getMember(username).getId()));
+    }
+
+
+    public CaregiverProfileDetailResponse getOtherProfile(String username, Long memberId) {
+        Member currentMember = getMember(username);
+        Caregiver caregiver = getCaregiverByMemberId(memberId);
+        if (!currentMember.getIsCompleteProfile()) {
+            throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
+        }
+        if (!caregiver.getIsProfilePublic()) {
+            throw new BusinessException(ErrorCode.PROFILE_PRIVATE);
+        }
+        if (!username.equals(caregiver.getUsername())) {
             viewService.addProfileView(memberId, username);
         }
-        long profileViewCount = viewService.getProfileViewCount(memberId);
-        return PatientProfileDetailResponse.of(patient, profileViewCount);
+        return CaregiverProfileDetailResponse.of(caregiver);
     }
 
     @Transactional
+    @CacheEvict(value = "patientProfiles", allEntries = true)
     public void updatePatientProfile(String username, Long memberId, PatientProfileUpdateRequest patientProfileUpdateRequest, String profileImageUrl) {
         Patient patient = getPatientByMemberId(memberId);
         if (isNotOwner(username, patient)) {
@@ -102,14 +119,14 @@ public class PatientService {
         }
     }
 
-    @Transactional
-    public void deletePatientProfile(String username, Long memberId) {
-        Patient patient = getPatientByMemberId(memberId);
-        if (isNotOwner(username, patient)) {
-            throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
-        }
-        patient.deleteProfile();
-    }
+    // @Transactional
+    // public void deletePatientProfile(String username, Long memberId) {
+    //     Patient patient = getPatientByMemberId(memberId);
+    //     if (isNotOwner(username, patient)) {
+    //         throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
+    //     }
+    //     patient.deleteProfile();
+    // }
 
     @Transactional
     public void registerPatientProfileToMatchList(String username, Long memberId) {
@@ -135,6 +152,7 @@ public class PatientService {
     }
 
     @Transactional
+    @CacheEvict(value = "patientProfiles", allEntries = true)
     public void deletePatientProfileImage(String username, Long memberId) {
         Patient patient = getPatientByMemberId(memberId);
         if (isNotOwner(username, patient)) {
@@ -151,6 +169,10 @@ public class PatientService {
     private Patient getPatientByMemberId(Long memberId) {
         return patientRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
+    }
+
+    private Caregiver getCaregiverByMemberId(Long memberId) {
+        return caregiverRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
     }
 
 }
