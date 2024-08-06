@@ -46,9 +46,9 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
     // 정렬 - 최신순(default), 후기순, 인기순(조회순), 별점순
     @Override
     public Slice<CaregiverProfileResponse> searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
-        log.info("Search Condition Name={}, age={}, gender={}, address={}",
+        log.info("Search Condition Name={}, age={}, gender={}, address={}, experienceYearsGoe={}",
                 condition.getName(), condition.getAgeLoe(),
-                condition.getGender(), condition.getAddr());
+                condition.getGender(), condition.getAddr(), condition.getExperienceYearsGoe());
         log.info("lastIndex={}", lastIndex);
 
         List<Long> memberIds = queryFactory
@@ -58,6 +58,7 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
                         addressEq(condition.getAddr()),
                         nameEq(condition.getName()),
                         genderEq(condition.getGender()),
+                        experienceYearsGoe(condition.getExperienceYearsGoe()),
                         ageLoe(condition.getAgeLoe()),
                         member.isProfilePublic,
                         cursorProfilePublicTimeAndCaregiverId(lastProfilePublicTime, lastIndex)
@@ -117,6 +118,7 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
                         nameEq(condition.getName()),
                         genderEq(condition.getGender()),
                         ageLoe(condition.getAgeLoe()),
+                        experienceYearsGoe(condition.getExperienceYearsGoe()),
                         member.isProfilePublic,
                         cursorViewCountsAndCaregiverId(lastViewCounts, lastIndex)
                 )
@@ -223,9 +225,9 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
         return gender == null ? null : member.gender.eq(gender);
     }
 
-    // private BooleanExpression experienceYearsGoe(Integer experienceYears) {
-    //     return experienceYears == null ? null : caregiver.experienceYears.goe(experienceYears);
-    // }
+    private BooleanExpression experienceYearsGoe(Integer experienceYears) {
+        return experienceYears == null ? null : member.experienceYears.goe(experienceYears);
+    }
 
     private BooleanExpression ageLoe(final Integer ageLoe) {
         return ageLoe == null ? null : member.age.loe(ageLoe);

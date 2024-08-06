@@ -11,7 +11,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateMatchResponse {
+
     private String patientName;
+
+    private Integer patientAge;
 
     private String patientContact;
 
@@ -29,6 +32,8 @@ public class CreateMatchResponse {
 
     private String caregiverName;
 
+    private Integer caregiverAge;
+
     private String caregiverContact;
 
     private Address caregiverAddress;
@@ -38,12 +43,12 @@ public class CreateMatchResponse {
     private int caregiverExperienceYears;
 
     @Builder
-    public CreateMatchResponse(String patientName, String patientContact, Address patientAddress,
-                               String patientSignificant,
-                               String patientRealCarePlace, Boolean isNok, String nokName, String nokContact,
-                               String caregiverName, String caregiverContact, Address caregiverAddress,
+    public CreateMatchResponse(String patientName, Integer patientAge, String patientContact, Address patientAddress,
+                               String patientSignificant, String patientRealCarePlace, Boolean isNok, String nokName, String nokContact,
+                               String caregiverName, Integer caregiverAge, String caregiverContact, Address caregiverAddress,
                                String caregiverSignificant, int caregiverExperienceYears) {
         this.patientName = patientName;
+        this.patientAge = patientAge;
         this.patientContact = patientContact;
         this.patientAddress = patientAddress;
         this.patientSignificant = patientSignificant;
@@ -52,6 +57,7 @@ public class CreateMatchResponse {
         this.nokName = nokName;
         this.nokContact = nokContact;
         this.caregiverName = caregiverName;
+        this.caregiverAge = caregiverAge;
         this.caregiverContact = caregiverContact;
         this.caregiverAddress = caregiverAddress;
         this.caregiverSignificant = caregiverSignificant;
@@ -63,6 +69,7 @@ public class CreateMatchResponse {
     public static CreateMatchResponse of(Patient patient, Caregiver caregiver) {
         return CreateMatchResponse.builder()
                 .patientName(patient.getName())
+                .patientAge(patient.getAge())
                 .patientContact(patient.getContact())
                 .patientAddress(patient.getAddress())
                 .patientSignificant(patient.getPatientSignificant())
@@ -71,6 +78,7 @@ public class CreateMatchResponse {
                 .nokName(patient.getNokName())
                 .nokContact(patient.getNokContact())
                 .caregiverName(caregiver.getName())
+                .caregiverAge(caregiver.getAge())
                 .caregiverContact(caregiver.getContact())
                 .caregiverAddress(caregiver.getAddress())
                 .caregiverSignificant(caregiver.getCaregiverSignificant())

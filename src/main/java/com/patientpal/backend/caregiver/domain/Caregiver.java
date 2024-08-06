@@ -21,34 +21,31 @@ public class Caregiver extends Member {
 
     private float rating;
 
-    private int experienceYears;
-
     private String specialization;
 
     @Lob
     private String caregiverSignificant;
 
-    public Caregiver(float rating, int experienceYears, String specialization, String caregiverSignificant) {
+    public Caregiver(float rating, String specialization, String caregiverSignificant) {
         this.rating = rating;
-        this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
-    public void updateDetailProfile(final Address address, final float rate, final int experienceYears, final String specialization, final int age, final String caregiverSignificant,
+    public void updateDetailProfile(final Address address, final float rate, final Integer experienceYears, final String specialization, final int age, final String caregiverSignificant,
                                     final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate) {
         updateAddress(address);
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
         updateAge(age);
+        updateExperienceYears(experienceYears);
         this.rating = rate;
-        this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
     public void registerDetailProfile(final String name, final Address address, final String contact, final int age, final Gender gender,
-                                      final int experienceYears, final String specialization, final String caregiverSignificant,
+                                      final Integer experienceYears, final String specialization, final String caregiverSignificant,
                                       final LocalDateTime wantCareStartDate, final LocalDateTime wantCareEndDate, String profileImageUrl) {
         updateName(name);
         updateAddress(address);
@@ -59,7 +56,7 @@ public class Caregiver extends Member {
         updateIsCompleteProfile();
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
-        this.experienceYears = experienceYears;
+        updateExperienceYears(experienceYears);
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
