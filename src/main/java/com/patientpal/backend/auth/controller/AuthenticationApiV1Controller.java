@@ -6,6 +6,8 @@ import com.patientpal.backend.auth.dto.SignUpRequest;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.JwtTokenService;
+import com.patientpal.backend.auth.service.TokenBlacklistService;
+import com.patientpal.backend.common.exception.AuthenticationException;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
@@ -57,6 +59,7 @@ public class AuthenticationApiV1Controller {
     private final JwtTokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "로그인을 한다.")
@@ -75,6 +78,10 @@ public class AuthenticationApiV1Controller {
             content = @Content(schema = @Schema(implementation = AccessTokenResponse.class)),
             headers = @Header(name = "Set-Cookie", description = "리프레시 토큰 쿠키 설정", schema = @Schema(type = "string")))
     public ResponseEntity<AccessTokenResponse> refresh(@CookieValue("refresh_token") String refreshToken, HttpServletResponse response) {
+        if (tokenBlacklistService.isTokenBlacklisted(refreshToken)) {
+            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
+        }
+
         TokenDto tokenDto = tokenService.refreshJwtTokens(refreshToken);
         setRefreshTokenCookie(response, tokenDto.refreshToken());
         return ResponseEntity.ok().body(new AccessTokenResponse(tokenDto.accessToken()));
@@ -122,6 +129,7 @@ public class AuthenticationApiV1Controller {
                          @CookieValue("refresh_token") String refreshToken) {
         if (refreshToken != null) {
             jwtTokenProvider.invalidateToken(refreshToken);
+            setRefreshTokenCookie(resp);
         }
         new SecurityContextLogoutHandler()
                 .logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
@@ -184,6 +192,14 @@ public class AuthenticationApiV1Controller {
             throw new BusinessException(ErrorCode.MEMBER_NOT_EXIST, "Member not found with username: " + username);
         }
         return member;
+    }
+
+    private static void setRefreshTokenCookie(HttpServletResponse resp) {
+        Cookie cookie = new Cookie("refresh_token", null);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        resp.addCookie(cookie);
     }
 }
 
