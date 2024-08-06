@@ -63,6 +63,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
+    @Column(nullable = false)
     private Integer age;
 
     @Column(unique = true)
@@ -94,7 +95,7 @@ public class Member extends BaseTimeEntity {
 
     public LocalDateTime wantCareEndDate;
 
-    private Integer experienceYears;
+    private int experienceYears;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -166,7 +167,7 @@ public class Member extends BaseTimeEntity {
     }
 
 
-    public void updateExperienceYears(final Integer experienceYears) {
+    public void updateExperienceYears(final int experienceYears) {
         this.experienceYears = experienceYears;
     }
 
