@@ -75,37 +75,37 @@ class CaregiverControllerV1Test extends CommonControllerSliceTest {
         }
     }
 
-    @Nested
-    class 간병인_프로필_조회시에 {
-
-        @Test
-        @WithCustomMockUserCaregiver
-        void 성공한다() throws Exception {
-            // given
-            CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
-            given(caregiverService.getMyProfile(any(String.class))).willReturn(response);
-
-            // when & then
-            mockMvc.perform(get("/api/v1/caregiver/profile"))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value(response.getName()))
-                    .andExpect(jsonPath("$.age").value(response.getAge()))
-                    .andExpect(jsonPath("$.contact").value(response.getContact()));
-        }
-
-        @Test
-        @WithCustomMockUserCaregiver
-        void 프로필_미등록시에_예외가_발생한다() throws Exception {
-            // given
-            given(caregiverService.getMyProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
-
-            // when & then
-            mockMvc.perform(get("/api/v1/caregiver/profile"))
-                    .andDo(print())
-                    .andExpect(status().isNotFound());
-        }
-    }
+    // @Nested
+    // class 간병인_프로필_조회시에 {
+    //
+    //     @Test
+    //     @WithCustomMockUserCaregiver
+    //     void 성공한다() throws Exception {
+    //         // given
+    //         CaregiverProfileDetailResponse response = createCaregiverProfileResponse();
+    //         given(caregiverService.getMyProfile(any(String.class))).willReturn(response);
+    //
+    //         // when & then
+    //         mockMvc.perform(get("/api/v1/caregiver/profile"))
+    //                 .andDo(print())
+    //                 .andExpect(status().isOk())
+    //                 .andExpect(jsonPath("$.name").value(response.getName()))
+    //                 .andExpect(jsonPath("$.age").value(response.getAge()))
+    //                 .andExpect(jsonPath("$.contact").value(response.getContact()));
+    //     }
+    //
+    //     @Test
+    //     @WithCustomMockUserCaregiver
+    //     void 프로필_미등록시에_예외가_발생한다() throws Exception {
+    //         // given
+    //         given(caregiverService.getMyProfile(any(String.class))).willThrow(new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+    //
+    //         // when & then
+    //         mockMvc.perform(get("/api/v1/caregiver/profile"))
+    //                 .andDo(print())
+    //                 .andExpect(status().isNotFound());
+    //     }
+    // }
 
     @Nested
     class 간병인_프로필_수정시에 {

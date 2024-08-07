@@ -67,15 +67,6 @@ public class CaregiverControllerV1 {
         return presignedUrlService.getPresignedUrl("profiles", imageName);
     }
 
-    @Operation(summary = "내 프로필 조회 - 간병인", description = "현재 로그인된 사용자의 간병인 프로필을 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "내 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileDetailResponse.class)))
-    @GetMapping("/profile")
-    public ResponseEntity<CaregiverProfileDetailResponse> getCaregiverMyProfile(
-            @AuthenticationPrincipal User currentMember) {
-        return ResponseEntity.status(OK).body(caregiverService.getMyProfile(currentMember.getUsername()));
-    }
-
-
     @Operation(summary = "간병인 프로필 수정", description = "간병인 프로필 정보를 수정합니다.")
     @ApiResponse(responseCode = "204", description = "간병인 프로필 수정 성공")
     @PatchMapping("/profile/{memberId}")

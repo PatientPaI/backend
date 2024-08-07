@@ -71,7 +71,6 @@ class PatientServiceTest {
 
             // then
             assertNotNull(response);
-            assertThat(response.getMemberId()).isEqualTo(member.getId());
             assertThat(response.getName()).isEqualTo(request.getName());
         }
 

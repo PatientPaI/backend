@@ -1,14 +1,18 @@
 package com.patientpal.backend.member.controller;
 
 
-import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.service.CaregiverService;
+import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.member.dto.MemberCompleteProfileResponse;
-import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.member.domain.Role;
+import com.patientpal.backend.member.dto.CaregiverCompleteProfileResponse;
+import com.patientpal.backend.member.dto.PatientCompleteProfileResponse;
 import com.patientpal.backend.member.service.MemberService;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.patient.service.PatientService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +26,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final PatientService patientService;
+    private final CaregiverService caregiverService;
 
     @GetMapping("/api/v1/member/information")
-    public ResponseEntity<MemberCompleteProfileResponse> getIsCompleteProfile(@AuthenticationPrincipal User user) {
+    public ResponseEntity<?> getIsCompleteProfile(@AuthenticationPrincipal User user) {
         Member member = memberService.getUserByUsername(user.getUsername());
-        return ResponseEntity.status(HttpStatus.OK).body(MemberCompleteProfileResponse.of(member.getId(), member.getName(), member.getIsCompleteProfile()));
+        if (member.getRole() == Role.USER) {
+            Patient patient = patientService.getPatientByMemberId(member.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    PatientCompleteProfileResponse.of(patient.getId(), patient.getName(), patient.getAge(), patient.getContact(), patient.getGender(),
+                            patient.getAddress(), patient.getIsNok(), patient.getNokName(), patient.getNokContact(), patient.getRealCarePlace(), patient.getPatientSignificant(),
+                            patient.getCareRequirements(), patient.getIsCompleteProfile(), patient.getIsProfilePublic(), patient.getProfileImageUrl(), patient.getViewCounts(),
+                            patient.getWantCareStartDate(), patient.getWantCareEndDate()));
+        } else if (member.getRole() == Role.CAREGIVER) {
+            Caregiver caregiver = caregiverService.getCaregiverByMemberId(member.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    CaregiverCompleteProfileResponse.of(caregiver.getId(), caregiver.getName(), caregiver.getAge(), caregiver.getContact(), caregiver.getGender(), caregiver.getAddress(),
+                            caregiver.getRating(), caregiver.getExperienceYears(), caregiver.getSpecialization(), caregiver.getCaregiverSignificant(), caregiver.getIsCompleteProfile(),
+                            caregiver.getIsProfilePublic(), caregiver.getProfileImageUrl(), caregiver.getViewCounts(), caregiver.getWantCareStartDate(), caregiver.getWantCareEndDate()));
+        }
+        throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
     }
 
     @GetMapping("/api/v1/member/isProfilePublic")
