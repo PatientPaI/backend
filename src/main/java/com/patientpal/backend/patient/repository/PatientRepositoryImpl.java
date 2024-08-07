@@ -2,6 +2,7 @@ package com.patientpal.backend.patient.repository;
 
 import static com.patientpal.backend.caregiver.domain.QCaregiver.caregiver;
 import static com.patientpal.backend.member.domain.QMember.member;
+import static com.patientpal.backend.patient.domain.QPatient.patient;
 import static com.querydsl.core.types.Order.ASC;
 import static com.querydsl.core.types.Order.DESC;
 
@@ -10,6 +11,8 @@ import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.dto.response.QCaregiverProfileResponse;
 import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
+import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.QPatientProfileResponse;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -151,6 +154,53 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    @Override
+    public Slice<CaregiverProfileResponse> searchCaregiverProfilesByReviewCounts(ProfileSearchCondition condition,
+                                                                             Long lastIndex, Integer lastReviewCounts, Pageable pageable) {
+        log.info("Search Condition Name={}, age={}, gender={}, address={}",
+                condition.getName(), condition.getAgeLoe(),
+                condition.getGender(), condition.getAddr());
+        log.info("lastIndex={}, lastReviewCounts={}", lastIndex, lastReviewCounts);
+
+        List<Long> memberIds = queryFactory
+                .select(member.id)
+                .from(member)
+                .where(
+                        addressEq(condition.getAddr()),
+                        nameEq(condition.getName()),
+                        genderEq(condition.getGender()),
+                        ageLoe(condition.getAgeLoe()),
+                        member.isProfilePublic,
+                        cursorReviewCountsAndCaregiverId(lastReviewCounts, lastIndex)
+                )
+                .orderBy(member.receivedReviews.size().desc(), member.id.asc())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        List<CaregiverProfileResponse> content = queryFactory
+                .select(new QCaregiverProfileResponse(
+                        caregiver.id,
+                        caregiver.name,
+                        caregiver.age,
+                        caregiver.gender,
+                        caregiver.address,
+                        caregiver.rating,
+                        caregiver.experienceYears,
+                        caregiver.specialization,
+                        caregiver.profileImageUrl,
+                        caregiver.viewCounts))
+                .from(caregiver)
+                .where(caregiver.id.in(memberIds))
+                .orderBy(caregiver.receivedReviews.size().desc(), caregiver.id.asc())
+                .fetch();
+
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
     // @Override
     // public Slice<CaregiverProfileResponse> searchCaregiverProfilesByReviewCounts(ProfileSearchCondition condition,
     //                                                                              Long lastIndex, Integer lastReviewCounts,
@@ -204,6 +254,16 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
         return member.viewCounts.eq(lastViewCounts)
                 .and(member.id.gt(lastIndex))
                 .or(member.viewCounts.lt(lastViewCounts));
+    }
+
+    private BooleanExpression cursorReviewCountsAndCaregiverId(Integer lastReviewCounts, Long lastIndex) {
+        if (lastReviewCounts == null || lastIndex == null) {
+            return null;
+        }
+
+        return member.receivedReviews.size().eq(lastReviewCounts)
+                .and(member.id.gt(lastIndex))
+                .or(member.receivedReviews.size().lt(lastReviewCounts));
     }
 
     private List<OrderSpecifier> getOrderSpecifier(Sort sort) {

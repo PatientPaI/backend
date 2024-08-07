@@ -137,7 +137,7 @@ public class PatientControllerV1 {
         if (sort.equals("viewCounts")) {
             searchedProfiles = patientSearchService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
         } else if (sort.equals("reviewCounts")) {
-            // searchedProfiles = patientService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
+            searchedProfiles = patientSearchService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
         } else {
             searchedProfiles = patientSearchService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         }

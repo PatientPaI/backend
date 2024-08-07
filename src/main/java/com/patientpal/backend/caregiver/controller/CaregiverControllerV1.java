@@ -133,7 +133,7 @@ public class CaregiverControllerV1 {
         if (sort.equals("viewCounts")) {
             searchedProfiles = caregiverSearchService.searchPageOrderByViews(condition, lastIndex, lastViewCounts, pageable);
         } else if (sort.equals("reviewCounts")) {
-            // searchedProfiles = patientService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
+            searchedProfiles = caregiverSearchService.searchPageOrderByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
         } else {
             searchedProfiles = caregiverSearchService.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);
         }
