@@ -164,12 +164,12 @@ public class PatientService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
     }
 
-    private Patient getPatientByMemberId(Long memberId) {
+    public Patient getPatientByMemberId(Long memberId) {
         return patientRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 
-    private Caregiver getCaregiverByMemberId(Long memberId) {
+    public Caregiver getCaregiverByMemberId(Long memberId) {
         return caregiverRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
     }
 
