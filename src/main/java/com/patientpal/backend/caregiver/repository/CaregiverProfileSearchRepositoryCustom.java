@@ -10,7 +10,7 @@ import org.springframework.data.domain.Slice;
 
 public interface CaregiverProfileSearchRepositoryCustom {
 
-    // Slice<PatientProfileResponse> searchPatientProfilesByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer lastReviewCounts, Pageable pageable);
+    Slice<PatientProfileResponse> searchPatientProfilesByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer lastReviewCounts, Pageable pageable);
     Slice<PatientProfileResponse> searchPatientProfilesByViewCounts(ProfileSearchCondition condition, Long lastIndex, Integer lastViews, Pageable pageable);
     Slice<PatientProfileResponse> searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable);
 }

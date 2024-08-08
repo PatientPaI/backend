@@ -27,12 +27,12 @@ public class PatientSearchService {
         Slice<CaregiverProfileResponse> searchWithViews = patientRepository.searchCaregiverProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
         return CaregiverProfileListResponse.from(searchWithViews);
     }
-    //
-    // public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
-    //
-    //     Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
-    //     return CaregiverProfileListResponse.from(searchByReviewCounts);
-    // }
+
+    public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
+
+        Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
+        return CaregiverProfileListResponse.from(searchByReviewCounts);
+    }
 
     public CaregiverProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
         Slice<CaregiverProfileResponse> search = patientRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);

@@ -1,5 +1,7 @@
 package com.patientpal.backend.caregiver.service;
 
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
@@ -27,12 +29,11 @@ public class CaregiverSearchService {
         Slice<PatientProfileResponse> searchWithViews = caregiverRepository.searchPatientProfilesByViewCounts(condition, lastIndex, lastViewCounts, pageable);
         return PatientProfileListResponse.from(searchWithViews);
     }
-    //
-    // public CaregiverProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer reviewCounts, Pageable pageable) {
-    //
-    //     Slice<CaregiverProfileResponse> searchByReviewCounts = patientRepository.searchCaregiverProfilesByReviewCounts(condition, lastIndex, reviewCounts, pageable);
-    //     return CaregiverProfileListResponse.from(searchByReviewCounts);
-    // }
+
+    public PatientProfileListResponse searchPageOrderByReviewCounts(ProfileSearchCondition condition, Long lastIndex, Integer lastReviewCounts, Pageable pageable) {
+        Slice<PatientProfileResponse> searchWithReviews = caregiverRepository.searchPatientProfilesByReviewCounts(condition, lastIndex, lastReviewCounts, pageable);
+        return PatientProfileListResponse.from(searchWithReviews);
+    }
 
     public PatientProfileListResponse searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
         Slice<PatientProfileResponse> search = caregiverRepository.searchPageOrderByDefault(condition, lastIndex, lastProfilePublicTime, pageable);

@@ -136,38 +136,50 @@ public class CaregiverRepositoryImpl implements CaregiverProfileSearchRepository
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
-    // @Override
-    // public Slice<patientProfileResponse> searchPatientProfilesByReviewCounts(ProfileSearchCondition condition,
-    //                                                                              Long lastIndex, Integer lastReviewCounts,
-    //                                                                              Pageable pageable) {
-    //     List<patientProfileResponse> content = queryFactory
-    //             .select(new QPatientProfileResponse(
-    //                     patient.id,
-    //                     patient.name,
-    //                     patient.age,
-    //                     patient.gender,
-    //                     patient.address,
-    //                     patient.rating,
-    //                     patient.experienceYears,
-    //                     patient.specialization,
-    //                     patient.profileImageUrl,
-    //                     patient.viewCounts))
-    //             .from(patient)
-    //             .where(
-    //                     cursorReviewCountsAndPatientId(lastReviewCounts, lastIndex),
-    //                     nameEq(condition.getName()),
-    //                     addressEq(condition.getAddr()),
-    //                     genderEq(condition.getGender()),
-    //                     experienceYearsGoe(condition.getExperienceYearsGoe()),
-    //                     patient.isProfilePublic
-    //             )
-    //             .orderBy(patient.reviews.size().desc(), patient.id.desc())
-    //             .limit(pageable.getPageSize() + 1) // 다음 페이지가 있는지 확인하기 위해 하나 더 가져옴
-    //             .fetch();
-    //     boolean hasNext = content.size() > pageable.getPageSize();
-    //
-    //     return new SliceImpl<>(content, pageable, hasNext);
-    // }
+    @Override
+    public Slice<PatientProfileResponse> searchPatientProfilesByReviewCounts(ProfileSearchCondition condition,
+                                                                           Long lastIndex, Integer lastReviewCounts, Pageable pageable) {
+        log.info("Search Condition Name={}, age={}, gender={}, address={}",
+                condition.getName(), condition.getAgeLoe(),
+                condition.getGender(), condition.getAddr());
+        log.info("lastIndex={}, lastReviewCounts={}", lastIndex, lastReviewCounts);
+
+        List<Long> memberIds = queryFactory
+                .select(member.id)
+                .from(member)
+                .where(
+                        addressEq(condition.getAddr()),
+                        nameEq(condition.getName()),
+                        genderEq(condition.getGender()),
+                        ageLoe(condition.getAgeLoe()),
+                        member.isProfilePublic,
+                        cursorReviewCountsAndPatientId(lastReviewCounts, lastIndex)
+                )
+                .orderBy(member.receivedReviews.size().desc(), member.id.asc())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        List<PatientProfileResponse> content = queryFactory
+                .select(new QPatientProfileResponse(
+                        patient.id,
+                        patient.name,
+                        patient.age,
+                        patient.gender,
+                        patient.address,
+                        patient.profileImageUrl,
+                        patient.viewCounts))
+                .from(patient)
+                .where(patient.id.in(memberIds))
+                .orderBy(patient.receivedReviews.size().desc(), patient.id.asc())
+                .fetch();
+
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
 
     public BooleanExpression keywordSearch(String word) {
         if (word == null || word.isEmpty()) {
@@ -191,6 +203,17 @@ public class CaregiverRepositoryImpl implements CaregiverProfileSearchRepository
         return member.viewCounts.eq(lastViewCounts)
                 .and(member.id.gt(lastIndex))
                 .or(member.viewCounts.lt(lastViewCounts));
+    }
+
+
+    private BooleanExpression cursorReviewCountsAndPatientId(Integer lastReviewCounts, Long lastIndex) {
+        if (lastReviewCounts == null || lastIndex == null) {
+            return null;
+        }
+
+        return member.receivedReviews.size().eq(lastReviewCounts)
+                .and(member.id.gt(lastIndex))
+                .or(member.receivedReviews.size().lt(lastReviewCounts));
     }
 
 
