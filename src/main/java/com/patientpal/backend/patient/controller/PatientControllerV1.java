@@ -5,6 +5,8 @@ import static org.springframework.http.HttpStatus.OK;
 
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
+import com.patientpal.backend.caregiver.dto.response.CaregiverRecommendListResponse;
 import com.patientpal.backend.common.TimeTrace;
 import com.patientpal.backend.image.dto.ImageNameDto;
 import com.patientpal.backend.image.service.PresignedUrlService;
@@ -15,6 +17,7 @@ import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
 import com.patientpal.backend.common.utils.PageableUtil;
 import com.patientpal.backend.patient.service.PatientSearchService;
 import com.patientpal.backend.patient.service.PatientService;
+import com.patientpal.backend.recommend.RecommendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -22,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +53,7 @@ public class PatientControllerV1 {
     private final PatientService patientService;
     private final PatientSearchService patientSearchService;
     private final PresignedUrlService presignedUrlService;
+    private final RecommendService recommendService;
 
     @Operation(summary = "환자 프로필 생성", description = "환자 프로필을 새로 생성합니다. 선택적으로 이미지를 업로드할 수 있습니다.")
     @ApiResponse(responseCode = "201", description = "환자 프로필 생성 성공", content = @Content(schema = @Schema(implementation = PatientProfileDetailResponse.class)))
@@ -151,6 +156,15 @@ public class PatientControllerV1 {
             @AuthenticationPrincipal User currentMember,
             @PathVariable Long memberId) {
         return ResponseEntity.status(OK).body(patientService.getOtherProfile(currentMember.getUsername(), memberId));
+    }
+
+    @Operation(summary = "맞춤 추천 간병인 조회", description = "지역, 별점을 기반으로 한 맞춤 간병인 프로필 추천")
+    @ApiResponse(responseCode = "200", description = "맞춤 간병인 프로필 조회 성공", content = @Content(schema = @Schema(implementation = CaregiverProfileResponse.class)))
+    @GetMapping("/recommend")
+    public ResponseEntity<CaregiverRecommendListResponse> getRecommendCaregiverProfile(
+            @AuthenticationPrincipal User currentMember) {
+        List<CaregiverProfileResponse> topCaregivers = recommendService.getTopCaregiversByRecommend(currentMember.getUsername());
+        return ResponseEntity.ok(new CaregiverRecommendListResponse(topCaregivers));
     }
 
 }
