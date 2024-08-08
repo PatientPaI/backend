@@ -126,7 +126,7 @@ public class SecurityConfig {
     private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://patientpal.site"));
+            config.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://patientpal.site", "https://patientpal.vercel.app"));
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setExposedHeaders(Collections.singletonList("*"));
