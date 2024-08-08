@@ -13,4 +13,8 @@ public interface CaregiverRepository extends JpaRepository<Caregiver, Long>, Car
 
     @Query("select c from caregivers c where c.address.addr = :region")
     List<Caregiver> findByRegion(@Param("region") String region);
+
+    @Query("SELECT c FROM caregivers c WHERE c.address.addr = :addr AND c.isProfilePublic ORDER BY c.rating DESC, c.viewCounts DESC")
+    List<Caregiver> findTop5ByAddressOrderByRatingDescViewCountsDesc(@Param("addr") String addr);
+
 }
