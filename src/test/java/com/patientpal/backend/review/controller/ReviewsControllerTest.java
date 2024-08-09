@@ -1,6 +1,6 @@
 package com.patientpal.backend.review.controller;
 
-import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCaregiver;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.defaultCaregiver;
 import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewRequest;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewResponse;
@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
@@ -31,9 +32,7 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 
 @AutoKoreanDisplayName
@@ -43,11 +42,8 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
     @Autowired
     private ReviewService reviewService;
 
-    @MockBean
-    private SimpMessagingTemplate simpMessagingTemplate;
-
     private Member reviewer = defaultRolePatient();
-    private Member reviewed = defaultRoleCaregiver();
+    private Caregiver reviewed = defaultCaregiver();
 
     @Nested
     class 리뷰_생성 {
@@ -56,7 +52,7 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception {
             //given
-            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewRequest reviewRequest = createReviewRequest(reviewed);
             ReviewResponse reviewResponse = createReviewResponse();
             String token = "valid-token";
 
@@ -110,7 +106,7 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
         @WithMockUser
         void 성공한다() throws Exception{
             //given
-            ReviewRequest reviewRequest = createReviewRequest(reviewer, reviewed);
+            ReviewRequest reviewRequest = createReviewRequest(reviewed);
             ReviewResponse reviewResponse = createReviewResponse();
             String token = "valid-token";
 
@@ -170,8 +166,8 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
         void 성공적으로_상위_간병인을_조회한다() throws Exception {
             // given
             List<CaregiverRankingResponse> rankingResponses = Arrays.asList(
-                    new CaregiverRankingResponse(1L, "Caregiver A", "Seoul", 4.8),
-                    new CaregiverRankingResponse(2L, "Caregiver B", "Seoul", 4.5)
+                    new CaregiverRankingResponse(1L, "Caregiver A", "Seoul", 4.8F),
+                    new CaregiverRankingResponse(2L, "Caregiver B", "Seoul", 4.5F)
             );
 
             when(reviewService.getTopCaregiversByRating("Seoul")).thenReturn(rankingResponses);

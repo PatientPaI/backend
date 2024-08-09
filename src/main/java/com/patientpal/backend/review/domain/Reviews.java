@@ -1,5 +1,6 @@
 package com.patientpal.backend.review.domain;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.ReviewRequest;
 import jakarta.persistence.Entity;
@@ -32,7 +33,7 @@ public class Reviews {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_id", nullable = false)
-    private Member reviewed;
+    private Caregiver reviewed;
 
     @Min(1)
     @Max(5)
@@ -42,29 +43,35 @@ public class Reviews {
     private String content;
 
     @Builder
-    public Reviews(Member reviewer, Member reviewed, int starRating, String content) {
+    public Reviews(Member reviewer, Caregiver reviewed, int starRating, String content) {
         this.reviewer = reviewer;
         this.reviewed = reviewed;
         this.starRating = starRating;
         this.content = content;
     }
 
-    public void updateReview(ReviewRequest review) {
-        this.reviewer = review.getReviewer();
-        this.reviewed = review.getReviewed();
-        this.starRating = review.getStarRating();
-        this.content = review.getContent();
+    public void updateReview(ReviewRequest reviewRequest) {
+        this.starRating = reviewRequest.getStarRating();
+        this.content = reviewRequest.getContent();
     }
 
 
-    public double getCalculatedRating() {
+    public float getCalculatedRating() {
         return switch (this.starRating) {
-            case 1 -> -0.2;
-            case 2 -> -0.1;
-            case 3 -> 0.0;
-            case 4 -> 0.1;
-            case 5 -> 0.2;
+            case 1 -> -0.2F;
+            case 2 -> -0.1F;
+            case 3 -> 0.0F;
+            case 4 -> 0.1F;
+            case 5 -> 0.2F;
             default -> throw new IllegalArgumentException("Invalid star rating");
         };
+    }
+
+    public void setReviewed(Caregiver caregiver) {
+        if (this.reviewed != null) {
+            this.reviewed.getReviews().remove(this);
+        }
+        this.reviewed = caregiver;
+        caregiver.getReviews().add(this);
     }
 }

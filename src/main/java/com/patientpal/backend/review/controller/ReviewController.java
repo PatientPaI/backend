@@ -51,6 +51,24 @@ public class ReviewController {
         return ResponseEntity.ok(reviewResponse);
     }
 
+    @Operation(summary = "내가 작성한 리뷰 조회", description = "현재 로그인한 사용자가 작성한 모든 리뷰를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+            content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping("/written")
+    public ResponseEntity<List<ReviewResponse>> getReviewsWrittenByUser(@AuthenticationPrincipal UserDetails userDetails) {
+        List<ReviewResponse> reviews = reviewService.getReviewsWrittenByUser(userDetails.getUsername());
+        return ResponseEntity.ok(reviews);
+    }
+
+    @Operation(summary = "내가 받은 리뷰 조회", description = "현재 로그인한 사용자가 받은 모든 리뷰를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+            content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping("/received")
+    public ResponseEntity<List<ReviewResponse>> getReviewsReceivedByUser(@AuthenticationPrincipal UserDetails userDetails) {
+        List<ReviewResponse> reviews = reviewService.getReviewsReceivedByUser(userDetails.getUsername());
+        return ResponseEntity.ok(reviews);
+    }
+
     @Operation(summary = "리뷰 수정", description = "기존 리뷰를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "리뷰 수정 성공",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))

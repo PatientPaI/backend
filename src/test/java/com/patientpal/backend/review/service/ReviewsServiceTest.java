@@ -66,25 +66,24 @@ class ReviewsServiceTest {
     @InjectMocks
     private ReviewService reviewService;
 
-    private Caregiver caregiver;
+
     private Reviews reviews;
+
     private ReviewRequest reviewRequest;
 
     private Match match;
 
     private Member reviewer;
-    private Member reviewed;
 
-
+    private Caregiver reviewed;
 
     @BeforeEach
     void setUp() {
         reviewer = defaultRolePatient();
-        reviewed = defaultRoleCaregiver();
-        caregiver = defaultCaregiver();
+        reviewed = defaultCaregiver();
         match = createMatchForPatient(defaultRolePatient(),defaultRoleCaregiver());
         reviews = createReview(reviewer, reviewed);
-        reviewRequest = createReviewRequest(reviewer, reviewed);
+        reviewRequest = createReviewRequest(reviewed);
     }
 
     @Nested
@@ -94,17 +93,21 @@ class ReviewsServiceTest {
         void 성공적으로_리뷰를_생성한다() {
             String token = "valid-token";
             String username = reviewer.getUsername();
+            String caregiverName = reviewed.getName();
 
             when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
             when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
             when(matchRepository.findCompleteMatchForMember(reviewer.getId())).thenReturn(Optional.of(match));
-            when(memberRepository.findById(reviewed.getId())).thenReturn(Optional.of(reviewed));
+            when(caregiverRepository.findByUsername(caregiverName)).thenReturn(Optional.of(reviewed));
             when(reviewRepository.save(any(Reviews.class))).thenReturn(reviews);
+
 
             ReviewResponse reviewResponse = reviewService.createReview(reviewRequest, token);
 
             assertThat(reviewResponse.getStarRating()).isEqualTo(reviews.getStarRating());
             assertThat(reviewResponse.getContent()).isEqualTo(reviews.getContent());
+            verify(caregiverRepository).save(reviewed);
+            assertThat(reviewed.getRating()).isEqualTo(0.2f);
         }
     }
 
@@ -146,7 +149,7 @@ class ReviewsServiceTest {
             lenient().when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
             lenient().when(reviewRepository.findById(1L)).thenReturn(Optional.of(reviews));
 
-            ReviewRequest updateRequest = new ReviewRequest(reviewer, reviewed, 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(reviewed.getName(), 4, "Good service");
             ReviewResponse reviewResponse = reviewService.updateReview(1L, updateRequest, username);
 
             assertThat(reviewResponse.getStarRating()).isEqualTo(updateRequest.getStarRating());
@@ -162,7 +165,7 @@ class ReviewsServiceTest {
             lenient().when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
             lenient().when(reviewRepository.findById(1L)).thenReturn(Optional.empty());
 
-            ReviewRequest updateRequest = new ReviewRequest(reviewer, reviewed, 4, "Good service");
+            ReviewRequest updateRequest = new ReviewRequest(reviewed.getName(), 4, "Good service");
 
             EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> reviewService.updateReview(1L, updateRequest, token));
 
@@ -207,18 +210,18 @@ class ReviewsServiceTest {
         @Test
         void 성공적으로_상위_간병인을_조회한다() {
             List<Caregiver> caregivers = Arrays.asList(
-                    caregiver,
+                    reviewed,
                     Caregiver.builder().id(2L).name("간병 B").address(new Address("12345", "Seoul", "Gangnam")).build()
             );
 
             List<Reviews> reviewsForA = Arrays.asList(
-                    Reviews.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(5).content("Great!").build(),
-                    Reviews.builder().reviewer(createDefaultMember()).reviewed(caregiver).starRating(4).content("Good").build()
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(reviewed).starRating(5).content("Great!").build(),
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(reviewed).starRating(4).content("Good").build()
             );
 
             List<Reviews> reviewsForB = Arrays.asList(
-                    Reviews.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(3).content("Okay").build(),
-                    Reviews.builder().reviewer(createDefaultMember()).reviewed(createDefaultMember()).starRating(2).content("Not good").build()
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(defaultCaregiver()).starRating(3).content("Okay").build(),
+                    Reviews.builder().reviewer(createDefaultMember()).reviewed(defaultCaregiver()).starRating(2).content("Not good").build()
             );
 
             when(caregiverRepository.findByRegion("Seoul")).thenReturn(caregivers);
