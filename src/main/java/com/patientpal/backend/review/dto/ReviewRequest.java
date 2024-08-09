@@ -1,6 +1,5 @@
 package com.patientpal.backend.review.dto;
 
-import com.patientpal.backend.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

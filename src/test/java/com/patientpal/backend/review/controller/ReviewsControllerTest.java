@@ -1,7 +1,6 @@
 package com.patientpal.backend.review.controller;
 
 import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.defaultCaregiver;
-import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCaregiver;
 import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewRequest;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewResponse;
@@ -33,9 +32,7 @@ import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 
 @AutoKoreanDisplayName
