@@ -39,7 +39,7 @@ public class ReviewService {
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST,
                         reviewRequest.getReviewed()));
 
-        validateMath(reviewer.getId());
+        validateMatch(reviewer.getId());
         Reviews savedReviews = SavedReview(reviewer, reviewed, reviewRequest);
 
         reviewed.addReview(savedReviews);
@@ -56,6 +56,25 @@ public class ReviewService {
     public ReviewResponse getReview(Long id) {
         Reviews reviews = findReview(id);
         return ReviewResponse.fromReview(reviews);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviewsWrittenByUser(String username) {
+        Member reviewer = memberRepository.findByUsernameOrThrow(username);
+        List<Reviews> reviews = reviewRepository.findByReviewerId(reviewer.getId());
+        return reviews
+                .stream()
+                .map(ReviewResponse::fromReview)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviewsReceivedByUser(String username) {
+        Member reviewed = memberRepository.findByUsernameOrThrow(username);
+        List<Reviews> reviews = reviewRepository.findByReviewedId(reviewed.getId());
+        return reviews.stream()
+                .map(ReviewResponse::fromReview)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -119,7 +138,7 @@ public class ReviewService {
                 .build();
     }
 
-    private void validateMath(Long reviewedId) {
+    private void validateMatch(Long reviewedId) {
         Optional<Match> match = matchRepository.findCompleteMatchForMember(reviewedId);
         if (match.isEmpty()) {
             throw new IllegalArgumentException("리뷰를 작성할 수 없습니다. 매칭이 완료되지 않았습니다.");
