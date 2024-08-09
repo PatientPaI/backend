@@ -90,9 +90,6 @@ public class Member extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reviews> givenReviews = new ArrayList<>();
-
-    @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reviews> receivedReviews = new ArrayList<>();
   
     public LocalDateTime wantCareStartDate;
 

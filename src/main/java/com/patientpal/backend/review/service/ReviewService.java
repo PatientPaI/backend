@@ -35,9 +35,18 @@ public class ReviewService {
     public ReviewResponse createReview(ReviewRequest reviewRequest, String token) {
         String username = jwtTokenProvider.getUsernameFromToken(token);
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
+        Caregiver reviewed = caregiverRepository.findByUsername(reviewRequest.getReviewed())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST,
+                        reviewRequest.getReviewed()));
 
-        validateMath(reviewRequest);
-        Reviews savedReviews = SavedReview(reviewRequest, reviewer);
+        validateMath(reviewer.getId());
+        Reviews savedReviews = SavedReview(reviewer, reviewed, reviewRequest);
+
+        reviewed.addReview(savedReviews);
+
+        float calculatedRating = savedReviews.getCalculatedRating();
+        reviewed.addReviewRating(calculatedRating);
+        caregiverRepository.save(reviewed);
 
         savedReviews = reviewRepository.save(savedReviews);
         return ReviewResponse.fromReview(savedReviews);
@@ -59,6 +68,7 @@ public class ReviewService {
             throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED,
                     "You are not authorized to update this review");
         }
+
         reviews.updateReview(reviewRequest);
 
         return ReviewResponse.fromReview(reviews);
@@ -82,26 +92,15 @@ public class ReviewService {
         List<Caregiver> caregivers = caregiverRepository.findByRegion(region);
 
         return caregivers.stream()
-                .map(caregiver -> {
-                    List<Reviews> reviews = reviewRepository.findByReviewedName(caregiver.getName());
-                    double averageRating = calculateAverageRating(reviews);
-                    return CaregiverRankingResponse.builder()
-                            .id(caregiver.getId())
-                            .name(caregiver.getName())
-                            .address(caregiver.getAddress().getAddr())
-                            .rating(averageRating)
-                            .build();
-                })
-                .sorted((c1, c2) -> Double.compare(c2.getRating(), c1.getRating()))  // 내림차순 정렬
+                .map(caregiver -> CaregiverRankingResponse.builder()
+                        .id(caregiver.getId())
+                        .name(caregiver.getName())
+                        .address(caregiver.getAddress().getAddr())
+                        .rating(caregiver.getRating())  // 저장된 평점을 바로 사용
+                        .build())
+                .sorted((c1, c2) -> Float.compare(c2.getRating(), c1.getRating()))  // 내림차순 정렬
                 .limit(10)
                 .collect(Collectors.toList());
-    }
-
-    private static double calculateAverageRating(List<Reviews> reviews) {
-        double totalRating = reviews.stream()
-                .mapToDouble(Reviews::getCalculatedRating)
-                .sum();
-        return reviews.isEmpty() ? 0 : totalRating / reviews.size();
     }
 
     private Reviews findReview(Long id) {
@@ -110,9 +109,7 @@ public class ReviewService {
                         "Review not found with id: " + id));
     }
 
-    private Reviews SavedReview(ReviewRequest reviewRequest, Member reviewer) {
-        Member reviewed = memberRepository.findById(reviewRequest.getReviewed().getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewed member not found"));
+    private Reviews SavedReview(Member reviewer, Caregiver reviewed, ReviewRequest reviewRequest) {
 
         return Reviews.builder()
                 .reviewer(reviewer)
@@ -122,9 +119,8 @@ public class ReviewService {
                 .build();
     }
 
-    private void validateMath(ReviewRequest reviewRequest) {
-        Optional<Match> match = matchRepository.findCompleteMatchForMember(
-                reviewRequest.getReviewer().getId());
+    private void validateMath(Long reviewedId) {
+        Optional<Match> match = matchRepository.findCompleteMatchForMember(reviewedId);
         if (match.isEmpty()) {
             throw new IllegalArgumentException("리뷰를 작성할 수 없습니다. 매칭이 완료되지 않았습니다.");
         }

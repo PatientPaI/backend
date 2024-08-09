@@ -13,10 +13,7 @@ import lombok.NoArgsConstructor;
 public class ReviewRequest {
 
     @NotNull
-    private Member reviewer;
-
-    @NotNull
-    private Member reviewed;
+    private String reviewed;
 
     @Size(min = 1, max = 5)
     private int starRating;
@@ -25,8 +22,7 @@ public class ReviewRequest {
     private String content;
 
     @Builder
-    public ReviewRequest(Member reviewer, Member reviewed, int starRating, String content) {
-        this.reviewer = reviewer;
+    public ReviewRequest(String reviewed, int starRating, String content) {
         this.reviewed = reviewed;
         this.starRating = starRating;
         this.content = content;
