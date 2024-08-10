@@ -3,11 +3,10 @@ package com.patientpal.backend.chat.service;
 import com.patientpal.backend.chat.domain.Message;
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
 import com.patientpal.backend.chat.dto.MessageType;
-import com.patientpal.backend.chat.dto.SocketDirectMessage;
-import com.patientpal.backend.chat.repository.ChatRepository;
 import com.patientpal.backend.chat.repository.MessageRepository;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.service.MemberService;
+import com.patientpal.backend.socket.dto.SocketDirectMessage;
 import com.patientpal.backend.socket.publisher.SocketPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,8 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MessageService {
 
-     private final ChatService chatService;
-    private final ChatRepository chatRepository;
+    private final ChatService chatService;
     private final MemberService memberService;
     private final SocketPublisher socketPublisher;
     private final MessageRepository messageRepository;
@@ -29,12 +27,6 @@ public class MessageService {
 
         chatService.getChat(chatId);
 
-        Member member = memberService.findMember(senderId);
-        var directMessage = SocketDirectMessage.builder()
-//                .member(member)
-                .content(content)
-                .build();
-
         Message message = Message.builder()
                 .messageType(MessageType.CHAT)
                 .content(content)
@@ -43,6 +35,16 @@ public class MessageService {
                 .build();
 
         var entity = messageRepository.save(message);
+
+        Member member = memberService.findMember(senderId);
+        var directMessage = SocketDirectMessage.builder()
+                .memberId(member.getId())
+                .createdAt(entity.getCreatedDate())
+                .profileImageUrl(member.getProfileImageUrl())
+                .userName(member.getUsername())
+                .name(member.getName())
+                .content(content)
+                .build();
 
         socketPublisher.sendMessage(chatId, directMessage);
 
