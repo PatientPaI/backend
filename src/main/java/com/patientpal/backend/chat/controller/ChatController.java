@@ -26,12 +26,16 @@ public class ChatController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ChatResponse create(@RequestBody ChatCreateRequest request, @AuthenticationPrincipal UserDetails user) {
+        memberService.getUserByUsername(user.getUsername());
+
         Chat chat = chatService.create(request);
         return new ChatResponse(chat);
     }
 
     @GetMapping("/{id}")
     public ChatResponse detail(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        memberService.getUserByUsername(user.getUsername());
+
         Chat chat = chatService.getChat(id);
         return new ChatResponse(chat);
     }
