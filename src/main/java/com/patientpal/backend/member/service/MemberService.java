@@ -41,19 +41,20 @@ public class MemberService {
                         username(request.getUsername())
                         .password(request.getPassword())
                         .role(request.getRole())
+                        .age(request.getAge())
                         .provider(Provider.LOCAL)
                         .isCompleteProfile(false)
                         .isProfilePublic(false)
                         .build();
                 caregiver.encodePassword(passwordEncoder);
                 return caregiverRepository.save(caregiver).getId();
-            }
-            else if (request.getRole() == Role.USER) {
-                Patient patient = Patient.builder().
-                        username(request.getUsername())
+            } else if (request.getRole() == Role.USER) {
+                Patient patient = Patient.builder()
+                        .username(request.getUsername())
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
+                        .age(request.getAge())
                         .isCompleteProfile(false)
                         .isProfilePublic(false)
                         .build();
@@ -64,6 +65,7 @@ public class MemberService {
                         .username(request.getUsername())
                         .password(request.getPassword())
                         .role(Role.ADMIN)
+                        .age(request.getAge())
                         .provider(Provider.LOCAL)
                         .build();
                 member.encodePassword(passwordEncoder);

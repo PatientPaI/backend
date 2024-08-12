@@ -60,8 +60,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Integer age;
+    private int age;
 
     @Column(unique = true)
     private String contact;
