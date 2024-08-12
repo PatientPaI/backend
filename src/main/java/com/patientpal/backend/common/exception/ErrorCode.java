@@ -47,7 +47,8 @@ public enum ErrorCode {
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV_001", "리뷰를 찾을 수 없습니다."),
 
-    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CH_001", "채팅이 존재하지 않습니다.");
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CH_001", "채팅이 존재하지 않습니다."),
+    CHAT_DUPLICATE(HttpStatus.BAD_REQUEST, "CH-002", "이미 채팅이 존재합니다.");
 
 
 
