@@ -5,11 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patientpal.backend.chat.domain.Chat;
 import com.patientpal.backend.chat.dto.ChatCreateRequest;
 import com.patientpal.backend.chat.repository.ChatRepository;
-import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import java.util.List;
 import io.jsonwebtoken.lang.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +38,7 @@ public class ChatService {
         List<Chat> chats = chatRepository.findAllByJson(memberIdsJson);
 
         if(!Collections.isEmpty(chats)) {
-            throw new BusinessException(ErrorCode.CHAT_DUPLICATE);
+            return chats.get(0);
         }
 
         return chatRepository.save(request.toEntity());
