@@ -4,6 +4,7 @@ import com.patientpal.backend.chat.domain.Message;
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
 import com.patientpal.backend.chat.dto.MessageRequestParam;
 import com.patientpal.backend.chat.dto.MessageType;
+import com.patientpal.backend.chat.repository.ChatRepository;
 import com.patientpal.backend.chat.repository.MessageRepository;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.service.MemberService;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class MessageService {
 
     private final ChatService chatService;
+    private final ChatRepository chatRepository;
     private final MemberService memberService;
     private final SocketPublisher socketPublisher;
     private final MessageRepository messageRepository;
