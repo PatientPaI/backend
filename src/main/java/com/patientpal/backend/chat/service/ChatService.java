@@ -67,7 +67,7 @@ public class ChatService {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(memberIds);
         } catch (JsonProcessingException e) {
-            throw new BusinessException("Error converting list to JSON");
+            throw new BusinessException("Error converting memberIds to JSON");
         }
     }
 }
