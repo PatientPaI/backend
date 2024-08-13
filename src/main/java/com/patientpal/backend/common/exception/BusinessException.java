@@ -21,5 +21,6 @@ public class BusinessException extends RuntimeException {
     public BusinessException(@NotNull String detail) {
         super(detail);
         this.errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        this.detail= detail;
     }
 }
