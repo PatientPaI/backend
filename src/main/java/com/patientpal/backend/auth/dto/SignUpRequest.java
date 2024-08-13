@@ -22,17 +22,14 @@ public class SignUpRequest {
 
     private String passwordConfirm;
 
-    private int age;
-
     @NotNull
     private Role role;
 
     @Builder
-    public SignUpRequest(String username, String password, String passwordConfirm, Role role, int age) {
+    public SignUpRequest(String username, String password, String passwordConfirm, Role role) {
         this.username = username;
         this.password = password;
         this.passwordConfirm = passwordConfirm;
         this.role = role;
-        this.age = age;
     }
 }

@@ -41,7 +41,6 @@ public class MemberService {
                         username(request.getUsername())
                         .password(request.getPassword())
                         .role(request.getRole())
-                        .age(request.getAge())
                         .provider(Provider.LOCAL)
                         .isCompleteProfile(false)
                         .isProfilePublic(false)
@@ -54,7 +53,6 @@ public class MemberService {
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
-                        .age(request.getAge())
                         .isCompleteProfile(false)
                         .isProfilePublic(false)
                         .build();
@@ -65,7 +63,6 @@ public class MemberService {
                         .username(request.getUsername())
                         .password(request.getPassword())
                         .role(Role.ADMIN)
-                        .age(request.getAge())
                         .provider(Provider.LOCAL)
                         .build();
                 member.encodePassword(passwordEncoder);
