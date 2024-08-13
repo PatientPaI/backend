@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patientpal.backend.chat.domain.Chat;
 import com.patientpal.backend.chat.dto.ChatCreateRequest;
 import com.patientpal.backend.chat.repository.ChatRepository;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import io.jsonwebtoken.lang.Collections;
@@ -66,7 +67,7 @@ public class ChatService {
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(memberIds);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Error converting list to JSON", e);
+            throw new BusinessException("Error converting list to JSON");
         }
     }
 }
