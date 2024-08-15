@@ -33,6 +33,11 @@ public class SocketSubscriber {
         messageService.createMessage(request);
 
         var directMessage = SocketDirectMessage.builder()
+                .memberId(message.getSenderId())
+                .createdAt(message.getCreatedAt())
+                .profileImageUrl(message.getProfileImageUrl())
+                .userName(message.getName())
+                .name(message.getName())
                 .content(message.getContent())
                 .build();
 
