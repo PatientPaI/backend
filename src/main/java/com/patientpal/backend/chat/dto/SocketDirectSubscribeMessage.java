@@ -12,6 +12,7 @@ public class SocketDirectSubscribeMessage {
 
     private String content;
     private Long senderId;
+    private String userName;
     private String name;
     private String profileImageUrl;
     private LocalDateTime createdAt;
