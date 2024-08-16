@@ -19,8 +19,6 @@ spring:
       password:
 
 management:
-  server:
-    port: 9292
   endpoints:
     web:
       exposure:
