@@ -1,8 +1,8 @@
 package com.patientpal.backend.socket.subscriber;
 
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
+import com.patientpal.backend.chat.dto.MessageType;
 import com.patientpal.backend.socket.dto.SocketDirectMessage;
-import com.patientpal.backend.chat.dto.SocketDirectSubscribeMessage;
 import com.patientpal.backend.chat.service.MessageService;
 import com.patientpal.backend.socket.publisher.SocketPublisher;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +21,19 @@ public class SocketSubscriber {
     private final SocketPublisher socketPublisher;
 
     @MessageMapping("/chat/{chatId}")
-    public void subscribe(@DestinationVariable("chatId") Long chatId, @Payload SocketDirectSubscribeMessage message) {
+    public void subscribe(@DestinationVariable("chatId") Long chatId, @Payload SocketDirectMessage message) {
         log.info("content: " + message.getContent());
         var request = MessageCreateRequest.builder()
-                .messageType(message.getMessageType())
+                .messageType(MessageType.CHAT)
                 .content(message.getContent())
-                .senderId(message.getSenderId())
+                .senderId(message.getMemberId())
                 .chatId(chatId)
                 .build();
 
         messageService.createMessage(request);
 
         var directMessage = SocketDirectMessage.builder()
-                .memberId(message.getSenderId())
+                .memberId(message.getMemberId())
                 .createdAt(message.getCreatedAt())
                 .profileImageUrl(message.getProfileImageUrl())
                 .userName(message.getName())
