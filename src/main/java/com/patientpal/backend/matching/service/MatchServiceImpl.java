@@ -121,7 +121,6 @@ public class MatchServiceImpl implements MatchService {
         return createCaregiverMatch(caregiver, patient, createMatchRequest);
     }
 
-
     private MatchResponse createPatientMatch(Patient patient, Caregiver caregiver,
                                              CreateMatchPatientRequest createMatchRequest) {
         Match match = matchRepository.save(
@@ -148,11 +147,24 @@ public class MatchServiceImpl implements MatchService {
         validateMatchAuthorization(findMatch, username);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
-        if (findMatch.getMatchStatus() == MatchStatus.ACCEPTED && findMatch.getCareEndDateTime().isBefore(LocalDateTime.now())) {
-            findMatch.setMatchStatus(MatchStatus.COMPLETED);
-        }
         return MatchResponse.of(findMatch);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MatchResponse getMatchWithMember(Long matchId, String username) {
+        Match findMatch = getMatchById(matchId);
+        Member currentMember = getMemberByUsername(username);
+
+        MatchResponse matchResponse = MatchResponse.of(findMatch);
+
+        validateMatchAuthorization(findMatch, username);
+        validateIsCanceled(findMatch);
+        setMatchReadStatus(findMatch, currentMember);
+
+        return matchResponse;
+    }
+
 
     private Match getMatchById(Long matchId) {
         return matchRepository.findById(matchId).orElseThrow(() -> new EntityNotFoundException(MATCH_NOT_EXIST));
