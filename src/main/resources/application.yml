@@ -76,6 +76,7 @@ spring:
   config:
     activate:
       on-profile: "local"
+      include: oauth2
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -108,12 +109,12 @@ spring:
       pool:
         max-size: 16
 
+
 ---
 spring:
-  config:
-    activate:
-      on-profile: "prod"
-      include: oauth2
+  profiles:
+    active: prod
+    include: oauth2
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver

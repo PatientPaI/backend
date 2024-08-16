@@ -153,4 +153,8 @@ public class MemberService {
         }
     }
 
+    public Member getUserById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Member not found with id: " + id));
+    }
 }
