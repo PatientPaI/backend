@@ -1,5 +1,7 @@
 package com.patientpal.backend.auth.service;
 
+import static com.patientpal.backend.common.exception.ErrorCode.USER_DATA_FETCH_FAILED;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -7,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.patientpal.backend.common.exception.BusinessException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +36,7 @@ public class SocialDataService {
             ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
             return response.getBody();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch user data from " + provider, e);
+            throw new BusinessException(USER_DATA_FETCH_FAILED ,provider);
         }
     }
 
