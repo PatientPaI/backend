@@ -34,7 +34,7 @@ management:
       enabled: true
 
 server:
-  port: 9292
+  port: 8080
   tomcat:
     mbeanregistry:
       enabled: true
