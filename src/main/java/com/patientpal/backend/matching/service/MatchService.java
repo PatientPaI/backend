@@ -25,4 +25,6 @@ public interface MatchService {
     void acceptMatch(Long matchId, String username);
 
     CreateMatchResponse getCreateMatchRequest(String username, Long responseMemberId);
+
+    MatchResponse getMatchWithMember(Long matchId, String username);
 }
