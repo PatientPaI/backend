@@ -19,6 +19,8 @@ spring:
       password:
 
 management:
+  server:
+    port: 9292
   endpoints:
     web:
       exposure:
@@ -32,7 +34,7 @@ management:
       enabled: true
 
 server:
-  port: 8080
+  port: 9292
   tomcat:
     mbeanregistry:
       enabled: true
