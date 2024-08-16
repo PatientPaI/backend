@@ -38,15 +38,11 @@ public class SocialDataService {
     }
 
     private String getApiUrl(String provider) {
-        switch(provider) {
-            case "google":
-                return "https://www.googleapis.com/oauth2/v3/userinfo";
-            case "kakao":
-                return "https://kapi.kakao.com/v2/user/me";
-            case "naver":
-                return "https://openapi.naver.com/v1/nid/me";
-            default:
-                throw new IllegalArgumentException("Unsupported provider: " + provider);
-        }
+        return switch (provider) {
+            case "google" -> "https://www.googleapis.com/oauth2/v3/userinfo";
+            case "kakao" -> "https://kapi.kakao.com/v2/user/me";
+            case "naver" -> "https://openapi.naver.com/v1/nid/me";
+            default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
+        };
     }
 }

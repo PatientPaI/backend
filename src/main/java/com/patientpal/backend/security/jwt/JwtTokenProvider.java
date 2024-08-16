@@ -114,10 +114,7 @@ public class JwtTokenProvider {
         try {
             getAllClaimsFromToken(token);
             String isInvalid = (String) redisTemplate.opsForValue().get(token);
-            if ("invalid".equals(isInvalid)) {
-                return false;
-            }
-            return true;
+            return !"invalid".equals(isInvalid);
         } catch (JwtException ex) {
             log.trace("Invalid JWT token trace: {}", ex.toString());
             return false;

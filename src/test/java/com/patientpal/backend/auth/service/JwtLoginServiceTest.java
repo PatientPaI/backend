@@ -41,7 +41,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
-;
 
 
 @AutoKoreanDisplayName
