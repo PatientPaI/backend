@@ -152,4 +152,7 @@ public class MemberService {
         }
     }
 
+    public List<Member> getMembers(List<Long> memberIds) {
+        return memberRepository.findAllByIds(memberIds);
+    }
 }
