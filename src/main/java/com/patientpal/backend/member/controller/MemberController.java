@@ -62,7 +62,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(member.getIsProfilePublic());
     }
 
-    @GetMapping("/api/v1/member/check-username")
+    @GetMapping("/check-username")
     public ResponseEntity<Boolean> checkUsernameAvailability(@RequestParam String username) {
         return ResponseEntity.ok(memberService.existsByUsername(username));
     }
