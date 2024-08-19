@@ -113,9 +113,10 @@ spring:
 
 ---
 spring:
-  profiles:
-    active: prod
-    include: oauth2
+  config:
+    activate:
+      on-profile: "prod"
+      include: oauth2
 
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
