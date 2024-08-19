@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MemberDetailResponse {
 
+    private Long memberId;
+
     private String username;
 
     private String name;
@@ -21,6 +23,7 @@ public class MemberDetailResponse {
 
     public static MemberDetailResponse of(Member member) {
         return MemberDetailResponse.builder()
+                .memberId(member.getId())
                 .username(member.getUsername())
                 .name(member.getName())
                 .profileImageUrl(member.getProfileImageUrl())
