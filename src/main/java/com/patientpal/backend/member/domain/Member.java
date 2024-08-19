@@ -181,4 +181,20 @@ public class Member extends BaseTimeEntity {
         this.viewCounts = Math.toIntExact(value);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Member member)) {
+            return false;
+        }
+
+        return id != null ? id.equals(member.getId()) : member.getId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

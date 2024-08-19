@@ -17,4 +17,10 @@ public interface CaregiverRepository extends JpaRepository<Caregiver, Long>, Car
     @Query("SELECT c FROM caregivers c WHERE c.address.addr = :addr AND c.isProfilePublic ORDER BY c.rating DESC, c.viewCounts DESC")
     List<Caregiver> findTop5ByAddressOrderByRatingDescViewCountsDesc(@Param("addr") String addr);
 
+    @Query("SELECT c FROM caregivers c WHERE c.isProfilePublic = true ORDER BY c.viewCounts DESC")
+    List<Caregiver> findTop5ByViewCountsDesc();
+
+    @Query("SELECT c FROM caregivers c WHERE c.isProfilePublic = true ORDER BY SIZE(c.receivedReviews) DESC")
+    List<Caregiver> findTop5ByReviewCountDesc();
+
 }
