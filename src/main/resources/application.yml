@@ -1,8 +1,7 @@
 spring:
-  config:
-    activate:
-      on-profile: "prod" # [local, prod]
-      include: oauth2
+  profiles:
+    active: prod # [local, prod]
+    include: oauth2
 
   application:
     name: backend
