@@ -38,9 +38,14 @@ public class LogAspect {
 
     @Around("controller()")
     public Object loggingBefore(ProceedingJoinPoint joinPoint) throws Throwable {
+        String controllerName = joinPoint.getSignature().getDeclaringType().getName();
+
+        if (controllerName.equals("com.patientpal.backend.common.controller.PingController")) {
+            return joinPoint.proceed();
+        }
+
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
-        String controllerName = joinPoint.getSignature().getDeclaringType().getName();
         String methodName = joinPoint.getSignature().getName();
         Map<String, Object> params = new HashMap<>();
 

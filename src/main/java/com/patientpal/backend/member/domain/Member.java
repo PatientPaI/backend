@@ -60,8 +60,7 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
-    @Column(nullable = false)
-    private Integer age;
+    private int age;
 
     @Column(unique = true)
     private String contact;
@@ -182,4 +181,20 @@ public class Member extends BaseTimeEntity {
         this.viewCounts = Math.toIntExact(value);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Member member)) {
+            return false;
+        }
+
+        return id != null ? id.equals(member.getId()) : member.getId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }

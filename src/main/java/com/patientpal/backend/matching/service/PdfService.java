@@ -26,7 +26,7 @@ public class PdfService {
 
     private final TemplateEngine templateEngine;
 
-    public ByteArrayInputStream  generateMatchPdf(MatchResponse matchResponse, Role role) {
+    public ByteArrayInputStream  generateMatchPdf(MatchResponse matchResponse, String role) {
 
         try (
                 ByteArrayOutputStream os = new ByteArrayOutputStream()
@@ -35,9 +35,9 @@ public class PdfService {
             context.setVariable("match", matchResponse);
 
             String htmlTemplate = null;
-            if (role == Role.USER) {
+            if (role.equals(Role.USER.name())) {
                 htmlTemplate = "match-details-patient";
-            } else if (role == Role.CAREGIVER) {
+            } else if (role.equals(Role.CAREGIVER.name())) {
                 htmlTemplate = "match-details-caregiver";
             }
 
