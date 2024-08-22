@@ -133,7 +133,7 @@ public class OAuth2LoginController {
 
     @Operation(summary = "액세스 토큰으로 소셜 데이터 요청", description = "액세스 토큰을 사용하여 소셜 플랫폼에서 사용자 데이터를 요청합니다.")
     @ApiResponse(responseCode = "200", description = "소셜 데이터 요청 성공",
-            content = @Content(schema = @Schema(implementation = String.class)))  // 응답이 JSON 문자열이라면 String.class
+            content = @Content(schema = @Schema(implementation = String.class))) 
     @GetMapping("/user/data")
     public ResponseEntity<String> getUserData(@RequestParam String accessToken, @RequestParam String provider) {
         String userData = socialDataService.getUserData(accessToken, provider);
