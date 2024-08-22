@@ -10,10 +10,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
-    @Query("SELECT m FROM Match m WHERE m.requestMember.id = :memberId")
+    @Query("SELECT m FROM Match m WHERE m.requestMember.id = :memberId ORDER BY m.createdDate DESC")
     Page<Match> findAllRequest(@Param("memberId") Long memberId, Pageable pageable);
 
-    @Query("SELECT m FROM Match m WHERE m.receivedMember.id = :memberId")
+    @Query("SELECT m FROM Match m WHERE m.receivedMember.id = :memberId ORDER BY m.createdDate DESC")
     Page<Match> findAllReceived(@Param("memberId") Long memberId, Pageable pageable);
 
     @Query("SELECT COUNT(m) > 0 FROM Match m WHERE m.requestMember.id = :requestMemberId AND m.receivedMember.id = :receivedMemberId AND m.matchStatus = 'PENDING'")
