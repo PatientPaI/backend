@@ -12,8 +12,8 @@ public interface PatientRepository extends JpaRepository<Patient, Long>, Patient
 
     Optional<Patient> findByUsername(String username);
 
-    @Query("SELECT p FROM patients p WHERE p.address.addr = :addr AND p.isProfilePublic ORDER BY p.viewCounts DESC")
-    List<Patient> findTop5ByAddressOrderByViewCountsDesc(@Param("addr") String addr);
+    @Query("SELECT p FROM patients p WHERE SUBSTRING(p.address.addr, 1, 2) = :city AND p.isProfilePublic ORDER BY p.viewCounts DESC")
+    List<Patient> findTop5ByAddressOrderByViewCountsDesc(@Param("city") String city);
 
     @Query("SELECT p FROM patients p WHERE p.isProfilePublic = true ORDER BY p.viewCounts DESC")
     List<Patient> findTop5ByViewCountsDesc();

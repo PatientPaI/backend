@@ -32,7 +32,7 @@ public class AddressBasedRecommendStrategy implements RecommendStrategy {
         if (findPatient.getAddress() == null) {
             throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
         }
-        List<Caregiver> caregivers = caregiverRepository.findTop5ByAddressOrderByRatingDescViewCountsDesc(findPatient.getAddress().getAddr());
+        List<Caregiver> caregivers = caregiverRepository.findTop5ByAddressOrderByRatingDescViewCountsDesc(findPatient.getAddress().getAddr().substring(0, 2));
 
         return caregivers.stream()
                 .map(caregiver -> new CaregiverProfileResponse(caregiver.getId(), caregiver.getName(), caregiver.getAge(), caregiver.getGender(),
@@ -48,7 +48,7 @@ public class AddressBasedRecommendStrategy implements RecommendStrategy {
         if (findCaregiver.getAddress() == null) {
             throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
         }
-        List<Patient> patients = patientRepository.findTop5ByAddressOrderByViewCountsDesc(findCaregiver.getAddress().getAddr());
+        List<Patient> patients = patientRepository.findTop5ByAddressOrderByViewCountsDesc(findCaregiver.getAddress().getAddr().substring(0, 2));
 
         return patients.stream()
                 .map(patient -> new PatientProfileResponse(patient.getId(), patient.getName(), patient.getAge(), patient.getGender(),
