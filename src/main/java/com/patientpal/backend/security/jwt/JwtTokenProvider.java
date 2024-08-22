@@ -1,6 +1,5 @@
 package com.patientpal.backend.security.jwt;
 
-import com.patientpal.backend.auth.service.TokenBlacklistService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -14,6 +13,7 @@ import java.sql.Date;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,21 +37,17 @@ public class JwtTokenProvider {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private final TokenBlacklistService tokenBlacklistService;
-
     public JwtTokenProvider(
             @Value("${security.jwt.base64-secret}") String base64Secret,
             @Value("${security.jwt.refresh-expiration-time}") long refreshTokenExpirationTime,
 
             @Value("${security.jwt.access-expiration-time}") long accessTokenExpirationTime,
-            RedisTemplate<String, Object> redisTemplate,
-            TokenBlacklistService tokenBlacklistService
+            RedisTemplate<String, Object> redisTemplate
     ) {
         this.base64Secret = base64Secret;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.redisTemplate = redisTemplate;
-        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     public String createToken(Authentication authentication, long expirationTime) {
@@ -114,7 +110,10 @@ public class JwtTokenProvider {
         try {
             getAllClaimsFromToken(token);
             String isInvalid = (String) redisTemplate.opsForValue().get(token);
-            return !"invalid".equals(isInvalid);
+            if ("invalid".equals(isInvalid)) {
+                return false;
+            }
+            return true;
         } catch (JwtException ex) {
             log.trace("Invalid JWT token trace: {}", ex.toString());
             return false;
@@ -122,12 +121,6 @@ public class JwtTokenProvider {
     }
 
     public void invalidateToken(String token) {
-        Long expiration = getExpiration(token);
-        tokenBlacklistService.blacklistToken(token, expiration);
-    }
-
-    public Long getExpiration(String token) {
-        var expiration = getAllClaimsFromToken(token).getBody().getExpiration();
-        return expiration.getTime() - System.currentTimeMillis();
+        redisTemplate.opsForValue().set(token, "invalid", 1, TimeUnit.MILLISECONDS);
     }
 }
