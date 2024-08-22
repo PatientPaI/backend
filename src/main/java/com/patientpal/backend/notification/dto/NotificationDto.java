@@ -29,7 +29,7 @@ public class NotificationDto {
             return Response.builder()
                     .content(notification.getContent())
                     .id(notification.getId().toString())
-                    .name(notification.getReceiver().getUsername())
+                    .name(notification.getReceiver().getName())
                     .type(notification.getNotificationType().toString())
                     .createdDate(notification.getCreatedDate().toString())
                     .build();
