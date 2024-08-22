@@ -11,6 +11,7 @@ public class MemberFixture {
     public static final String DEFAULT_CONTACT = "010-1234-5678";
     public static final String DEFAULT_PASSWORD = "password123";
     public static final Long DEFAULT_ID = 1L;
+    public static final Integer DEFAULT_AGE = 30;
 
     public static Member createDefaultMember() {
         return createMemberBuilder().build();
@@ -34,7 +35,8 @@ public class MemberFixture {
                 .password(DEFAULT_PASSWORD)
                 .provider(DEFAULT_PROVIDER)
                 .role(Role.USER)
-                .contact(DEFAULT_CONTACT);
+                .contact(DEFAULT_CONTACT)
+                .age(DEFAULT_AGE);
     }
 
     private static Member.MemberBuilder createMemberBuilderWithUserRole() {

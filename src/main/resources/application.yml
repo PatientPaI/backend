@@ -80,6 +80,7 @@ spring:
   config:
     activate:
       on-profile: "local"
+      include: oauth2
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -111,6 +112,7 @@ spring:
     execution:
       pool:
         max-size: 16
+
 
 ---
 spring:
