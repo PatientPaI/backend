@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +32,12 @@ public class MessageService {
         final Long chatId = request.getChatId();
         final String content = request.getContent();
         final Long senderId = request.getSenderId();
+        final UUID messageId = request.getMessageId();
 
         chatService.getChat(chatId);
 
         Message message = Message.builder()
+                .id(messageId)
                 .messageType(MessageType.CHAT)
                 .content(content)
                 .senderId(senderId)
@@ -44,7 +47,9 @@ public class MessageService {
         var entity = messageRepository.save(message);
 
         Member member = memberService.findMember(senderId);
+
         var directMessage = SocketDirectMessage.builder()
+                .messageId(messageId)
                 .memberId(member.getId())
                 .createdAt(entity.getCreatedDate())
                 .profileImageUrl(member.getProfileImageUrl())
