@@ -1,8 +1,9 @@
 package com.patientpal.backend.review.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,8 @@ public class UpdateReviewRequest {
     @NotNull
     private String reviewedName;
 
-    @Size(min = 1, max = 5)
+    @Min(1)
+    @Max(5)
     private int starRating;
 
     @NotBlank
