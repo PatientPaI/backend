@@ -7,7 +7,6 @@ import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRoleCa
 import static com.patientpal.backend.fixtures.member.MemberFixture.defaultRolePatient;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createCreateReviewRequest;
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReview;
-
 import static com.patientpal.backend.fixtures.review.ReviewsFixture.createUpdateReviewRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,13 +32,12 @@ import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.review.domain.Reviews;
 import com.patientpal.backend.review.dto.CreateReviewRequest;
-import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import com.patientpal.backend.review.repository.ReviewRepository;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
