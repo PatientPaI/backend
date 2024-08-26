@@ -1,5 +1,6 @@
 package com.patientpal.backend.common.exception;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
@@ -15,5 +16,11 @@ public class BusinessException extends RuntimeException {
 
     public BusinessException(ErrorCode errorCode) {
         this(errorCode, null);
+    }
+
+    public BusinessException(@NotNull String detail) {
+        super(detail);
+        this.errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        this.detail= detail;
     }
 }

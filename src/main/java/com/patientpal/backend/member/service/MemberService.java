@@ -47,10 +47,9 @@ public class MemberService {
                         .build();
                 caregiver.encodePassword(passwordEncoder);
                 return caregiverRepository.save(caregiver).getId();
-            }
-            else if (request.getRole() == Role.USER) {
-                Patient patient = Patient.builder().
-                        username(request.getUsername())
+            } else if (request.getRole() == Role.USER) {
+                Patient patient = Patient.builder()
+                        .username(request.getUsername())
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
@@ -153,4 +152,7 @@ public class MemberService {
         }
     }
 
+    public List<Member> getMembers(List<Long> memberIds) {
+        return memberRepository.findAllByIds(memberIds);
+    }
 }

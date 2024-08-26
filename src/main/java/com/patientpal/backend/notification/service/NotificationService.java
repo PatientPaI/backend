@@ -26,13 +26,16 @@ public class NotificationService {
 
     public SseEmitter subscribe(String username, String lastEventId) {
         String emitterId = makeTimeIncludeId(username);
-        SseEmitter emitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
+        SseEmitter sseEmitter = new SseEmitter(DEFAULT_TIMEOUT);
+        SseEmitter emitter = emitterRepository.save(emitterId, sseEmitter);
         emitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
         emitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
+        emitter.onTimeout(sseEmitter::complete);
 
         // 503 에러를 방지하기 위한 더미 이벤트 전송
         String eventId = makeTimeIncludeId(username);
-        sendNotification(emitter, eventId, emitterId, "EventStream Created. [username=" + username + "]");
+        // sendNotification(emitter, eventId, emitterId, "EventStream Created. [username=" + username + "]");
+        sendNotification(emitter, eventId, emitterId, "{\"type\": \"CONNECT\", \"message\": \"EventStream Created. [username=" + username + "]\"}");
 
         // 클라이언트가 미수신한 Event 목록이 존재할 경우 전송하여 Event 유실을 예방
         if (hasLostData(lastEventId)) {
@@ -62,7 +65,7 @@ public class NotificationService {
         try {
             emitter.send(SseEmitter.event()
                     .id(eventId)
-                    .name("sse")
+                    .name("message")
                     .data(data)
             );
         } catch (IOException exception) {

@@ -26,4 +26,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m.username from Member m where m.username like :username%")
     List<String> findUsernameStartingWith(@Param("username") String username);
 
+    @Query("select m from Member m where m.id in :memberIds")
+    List<Member> findAllByIds(@Param("memberIds") List<Long> memberIds);
 }

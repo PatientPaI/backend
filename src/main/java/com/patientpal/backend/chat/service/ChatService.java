@@ -1,14 +1,18 @@
 package com.patientpal.backend.chat.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.patientpal.backend.chat.domain.Chat;
 import com.patientpal.backend.chat.dto.ChatCreateRequest;
 import com.patientpal.backend.chat.repository.ChatRepository;
+import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
+import io.jsonwebtoken.lang.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +32,23 @@ public class ChatService {
 
     @Transactional
     public Chat create(ChatCreateRequest request) {
+        List<Long> memberIds = request.getMemberIds();
+
+        String memberIdsJson = convertToJson(memberIds);
+
+        List<Chat> chats = chatRepository.findAllByJson(memberIdsJson);
+
+        if(!Collections.isEmpty(chats)) {
+            return chats.get(0);
+        }
+
         return chatRepository.save(request.toEntity());
     }
 
     @Transactional(readOnly = true)
     public List<Chat> getMembersChat(Long memberId) {
         String memberIdJson = String.format("[%d]", memberId);
-        return chatRepository.findAllByMemberId(memberIdJson);
+        return chatRepository.findAllByJson(memberIdJson);
     }
 
     @Transactional
@@ -46,6 +60,15 @@ public class ChatService {
         }
 
         chatRepository.delete(chat);
+    }
+
+    private String convertToJson(List<Long> memberIds) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.writeValueAsString(memberIds);
+        } catch (JsonProcessingException e) {
+            throw new BusinessException("Error converting memberIds to JSON");
+        }
     }
 }
 
