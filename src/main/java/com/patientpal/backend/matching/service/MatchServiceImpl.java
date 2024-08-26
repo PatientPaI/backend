@@ -43,7 +43,6 @@ import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import io.micrometer.core.annotation.Timed;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +120,6 @@ public class MatchServiceImpl implements MatchService {
         return createCaregiverMatch(caregiver, patient, createMatchRequest);
     }
 
-
     private MatchResponse createPatientMatch(Patient patient, Caregiver caregiver,
                                              CreateMatchPatientRequest createMatchRequest) {
         Match match = matchRepository.save(
@@ -145,13 +143,25 @@ public class MatchServiceImpl implements MatchService {
     public MatchResponse getMatch(Long matchId, String username) {
         Match findMatch = getMatchById(matchId);
         Member currentMember = getMemberByUsername(username);
-        validateMatchAuthorization(findMatch, username);
+        validateMatchAuthorization(findMatch, currentMember);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
-        if (findMatch.getMatchStatus() == MatchStatus.ACCEPTED && findMatch.getCareEndDateTime().isBefore(LocalDateTime.now())) {
-            findMatch.setMatchStatus(MatchStatus.COMPLETED);
-        }
         return MatchResponse.of(findMatch);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MatchResponse getMatchWithMember(Long matchId, String username) {
+        Match findMatch = getMatchById(matchId);
+        Member currentMember = getMemberByUsername(username);
+
+        MatchResponse matchResponse = MatchResponse.of(findMatch);
+
+        validateMatchAuthorization(findMatch, currentMember);
+        validateIsCanceled(findMatch);
+        setMatchReadStatus(findMatch, currentMember);
+
+        return matchResponse;
     }
 
     private Match getMatchById(Long matchId) {
