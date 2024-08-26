@@ -7,17 +7,22 @@ import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.review.domain.Reviews;
-import com.patientpal.backend.review.dto.ReviewRequest;
+import com.patientpal.backend.review.dto.CreateReviewRequest;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.repository.ReviewRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import com.patientpal.backend.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,14 +37,18 @@ public class ReviewService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
-    public ReviewResponse createReview(ReviewRequest reviewRequest, String token) {
+    public ReviewResponse createReview(CreateReviewRequest createReviewRequest, String token) {
         String username = jwtTokenProvider.getUsernameFromToken(token);
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
+        Member reviewed = memberRepository.findByUsernameOrThrow(createReviewRequest.getReviewedName());
 
-        validateMath(reviewRequest);
-        Reviews savedReviews = SavedReview(reviewRequest, reviewer);
+        checkIfReviewAlreadyExists(reviewer, reviewed);
+        validateMatch(createReviewRequest.getMatchingId());
 
-        savedReviews = reviewRepository.save(savedReviews);
+        Reviews review = createNewReview(createReviewRequest, reviewer, reviewed);
+
+        Reviews savedReviews = saveReviewAndUpdateRating(review, reviewed);
+
         return ReviewResponse.fromReview(savedReviews);
     }
 
@@ -49,8 +58,28 @@ public class ReviewService {
         return ReviewResponse.fromReview(reviews);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getAllReviews(Pageable pageable) {
+        Page<Reviews> reviews = reviewRepository.findAll(pageable);
+        return reviews.map(ReviewResponse::fromReview);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getReviewsWrittenByUser(String username, Pageable pageable) {
+        Member reviewer = memberRepository.findByUsernameOrThrow(username);
+        Page<Reviews> reviews = reviewRepository.findByReviewerId(reviewer.getId(), pageable);
+        return reviews.map(ReviewResponse::fromReview);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ReviewResponse> getReviewsReceivedByUser(String username, Pageable pageable) {
+        Member reviewed = memberRepository.findByUsernameOrThrow(username);
+        Page<Reviews> reviews = reviewRepository.findByReviewedId(reviewed.getId(), pageable);
+        return reviews.map(ReviewResponse::fromReview);
+    }
+
     @Transactional
-    public ReviewResponse updateReview(Long id, ReviewRequest reviewRequest, String username) {
+    public ReviewResponse updateReview(Long id, UpdateReviewRequest updateReviewRequest, String username) {
 
         Reviews reviews = findReview(id);
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
@@ -59,7 +88,7 @@ public class ReviewService {
             throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED,
                     "You are not authorized to update this review");
         }
-        reviews.updateReview(reviewRequest);
+        reviews.updateReview(updateReviewRequest);
 
         return ReviewResponse.fromReview(reviews);
     }
@@ -67,9 +96,8 @@ public class ReviewService {
     @Transactional
     public void deleteReview(Long id, String username) {
         Reviews review = findReview(id);
-        Member reviewer = memberRepository.findByUsernameOrThrow(username);
 
-        if (!review.getReviewer().equals(reviewer)) {
+        if (!review.getReviewer().getUsername().equals(username)) {
             throw new EntityNotFoundException(ErrorCode.AUTHORIZATION_FAILED,
                     "You are not authorized to delete this review");
         }
@@ -82,27 +110,17 @@ public class ReviewService {
         List<Caregiver> caregivers = caregiverRepository.findByRegion(region);
 
         return caregivers.stream()
-                .map(caregiver -> {
-                    List<Reviews> reviews = reviewRepository.findByReviewedName(caregiver.getName());
-                    double averageRating = calculateAverageRating(reviews);
-                    return CaregiverRankingResponse.builder()
-                            .id(caregiver.getId())
-                            .name(caregiver.getName())
-                            .address(caregiver.getAddress().getAddr())
-                            .rating(averageRating)
-                            .build();
-                })
-                .sorted((c1, c2) -> Double.compare(c2.getRating(), c1.getRating()))  // 내림차순 정렬
+                .map(caregiver -> CaregiverRankingResponse.builder()
+                        .id(caregiver.getId())
+                        .name(caregiver.getName())
+                        .address(caregiver.getAddress().getAddr())
+                        .rating(caregiver.getRating())
+                        .build())
+                .sorted((c1, c2) -> Float.compare(c2.getRating(), c1.getRating()))
                 .limit(10)
                 .collect(Collectors.toList());
     }
 
-    private static double calculateAverageRating(List<Reviews> reviews) {
-        double totalRating = reviews.stream()
-                .mapToDouble(Reviews::getCalculatedRating)
-                .sum();
-        return reviews.isEmpty() ? 0 : totalRating / reviews.size();
-    }
 
     private Reviews findReview(Long id) {
         return reviewRepository.findById(id)
@@ -110,23 +128,38 @@ public class ReviewService {
                         "Review not found with id: " + id));
     }
 
-    private Reviews SavedReview(ReviewRequest reviewRequest, Member reviewer) {
-        Member reviewed = memberRepository.findById(reviewRequest.getReviewed().getId())
-                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, "Reviewed member not found"));
-
+    private Reviews createNewReview(CreateReviewRequest createReviewRequest, Member reviewer, Member reviewed) {
         return Reviews.builder()
                 .reviewer(reviewer)
                 .reviewed(reviewed)
-                .starRating(reviewRequest.getStarRating())
-                .content(reviewRequest.getContent())
+                .starRating(createReviewRequest.getStarRating())
+                .content(createReviewRequest.getContent())
                 .build();
     }
 
-    private void validateMath(ReviewRequest reviewRequest) {
-        Optional<Match> match = matchRepository.findCompleteMatchForMember(
-                reviewRequest.getReviewer().getId());
-        if (match.isEmpty()) {
+    private void validateMatch(Long matchId) {
+        Optional<Match> match = matchRepository.findById(matchId);
+        if (match.isEmpty() || match.get().getMatchStatus() != MatchStatus.COMPLETED) {
             throw new IllegalArgumentException("리뷰를 작성할 수 없습니다. 매칭이 완료되지 않았습니다.");
         }
+    }
+
+    private void checkIfReviewAlreadyExists(Member reviewer, Member reviewed) {
+        reviewRepository.findByReviewerIdAndReviewedId(reviewer.getId(), reviewed.getId())
+                .ifPresent(existingReview -> {
+                    throw new IllegalArgumentException("이미 해당 사용자에 대한 리뷰가 작성되었습니다.");
+                });
+    }
+
+    private Reviews saveReviewAndUpdateRating(Reviews review, Member reviewed) {
+        Reviews savedReviews = reviewRepository.save(review);
+
+        reviewed.addReview(savedReviews);
+
+        float calculatedRating = savedReviews.getCalculatedRating();
+        reviewed.addReviewRating(calculatedRating);
+
+        memberRepository.save(reviewed);
+        return savedReviews;
     }
 }

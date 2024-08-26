@@ -3,7 +3,8 @@ package com.patientpal.backend.review.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
-import com.patientpal.backend.review.dto.ReviewRequest;
+import com.patientpal.backend.review.dto.CreateReviewRequest;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 import com.patientpal.backend.review.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,9 +39,9 @@ public class ReviewController {
     @ApiResponse(responseCode = "201", description = "리뷰가 성공적으로 생성됨",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @PostMapping
-    public ResponseEntity<ReviewResponse> createReview(@RequestBody ReviewRequest reviewRequest,
+    public ResponseEntity<ReviewResponse> createReview(@RequestBody CreateReviewRequest createReviewRequest,
                                                        @AuthenticationPrincipal UserDetails userDetails) {
-        ReviewResponse reviewResponse = reviewService.createReview(reviewRequest, userDetails.getUsername());
+        ReviewResponse reviewResponse = reviewService.createReview(createReviewRequest, userDetails.getUsername());
         return ResponseEntity.status(CREATED).body(reviewResponse);
     }
 
@@ -51,14 +54,41 @@ public class ReviewController {
         return ResponseEntity.ok(reviewResponse);
     }
 
+    @Operation(summary = "전체 리뷰 조회", description = "모든 리뷰를 페이징 처리하여 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+            content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping
+    public ResponseEntity<Page<ReviewResponse>> getAllReviews(Pageable pageable) {
+        Page<ReviewResponse> reviews = reviewService.getAllReviews(pageable);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @Operation(summary = "내가 작성한 리뷰 조회", description = "현재 로그인한 사용자가 작성한 모든 리뷰를 페이징 처리하여 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+            content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping("/written")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsWrittenByUser(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        Page<ReviewResponse> reviews = reviewService.getReviewsWrittenByUser(userDetails.getUsername(), pageable);
+        return ResponseEntity.ok(reviews);
+    }
+
+    @Operation(summary = "내가 받은 리뷰 조회", description = "현재 로그인한 사용자가 받은 모든 리뷰를 페이징 처리하여 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
+            content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
+    @GetMapping("/received")
+    public ResponseEntity<Page<ReviewResponse>> getReviewsReceivedByUser(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        Page<ReviewResponse> reviews = reviewService.getReviewsReceivedByUser(userDetails.getUsername(), pageable);
+        return ResponseEntity.ok(reviews);
+    }
+
     @Operation(summary = "리뷰 수정", description = "기존 리뷰를 수정합니다.")
     @ApiResponse(responseCode = "200", description = "리뷰 수정 성공",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @PutMapping("/{id}")
     public ResponseEntity<ReviewResponse> updateReview(@PathVariable Long id,
-                                                       @RequestBody ReviewRequest reviewRequest,
+                                                       @RequestBody UpdateReviewRequest updateReviewRequest,
                                                        @AuthenticationPrincipal UserDetails userDetails) {
-        ReviewResponse reviewResponse = reviewService.updateReview(id, reviewRequest, userDetails.getUsername());
+        ReviewResponse reviewResponse = reviewService.updateReview(id, updateReviewRequest, userDetails.getUsername());
         return ResponseEntity.ok(reviewResponse);
     }
 

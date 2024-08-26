@@ -1,7 +1,7 @@
 package com.patientpal.backend.review.domain;
 
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.review.dto.ReviewRequest;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -49,22 +49,28 @@ public class Reviews {
         this.content = content;
     }
 
-    public void updateReview(ReviewRequest review) {
-        this.reviewer = review.getReviewer();
-        this.reviewed = review.getReviewed();
+    public void updateReview(UpdateReviewRequest review) {
         this.starRating = review.getStarRating();
         this.content = review.getContent();
     }
 
 
-    public double getCalculatedRating() {
+    public float getCalculatedRating() {
         return switch (this.starRating) {
-            case 1 -> -0.2;
-            case 2 -> -0.1;
-            case 3 -> 0.0;
-            case 4 -> 0.1;
-            case 5 -> 0.2;
+            case 1 -> -0.2F;
+            case 2 -> -0.1F;
+            case 3 -> 0.0F;
+            case 4 -> 0.1F;
+            case 5 -> 0.2F;
             default -> throw new IllegalArgumentException("Invalid star rating");
         };
+    }
+
+    public void setReviewed(Member reviewed) {
+        if (this.reviewed != null) {
+            this.reviewed.getReceivedReviews().remove(this);
+        }
+        this.reviewed = reviewed;
+        reviewed.getReceivedReviews().add(this);
     }
 }

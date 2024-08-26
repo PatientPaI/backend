@@ -1,6 +1,5 @@
 package com.patientpal.backend.review.dto;
 
-import com.patientpal.backend.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,13 +9,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ReviewRequest {
+public class UpdateReviewRequest {
 
     @NotNull
-    private Member reviewer;
-
-    @NotNull
-    private Member reviewed;
+    private String reviewedName;
 
     @Size(min = 1, max = 5)
     private int starRating;
@@ -25,9 +21,8 @@ public class ReviewRequest {
     private String content;
 
     @Builder
-    public ReviewRequest(Member reviewer, Member reviewed, int starRating, String content) {
-        this.reviewer = reviewer;
-        this.reviewed = reviewed;
+    public UpdateReviewRequest(String reviewedName, int starRating, String content) {
+        this.reviewedName = reviewedName;
         this.starRating = starRating;
         this.content = content;
     }

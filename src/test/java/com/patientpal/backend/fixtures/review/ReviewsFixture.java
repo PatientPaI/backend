@@ -2,7 +2,8 @@ package com.patientpal.backend.fixtures.review;
 
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.domain.Reviews;
-import com.patientpal.backend.review.dto.ReviewRequest;
+import com.patientpal.backend.review.dto.CreateReviewRequest;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
 import com.patientpal.backend.review.dto.ReviewResponse;
 
 public class ReviewsFixture {
@@ -15,12 +16,20 @@ public class ReviewsFixture {
                 .build();
     }
 
-    public static ReviewRequest createReviewRequest(Member reviewer, Member reviewed) {
-        return ReviewRequest.builder()
-                .reviewer(reviewer)
-                .reviewed(reviewed)
+    public static CreateReviewRequest createCreateReviewRequest(Member reviewed, Long matchingId) {
+        return CreateReviewRequest.builder()
+                .matchingId(matchingId)
+                .reviewedName(reviewed.getName())
                 .starRating(5)
                 .content("Excellent service")
+                .build();
+    }
+
+    public static UpdateReviewRequest createUpdateReviewRequest(Member reviewed) {
+        return UpdateReviewRequest.builder()
+                .reviewedName(reviewed.getName())
+                .starRating(5)
+                .content("Updated review content")
                 .build();
     }
 
