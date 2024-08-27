@@ -1,8 +1,6 @@
 package com.patientpal.backend.socket.subscriber;
 
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
-import com.patientpal.backend.socket.dto.SocketDirectMessage;
-import com.patientpal.backend.chat.dto.SocketDirectSubscribeMessage;
 import com.patientpal.backend.chat.dto.MessageType;
 import com.patientpal.backend.socket.dto.SocketDirectMessage;
 import com.patientpal.backend.chat.service.MessageService;
