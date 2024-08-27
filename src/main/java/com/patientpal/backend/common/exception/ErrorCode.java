@@ -47,8 +47,9 @@ public enum ErrorCode {
 
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "RV_001", "리뷰를 찾을 수 없습니다."),
 
-    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CH_001", "채팅이 존재하지 않습니다.");
+    CHAT_NOT_FOUND(HttpStatus.NOT_FOUND, "CH_001", "채팅이 존재하지 않습니다."),
 
+    USER_DATA_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "U_001", "사용자 데이터를 가져오는 데 실패했습니다.");
 
 
     private final HttpStatus status;

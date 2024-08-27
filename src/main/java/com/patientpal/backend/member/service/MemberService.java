@@ -155,4 +155,10 @@ public class MemberService {
     public List<Member> getMembers(List<Long> memberIds) {
         return memberRepository.findAllByIds(memberIds);
     }
+
+    public Member getUserById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST,
+                        "Member not found with id: " + id));
+    }
 }
