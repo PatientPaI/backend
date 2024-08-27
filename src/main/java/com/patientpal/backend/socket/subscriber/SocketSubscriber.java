@@ -24,6 +24,7 @@ public class SocketSubscriber {
     public void subscribe(@DestinationVariable("chatId") Long chatId, @Payload SocketDirectMessage message) {
         log.info("content: " + message.getContent());
         var request = MessageCreateRequest.builder()
+                .messageId(message.getMessageId())
                 .messageType(MessageType.CHAT)
                 .content(message.getContent())
                 .senderId(message.getMemberId())
@@ -33,6 +34,7 @@ public class SocketSubscriber {
         messageService.createMessage(request);
 
         var directMessage = SocketDirectMessage.builder()
+                .messageId(message.getMessageId())
                 .memberId(message.getMemberId())
                 .createdAt(message.getCreatedAt())
                 .profileImageUrl(message.getProfileImageUrl())
