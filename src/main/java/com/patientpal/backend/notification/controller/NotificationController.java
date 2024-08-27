@@ -1,6 +1,8 @@
 package com.patientpal.backend.notification.controller;
 
 import com.patientpal.backend.notification.service.NotificationService;
+import jakarta.servlet.http.HttpServletResponse;
+import java.net.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
@@ -24,7 +26,10 @@ public class NotificationController {
 
     @GetMapping(value = "/subscribe", produces = "text/event-stream")
     public SseEmitter subscribe(@AuthenticationPrincipal User currentMember,
-                                @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+                                @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId,
+                                HttpServletResponse response) {
+        response.setHeader("Connection", "keep-alive");
+        response.setHeader("Cache-Control", "no-cache");
         return notificationService.subscribe(currentMember.getUsername(), lastEventId);
     }
 
