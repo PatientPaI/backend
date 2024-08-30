@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class MessageCreateRequest {
 
-    private UUID messageId;
+    private String messageId;
     private String content;
     private MessageType messageType;
     private Long chatId;
@@ -21,7 +21,7 @@ public class MessageCreateRequest {
 
     public Message toEntity() {
        return Message.builder()
-               .id(messageId)
+               .id(UUID.fromString(messageId))
                .chatId(this.chatId)
                .senderId(this.senderId)
                .messageType(this.messageType)

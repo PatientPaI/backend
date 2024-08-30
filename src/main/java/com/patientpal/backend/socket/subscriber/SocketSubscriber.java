@@ -2,8 +2,8 @@ package com.patientpal.backend.socket.subscriber;
 
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
 import com.patientpal.backend.chat.dto.MessageType;
-import com.patientpal.backend.socket.dto.SocketDirectMessage;
 import com.patientpal.backend.chat.service.MessageService;
+import com.patientpal.backend.socket.dto.SocketDirectMessage;
 import com.patientpal.backend.socket.publisher.SocketPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
