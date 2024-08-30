@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -54,9 +55,11 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
     @OneToMany(mappedBy = "requestMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> requestedMatches = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
@@ -87,9 +90,11 @@ public class Member extends BaseTimeEntity {
 
     private int viewCounts;
 
+    @Builder.Default
     @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reviews> givenReviews = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reviews> receivedReviews = new ArrayList<>();
   
@@ -98,6 +103,10 @@ public class Member extends BaseTimeEntity {
     public LocalDateTime wantCareEndDate;
 
     private int experienceYears;
+
+    private float rating;
+
+    private int reviewCount;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -179,6 +188,21 @@ public class Member extends BaseTimeEntity {
 
     public void changeViewCount(Long value) {
         this.viewCounts = Math.toIntExact(value);
+    }
+
+
+    public void addReviewRating(final float newRating) {
+        float totalRating = this.rating * this.reviewCount;
+        this.reviewCount++;
+        this.rating = (totalRating + newRating) / this.reviewCount;
+    }
+
+    public void addReview(Reviews review) {
+        if (this.receivedReviews == null) {
+            this.receivedReviews = new ArrayList<>();
+        }
+        this.receivedReviews.add(review);
+        review.setReviewed(this);
     }
 
     @Override
