@@ -98,12 +98,4 @@ public class PostService {
         return postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.POST_NOT_FOUND));
     }
-
-    @Transactional
-    public int updateView(Long id){
-        return postRepository.updateView(id);
-    }
-
-    // public Post getPost(Long id) {
-    // }
 }
