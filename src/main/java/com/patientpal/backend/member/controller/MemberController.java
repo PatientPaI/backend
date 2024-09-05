@@ -16,6 +16,7 @@ import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.service.PatientService;
 import java.util.List;
 import java.util.stream.Collectors;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,16 +43,22 @@ public class MemberController {
         if (member.getRole() == Role.USER) {
             Patient patient = patientService.getPatientByMemberId(member.getId());
             return ResponseEntity.status(HttpStatus.OK).body(
-                    PatientCompleteProfileResponse.of(patient.getId(), patient.getName(), patient.getAge(), patient.getContact(), patient.getGender(),
-                            patient.getAddress(), patient.getIsNok(), patient.getNokName(), patient.getNokContact(), patient.getRealCarePlace(), patient.getPatientSignificant(),
-                            patient.getCareRequirements(), patient.getIsCompleteProfile(), patient.getIsProfilePublic(), patient.getProfileImageUrl(), patient.getViewCounts(),
+                    PatientCompleteProfileResponse.of(patient.getId(), patient.getName(), patient.getAge(),
+                            patient.getContact(), patient.getGender(),
+                            patient.getAddress(), patient.getIsNok(), patient.getNokName(), patient.getNokContact(),
+                            patient.getRealCarePlace(), patient.getPatientSignificant(),
+                            patient.getCareRequirements(), patient.getIsCompleteProfile(), patient.getIsProfilePublic(),
+                            patient.getProfileImageUrl(), patient.getViewCounts(),
                             patient.getWantCareStartDate(), patient.getWantCareEndDate()));
         } else if (member.getRole() == Role.CAREGIVER) {
             Caregiver caregiver = caregiverService.getCaregiverByMemberId(member.getId());
             return ResponseEntity.status(HttpStatus.OK).body(
-                    CaregiverCompleteProfileResponse.of(caregiver.getId(), caregiver.getName(), caregiver.getAge(), caregiver.getContact(), caregiver.getGender(), caregiver.getAddress(),
-                            caregiver.getRating(), caregiver.getExperienceYears(), caregiver.getSpecialization(), caregiver.getCaregiverSignificant(), caregiver.getIsCompleteProfile(),
-                            caregiver.getIsProfilePublic(), caregiver.getProfileImageUrl(), caregiver.getViewCounts(), caregiver.getWantCareStartDate(), caregiver.getWantCareEndDate()));
+                    CaregiverCompleteProfileResponse.of(caregiver.getId(), caregiver.getName(), caregiver.getAge(),
+                            caregiver.getContact(), caregiver.getGender(), caregiver.getAddress(),
+                            caregiver.getRating(), caregiver.getExperienceYears(), caregiver.getSpecialization(),
+                            caregiver.getCaregiverSignificant(), caregiver.getIsCompleteProfile(),
+                            caregiver.getIsProfilePublic(), caregiver.getProfileImageUrl(), caregiver.getViewCounts(),
+                            caregiver.getWantCareStartDate(), caregiver.getWantCareEndDate()));
         }
         throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
     }
@@ -68,8 +75,11 @@ public class MemberController {
     }
 
     @GetMapping
-    public List<MemberDetailResponse> list(@RequestParam("memberIds") List<Long> memberIds) {
-        List<Member> members =  memberService.getMembers(memberIds);
+    public List<MemberDetailResponse> list(@RequestParam(value = "memberIds", required = false) @Nullable List<Long> memberIds) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            return List.of();
+        }
+        List<Member> members = memberService.getMembers(memberIds);
         return members.stream()
                 .map(MemberDetailResponse::of)
                 .collect(Collectors.toList());
