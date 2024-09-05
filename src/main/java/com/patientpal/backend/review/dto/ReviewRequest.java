@@ -1,34 +1,33 @@
 package com.patientpal.backend.review.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.patientpal.backend.member.domain.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CreateReviewRequest {
+public class ReviewRequest {
 
     @NotNull
-    private Long matchingId;
+    private Member reviewer;
 
     @NotNull
-    private String reviewedName;
+    private Member reviewed;
 
-    @Min(1)
-    @Max(5)
+    @Size(min = 1, max = 5)
     private int starRating;
 
     @NotBlank
     private String content;
 
     @Builder
-    public CreateReviewRequest(Long matchingId, String reviewedName, int starRating, String content) {
-        this.matchingId = matchingId;
-        this.reviewedName = reviewedName;
+    public ReviewRequest(Member reviewer, Member reviewed, int starRating, String content) {
+        this.reviewer = reviewer;
+        this.reviewed = reviewed;
         this.starRating = starRating;
         this.content = content;
     }

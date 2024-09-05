@@ -12,10 +12,10 @@ public class CaregiverRankingResponse {
     private Long id;
     private String name;
     private String address;
-    private float rating;
+    private double rating;
 
     @Builder
-    public CaregiverRankingResponse(Long id, String name, String address, float rating) {
+    public CaregiverRankingResponse(Long id, String name, String address, double rating) {
         this.id = id;
         this.name = name;
         this.address = address;
