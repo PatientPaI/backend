@@ -11,7 +11,7 @@ public interface CaregiverRepository extends JpaRepository<Caregiver, Long>, Car
 
     Optional<Caregiver> findByUsername(String username);
 
-    @Query("select c from caregivers c where c.address.addr = :region")
+    @Query("SELECT c FROM Caregivers c WHERE c.address.addr LIKE %:region%")
     List<Caregiver> findByRegion(@Param("region") String region);
 
     @Query("SELECT c FROM caregivers c WHERE SUBSTRING(c.address.addr, 1, 2) = :city AND c.isProfilePublic ORDER BY c.rating DESC, c.viewCounts DESC")

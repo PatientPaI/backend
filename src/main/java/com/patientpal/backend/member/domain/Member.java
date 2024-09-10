@@ -99,6 +99,10 @@ public class Member extends BaseTimeEntity {
 
     private int experienceYears;
 
+    private float rating;
+
+    private int reviewCount;
+
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
         this.password = password;
@@ -196,5 +200,19 @@ public class Member extends BaseTimeEntity {
     @Override
     public int hashCode() {
         return Objects.hash(getId());
+    }
+
+    public void addReview(Reviews review) {
+        if (this.receivedReviews == null) {
+            this.receivedReviews = new ArrayList<>();
+        }
+        this.receivedReviews.add(review);
+        review.setReviewed(this);
+    }
+
+    public void addReviewRating(final float newRating) {
+        float totalRating = this.rating * this.reviewCount;
+        this.reviewCount++;
+        this.rating = (totalRating + newRating) / this.reviewCount;
     }
 }
