@@ -70,6 +70,7 @@ public class ReviewService {
     public Page<ReviewResponse> getReviewsWrittenByUser(String username, Pageable pageable) {
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
         Page<Reviews> reviews = reviewRepository.findByReviewerId(reviewer.getId(), pageable);
+
         return reviews.map(ReviewResponse::fromReview);
     }
 
