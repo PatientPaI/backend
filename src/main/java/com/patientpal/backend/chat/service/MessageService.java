@@ -3,7 +3,6 @@ package com.patientpal.backend.chat.service;
 import com.patientpal.backend.chat.domain.Message;
 import com.patientpal.backend.chat.dto.MessageCreateRequest;
 import com.patientpal.backend.chat.dto.MessageRequestParam;
-import com.patientpal.backend.chat.dto.MessageType;
 import com.patientpal.backend.chat.repository.ChatRepository;
 import com.patientpal.backend.chat.repository.MessageRepository;
 import com.patientpal.backend.member.domain.Member;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +30,11 @@ public class MessageService {
         final Long chatId = request.getChatId();
         final String content = request.getContent();
         final Long senderId = request.getSenderId();
-        final UUID messageId = request.getMessageId();
+        final String messageId = request.getMessageId();
 
         chatService.getChat(chatId);
 
-        Message message = Message.builder()
-                .id(messageId)
-                .messageType(MessageType.CHAT)
-                .content(content)
-                .senderId(senderId)
-                .chatId(chatId)
-                .build();
+        Message message = request.toEntity();
 
         var entity = messageRepository.save(message);
 
