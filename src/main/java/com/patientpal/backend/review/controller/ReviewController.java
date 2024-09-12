@@ -64,7 +64,7 @@ public class ReviewController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable pageable = PageRequest.of(page, size);
         Page<ReviewResponse> reviews = reviewService.getAllReviews(pageable);
         return ResponseEntity.ok(reviews);
     }
@@ -78,7 +78,7 @@ public class ReviewController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable pageable = PageRequest.of(page, size);
         Page<ReviewResponse> reviews = reviewService.getReviewsWrittenByUser(userDetails.getUsername(), pageable);
         return ResponseEntity.ok(reviews);
     }
@@ -92,7 +92,7 @@ public class ReviewController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable pageable = PageRequest.of(page, size);
         Page<ReviewResponse> reviews = reviewService.getReviewsReceivedByUser(userDetails.getUsername(), pageable);
         return ResponseEntity.ok(reviews);
     }

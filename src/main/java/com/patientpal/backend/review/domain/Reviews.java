@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Reviews extends BaseEntity {
+public class Reviews{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
