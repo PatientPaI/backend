@@ -1,28 +1,7 @@
 package com.patientpal.backend.auth.controller;
 
-import static com.patientpal.backend.common.exception.ErrorCode.*;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
+import static com.patientpal.backend.common.exception.ErrorCode.INVALID_USERNAME;
+import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
 
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
@@ -38,7 +17,6 @@ import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpResponse;
 import com.patientpal.backend.security.oauth.userinfo.CustomOauth2UserInfo;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,8 +24,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Tag(name = "인증", description = "인증 API")
 @RestController
@@ -150,25 +146,6 @@ public class OAuth2LoginController {
         Oauth2SignUpResponse response = createOauth2SignUpResponse(session);
         return ResponseEntity.ok(response);
     }
-
-    // @PostMapping("/oauth2/register-or-login")
-    // @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
-    // @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
-    //         content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
-    // public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(@Valid @RequestBody Oauth2SignUpRequest signupForm,
-    //                                                                 HttpSession session) {
-    //     String username = getUsername(signupForm, session);
-    //     Member member = memberService.getUserByUsername(username);
-    //
-    //     if(member != null) {
-    //         return createLoginResponse(signupForm, session, member);
-    //     }
-    //
-    //     Long newMemberId = memberService.saveSocialUser(signupForm);
-    //     Member newMember = memberService.getUserById(newMemberId);
-    //
-    //     return createSignupResponse(signupForm, session, newMember);
-    // }
 
     @PostMapping("/oauth2/register-or-login")
     @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
