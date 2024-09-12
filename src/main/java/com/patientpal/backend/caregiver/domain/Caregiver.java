@@ -21,16 +21,15 @@ public class Caregiver extends Member {
 
     private float rating;
 
-    private int experienceYears;
-
     private String specialization;
 
     @Lob
     private String caregiverSignificant;
 
-    public Caregiver(float rating, int experienceYears, String specialization, String caregiverSignificant) {
+    // private int reviewCount;
+
+    public Caregiver(float rating, String specialization, String caregiverSignificant) {
         this.rating = rating;
-        this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
@@ -41,8 +40,8 @@ public class Caregiver extends Member {
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
         updateAge(age);
+        updateExperienceYears(experienceYears);
         this.rating = rate;
-        this.experienceYears = experienceYears;
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
@@ -59,9 +58,15 @@ public class Caregiver extends Member {
         updateIsCompleteProfile();
         updateWantCareStartDate(wantCareStartDate);
         updateWantCareEndDate(wantCareEndDate);
-        this.experienceYears = experienceYears;
+        updateExperienceYears(experienceYears);
         this.specialization = specialization;
         this.caregiverSignificant = caregiverSignificant;
     }
 
+    public void addReviewRating(final float newRating) {
+        int reviewCount = this.getReceivedReviews().size();
+        float totalRating = this.rating * reviewCount;
+        reviewCount++;
+        this.rating = (totalRating + newRating) / reviewCount;
+    }
 }

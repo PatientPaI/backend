@@ -26,6 +26,7 @@ import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.matching.domain.Match;
 import com.patientpal.backend.matching.domain.MatchRepository;
+import com.patientpal.backend.matching.domain.MatchStatus;
 import com.patientpal.backend.matching.dto.request.CreateMatchCaregiverRequest;
 import com.patientpal.backend.matching.dto.request.CreateMatchPatientRequest;
 import com.patientpal.backend.matching.dto.response.CreateMatchResponse;
@@ -119,7 +120,6 @@ public class MatchServiceImpl implements MatchService {
         return createCaregiverMatch(caregiver, patient, createMatchRequest);
     }
 
-
     private MatchResponse createPatientMatch(Patient patient, Caregiver caregiver,
                                              CreateMatchPatientRequest createMatchRequest) {
         Match match = matchRepository.save(
@@ -143,10 +143,25 @@ public class MatchServiceImpl implements MatchService {
     public MatchResponse getMatch(Long matchId, String username) {
         Match findMatch = getMatchById(matchId);
         Member currentMember = getMemberByUsername(username);
-        validateMatchAuthorization(findMatch, username);
+        validateMatchAuthorization(findMatch, currentMember);
         validateIsCanceled(findMatch);
         setMatchReadStatus(findMatch, currentMember);
         return MatchResponse.of(findMatch);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public MatchResponse getMatchWithMember(Long matchId, String username) {
+        Match findMatch = getMatchById(matchId);
+        Member currentMember = getMemberByUsername(username);
+
+        MatchResponse matchResponse = MatchResponse.of(findMatch);
+
+        validateMatchAuthorization(findMatch, currentMember);
+        validateIsCanceled(findMatch);
+        setMatchReadStatus(findMatch, currentMember);
+
+        return matchResponse;
     }
 
     private Match getMatchById(Long matchId) {

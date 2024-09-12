@@ -4,6 +4,7 @@ import com.patientpal.backend.chat.domain.Message;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +15,7 @@ public class MessageCreateResponse {
     private Long chatId;
     private Long senderId;
     private MessageType messageType;
-    private Long messageId;
+    private UUID messageId;
 
     public MessageCreateResponse(Message message) {
         this.content = message.getContent();

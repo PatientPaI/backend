@@ -2,6 +2,7 @@ package com.patientpal.backend.patient.repository;
 
 import static com.patientpal.backend.caregiver.domain.QCaregiver.caregiver;
 import static com.patientpal.backend.member.domain.QMember.member;
+import static com.patientpal.backend.patient.domain.QPatient.patient;
 import static com.querydsl.core.types.Order.ASC;
 import static com.querydsl.core.types.Order.DESC;
 
@@ -10,6 +11,8 @@ import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.dto.response.QCaregiverProfileResponse;
 import com.patientpal.backend.member.domain.Gender;
 import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
+import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.dto.response.QPatientProfileResponse;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -46,9 +49,9 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
     // 정렬 - 최신순(default), 후기순, 인기순(조회순), 별점순
     @Override
     public Slice<CaregiverProfileResponse> searchPageOrderByDefault(ProfileSearchCondition condition, Long lastIndex, LocalDateTime lastProfilePublicTime, Pageable pageable) {
-        log.info("Search Condition Name={}, age={}, gender={}, address={}",
+        log.info("Search Condition Name={}, age={}, gender={}, address={}, experienceYearsGoe={}",
                 condition.getName(), condition.getAgeLoe(),
-                condition.getGender(), condition.getAddr());
+                condition.getGender(), condition.getAddr(), condition.getExperienceYearsGoe());
         log.info("lastIndex={}", lastIndex);
 
         List<Long> memberIds = queryFactory
@@ -58,6 +61,7 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
                         addressEq(condition.getAddr()),
                         nameEq(condition.getName()),
                         genderEq(condition.getGender()),
+                        experienceYearsGoe(condition.getExperienceYearsGoe()),
                         ageLoe(condition.getAgeLoe()),
                         member.isProfilePublic,
                         cursorProfilePublicTimeAndCaregiverId(lastProfilePublicTime, lastIndex)
@@ -117,6 +121,7 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
                         nameEq(condition.getName()),
                         genderEq(condition.getGender()),
                         ageLoe(condition.getAgeLoe()),
+                        experienceYearsGoe(condition.getExperienceYearsGoe()),
                         member.isProfilePublic,
                         cursorViewCountsAndCaregiverId(lastViewCounts, lastIndex)
                 )
@@ -149,6 +154,53 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
         return new SliceImpl<>(content, pageable, hasNext);
     }
 
+    @Override
+    public Slice<CaregiverProfileResponse> searchCaregiverProfilesByReviewCounts(ProfileSearchCondition condition,
+                                                                             Long lastIndex, Integer lastReviewCounts, Pageable pageable) {
+        log.info("Search Condition Name={}, age={}, gender={}, address={}",
+                condition.getName(), condition.getAgeLoe(),
+                condition.getGender(), condition.getAddr());
+        log.info("lastIndex={}, lastReviewCounts={}", lastIndex, lastReviewCounts);
+
+        List<Long> memberIds = queryFactory
+                .select(member.id)
+                .from(member)
+                .where(
+                        addressEq(condition.getAddr()),
+                        nameEq(condition.getName()),
+                        genderEq(condition.getGender()),
+                        ageLoe(condition.getAgeLoe()),
+                        member.isProfilePublic,
+                        cursorReviewCountsAndCaregiverId(lastReviewCounts, lastIndex)
+                )
+                .orderBy(member.receivedReviews.size().desc(), member.id.asc())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        List<CaregiverProfileResponse> content = queryFactory
+                .select(new QCaregiverProfileResponse(
+                        caregiver.id,
+                        caregiver.name,
+                        caregiver.age,
+                        caregiver.gender,
+                        caregiver.address,
+                        caregiver.rating,
+                        caregiver.experienceYears,
+                        caregiver.specialization,
+                        caregiver.profileImageUrl,
+                        caregiver.viewCounts))
+                .from(caregiver)
+                .where(caregiver.id.in(memberIds))
+                .orderBy(caregiver.receivedReviews.size().desc(), caregiver.id.asc())
+                .fetch();
+
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content.remove(pageable.getPageSize());
+        }
+
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
     // @Override
     // public Slice<CaregiverProfileResponse> searchCaregiverProfilesByReviewCounts(ProfileSearchCondition condition,
     //                                                                              Long lastIndex, Integer lastReviewCounts,
@@ -204,6 +256,16 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
                 .or(member.viewCounts.lt(lastViewCounts));
     }
 
+    private BooleanExpression cursorReviewCountsAndCaregiverId(Integer lastReviewCounts, Long lastIndex) {
+        if (lastReviewCounts == null || lastIndex == null) {
+            return null;
+        }
+
+        return member.receivedReviews.size().eq(lastReviewCounts)
+                .and(member.id.gt(lastIndex))
+                .or(member.receivedReviews.size().lt(lastReviewCounts));
+    }
+
     private List<OrderSpecifier> getOrderSpecifier(Sort sort) {
         List<OrderSpecifier> list = new ArrayList<>();
         sort.stream().forEach(order -> {
@@ -223,16 +285,16 @@ public class PatientRepositoryImpl implements PatientProfileSearchRepositoryCust
         return gender == null ? null : member.gender.eq(gender);
     }
 
-    // private BooleanExpression experienceYearsGoe(Integer experienceYears) {
-    //     return experienceYears == null ? null : caregiver.experienceYears.goe(experienceYears);
-    // }
+    private BooleanExpression experienceYearsGoe(Integer experienceYears) {
+        return experienceYears == null ? null : member.experienceYears.goe(experienceYears);
+    }
 
     private BooleanExpression ageLoe(final Integer ageLoe) {
         return ageLoe == null ? null : member.age.loe(ageLoe);
     }
 
     private BooleanExpression addressEq(String address) {
-        return address == null ? null : member.address.addr.eq(address);
+        return address == null ? null : member.address.addr.like(address + "%");
     }
 
     private BooleanExpression nameEq(String name) {

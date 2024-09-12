@@ -1,6 +1,6 @@
 package com.patientpal.backend.socket.publisher;
 
-import com.patientpal.backend.chat.dto.SocketDirectMessage;
+import com.patientpal.backend.socket.dto.SocketDirectMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

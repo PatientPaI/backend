@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MessageCreateRequest {
 
+    private String messageId;
     private String content;
     private MessageType messageType;
     private Long chatId;
@@ -19,6 +21,7 @@ public class MessageCreateRequest {
 
     public Message toEntity() {
        return Message.builder()
+               .id(UUID.fromString(messageId))
                .chatId(this.chatId)
                .senderId(this.senderId)
                .messageType(this.messageType)

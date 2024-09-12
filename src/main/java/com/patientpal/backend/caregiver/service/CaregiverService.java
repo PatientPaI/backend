@@ -6,25 +6,20 @@ import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileCreateRequest;
 import com.patientpal.backend.caregiver.dto.request.CaregiverProfileUpdateRequest;
 import com.patientpal.backend.caregiver.dto.response.CaregiverProfileDetailResponse;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileListResponse;
-import com.patientpal.backend.caregiver.dto.response.CaregiverProfileResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
 import com.patientpal.backend.common.exception.AuthorizationException;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.common.querydsl.ProfileSearchCondition;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.patient.dto.response.PatientProfileListResponse;
-import com.patientpal.backend.patient.dto.response.PatientProfileResponse;
+import com.patientpal.backend.patient.domain.Patient;
+import com.patientpal.backend.patient.dto.response.PatientProfileDetailResponse;
+import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.view.ViewService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CaregiverService {
 
     private final CaregiverRepository caregiverRepository;
+    private final PatientRepository patientRepository;
     private final MemberRepository memberRepository;
     private final ViewService viewService;
 
@@ -57,19 +53,26 @@ public class CaregiverService {
                 profileImageUrl);
         caregiver.setIsCompleteProfile(true);
         log.info("프로필 등록 성공: ID={}, NAME={}", caregiver.getId(), caregiver.getName());
-        return CaregiverProfileDetailResponse.of(caregiver, 0);
+        return CaregiverProfileDetailResponse.of(caregiver);
     }
 
-    public CaregiverProfileDetailResponse getProfile(String username, Long memberId) {
-        Caregiver caregiver = getCaregiverByMemberId(memberId);
-        // if (!member.getIsCompleteProfile()) {
-        //     throw new IllegalArgumentException("프로필 작성을 먼저 완료해야 다른 회원의 프로필을 볼 수 있습니다.");
-        // }
-        if (!username.equals(caregiver.getUsername())) {
+    public CaregiverProfileDetailResponse getMyProfile(String username) {
+        return CaregiverProfileDetailResponse.of(getCaregiverByMemberId(getMember(username).getId()));
+    }
+
+    public PatientProfileDetailResponse getOtherProfile(String username, Long memberId) {
+        Member currentMember = getMember(username);
+        Patient patient = getPatientByMemberId(memberId);
+        if (!currentMember.getIsCompleteProfile()) {
+            throw new BusinessException(ErrorCode.PROFILE_NOT_COMPLETED);
+        }
+        if (!patient.getIsProfilePublic()) {
+            throw new BusinessException(ErrorCode.PROFILE_PRIVATE);
+        }
+        if (!username.equals(patient.getUsername())) {
             viewService.addProfileView(memberId, username);
         }
-        long profileViewCount = viewService.getProfileViewCount(memberId);
-        return CaregiverProfileDetailResponse.of(caregiver, profileViewCount);
+        return PatientProfileDetailResponse.of(patient);
     }
 
     @Transactional
@@ -123,14 +126,6 @@ public class CaregiverService {
         caregiver.setIsProfilePublic(false);
     }
 
-    private Member getMember(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
-    }
-
-    private Caregiver getCaregiverByMemberId(Long memberId) {
-        return caregiverRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
-    }
-
     @Transactional
     public void deleteCaregiverProfileImage(String username, Long memberId) {
         Caregiver caregiver = getCaregiverByMemberId(memberId);
@@ -138,5 +133,18 @@ public class CaregiverService {
             throw new AuthorizationException(ErrorCode.AUTHORIZATION_FAILED);
         }
         caregiver.deleteProfileImage();
+    }
+
+    private Member getMember(String username) {
+        return memberRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST, username));
+    }
+
+    public Caregiver getCaregiverByMemberId(Long memberId) {
+        return caregiverRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.CAREGIVER_NOT_EXIST));
+    }
+
+    public Patient getPatientByMemberId(Long memberId) {
+        return patientRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PATIENT_NOT_EXIST));
     }
 }

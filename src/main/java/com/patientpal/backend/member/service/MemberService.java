@@ -47,10 +47,9 @@ public class MemberService {
                         .build();
                 caregiver.encodePassword(passwordEncoder);
                 return caregiverRepository.save(caregiver).getId();
-            }
-            else if (request.getRole() == Role.USER) {
-                Patient patient = Patient.builder().
-                        username(request.getUsername())
+            } else if (request.getRole() == Role.USER) {
+                Patient patient = Patient.builder()
+                        .username(request.getUsername())
                         .password(request.getPassword())
                         .role(request.getRole())
                         .provider(Provider.LOCAL)
@@ -66,6 +65,7 @@ public class MemberService {
                         .role(Role.ADMIN)
                         .provider(Provider.LOCAL)
                         .build();
+                member.encodePassword(passwordEncoder);
                 return memberRepository.save(member).getId();
             }
 
@@ -80,10 +80,10 @@ public class MemberService {
         try {
             String username = request.getUsername();
 
+
             if (request.getRole() == Role.CAREGIVER) {
                 Caregiver caregiver = Caregiver.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -91,7 +91,6 @@ public class MemberService {
             } else if (request.getRole() == Role.USER) {
                 Patient patient = Patient.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -99,7 +98,6 @@ public class MemberService {
             } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
                         .username(request.getUsername())
-                        .password(request.getPassword())
                         .role(Role.ADMIN)
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -129,7 +127,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public boolean existsByUsername(String username) {
+    public Boolean existsByUsername(String username) {
         return memberRepository.existsByUsername(username);
     }
 
@@ -152,4 +150,13 @@ public class MemberService {
         }
     }
 
+    public List<Member> getMembers(List<Long> memberIds) {
+        return memberRepository.findAllByIds(memberIds);
+    }
+
+    public Member getUserById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST,
+                        "Member not found with id: " + id));
+    }
 }

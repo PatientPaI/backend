@@ -1,8 +1,13 @@
 package com.patientpal.backend.chat.domain;
 
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
 import com.patientpal.backend.chat.dto.MessageType;
 import com.patientpal.backend.common.BaseTimeEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,12 +20,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Entity
-@Table(name = "MESSAGES")
+@Table(name = "messages")
 public class Message extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private MessageType messageType;
 
@@ -29,4 +33,8 @@ public class Message extends BaseTimeEntity {
     private Long senderId;
 
     private Long chatId;
+
+    private UUID generateId() {
+        return Generators.timeBasedGenerator(EthernetAddress.fromInterface()).generate();
+    }
 }

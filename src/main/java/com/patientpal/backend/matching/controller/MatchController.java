@@ -3,7 +3,6 @@ package com.patientpal.backend.matching.controller;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.lowagie.text.DocumentException;
 import com.patientpal.backend.common.exception.ErrorResponse;
 import com.patientpal.backend.matching.dto.request.CreateMatchCaregiverRequest;
 import com.patientpal.backend.matching.dto.request.CreateMatchPatientRequest;
@@ -13,18 +12,21 @@ import com.patientpal.backend.matching.dto.response.RequestMatchListResponse;
 import com.patientpal.backend.matching.dto.response.MatchResponse;
 import com.patientpal.backend.matching.service.MatchService;
 import com.patientpal.backend.matching.service.PdfService;
+import com.patientpal.backend.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.ByteArrayInputStream;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +39,7 @@ public class MatchController {
 
     private final MatchService matchService;
     private final PdfService pdfService;
+    private final MemberService memberService;
 
     @Operation(
             summary = "계약서 생성위한 요청 정보 조회",
@@ -206,18 +209,21 @@ public class MatchController {
     )
     @GetMapping("/{matchId}/pdf")
     public ResponseEntity<InputStreamResource> downloadMatchPdf(@AuthenticationPrincipal User currentMember,
-                                                                @PathVariable Long matchId) throws DocumentException {
-        MatchResponse matchResponse = matchService.getMatch(matchId, currentMember.getUsername());
-        ByteArrayInputStream bis = pdfService.generateMatchPdf(matchResponse);
+                                                                @PathVariable Long matchId) {
+        MatchResponse matchResponse = matchService.getMatchWithMember(matchId, currentMember.getUsername());
+        String authorities = currentMember.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        ByteArrayInputStream pdfStream = pdfService.generateMatchPdf(matchResponse, authorities);
 
         HttpHeaders headers = new HttpHeaders();
-        //TODO 밑 inline 헤더가 제대로 동작하는지 테스트 해봐야 함.
-        headers.add("Content-Disposition", "inline; filename=" + matchResponse.getRequestMemberName() + ".pdf");
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + matchResponse.getRequestMemberName() + ".pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
 
         return ResponseEntity
                 .ok()
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(bis));
+                .body(new InputStreamResource(pdfStream));
     }
 }

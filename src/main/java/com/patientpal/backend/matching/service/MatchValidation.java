@@ -32,9 +32,9 @@ public final class MatchValidation {
         }
     }
 
-    public static void validateMatchAuthorization(Match findMatch, String username) {
-        if (!findMatch.getRequestMember().getUsername().equals(username) &&
-                !findMatch.getReceivedMember().getUsername().equals(username)) {
+    public static void validateMatchAuthorization(Match findMatch, Member member) {
+        if (!findMatch.getRequestMember().equals(member) &&
+                !findMatch.getReceivedMember().equals(member)) {
             throw new AuthorizationException(AUTHORIZATION_FAILED);
         }
     }

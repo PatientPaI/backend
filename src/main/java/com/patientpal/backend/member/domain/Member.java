@@ -2,6 +2,7 @@ package com.patientpal.backend.member.domain;
 
 import com.patientpal.backend.common.BaseTimeEntity;
 import com.patientpal.backend.matching.domain.Match;
+import com.patientpal.backend.review.domain.Reviews;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
@@ -14,17 +15,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -57,13 +55,15 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Builder.Default
     @OneToMany(mappedBy = "requestMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> requestedMatches = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "receivedMember", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Match> receivedMatches = new ArrayList<>();
 
-    private Integer age;
+    private int age;
 
     @Column(unique = true)
     private String contact;
@@ -89,6 +89,24 @@ public class Member extends BaseTimeEntity {
     private String profileImageUrl;
 
     private int viewCounts;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reviews> givenReviews = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "reviewed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reviews> receivedReviews = new ArrayList<>();
+  
+    public LocalDateTime wantCareStartDate;
+
+    public LocalDateTime wantCareEndDate;
+
+    private int experienceYears;
+
+    private float rating;
+
+    private int reviewCount;
 
     public Member(String username, String password, String contact, Provider provider, Role role) {
         this.username = username;
@@ -159,6 +177,11 @@ public class Member extends BaseTimeEntity {
         this.wantCareEndDate = wantCareEndDate;
     }
 
+
+    public void updateExperienceYears(final int experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
     public static boolean isNotOwner(final String username, final Member member) {
         return !Objects.equals(username, member.getUsername());
     }
@@ -167,4 +190,35 @@ public class Member extends BaseTimeEntity {
         this.viewCounts = Math.toIntExact(value);
     }
 
+
+    public void addReviewRating(final float newRating) {
+        float totalRating = this.rating * this.reviewCount;
+        this.reviewCount++;
+        this.rating = (totalRating + newRating) / this.reviewCount;
+    }
+
+    public void addReview(Reviews review) {
+        if (this.receivedReviews == null) {
+            this.receivedReviews = new ArrayList<>();
+        }
+        this.receivedReviews.add(review);
+        review.setReviewed(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Member member)) {
+            return false;
+        }
+
+        return id != null ? id.equals(member.getId()) : member.getId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
 }
