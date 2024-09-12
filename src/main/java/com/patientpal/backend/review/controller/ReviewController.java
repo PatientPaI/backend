@@ -1,12 +1,21 @@
 package com.patientpal.backend.review.controller;
 
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.CREATED;
 
+import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
+import com.patientpal.backend.review.dto.CreateReviewRequest;
+import com.patientpal.backend.review.dto.ReviewResponse;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
+import com.patientpal.backend.review.service.ReviewService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,16 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
-import com.patientpal.backend.review.dto.CreateReviewRequest;
-import com.patientpal.backend.review.dto.ReviewResponse;
-import com.patientpal.backend.review.dto.UpdateReviewRequest;
-import com.patientpal.backend.review.service.ReviewService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/reviews")
