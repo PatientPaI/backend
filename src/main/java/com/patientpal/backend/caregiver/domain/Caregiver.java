@@ -26,7 +26,7 @@ public class Caregiver extends Member {
     @Lob
     private String caregiverSignificant;
 
-    private int reviewCount;
+    // private int reviewCount;
 
     public Caregiver(float rating, String specialization, String caregiverSignificant) {
         this.rating = rating;
@@ -64,8 +64,9 @@ public class Caregiver extends Member {
     }
 
     public void addReviewRating(final float newRating) {
-        float totalRating = this.rating * this.reviewCount;
-        this.reviewCount++;
-        this.rating = (totalRating + newRating) / this.reviewCount;
+        int reviewCount = this.getReceivedReviews().size();
+        float totalRating = this.rating * reviewCount;
+        reviewCount++;
+        this.rating = (totalRating + newRating) / reviewCount;
     }
 }
