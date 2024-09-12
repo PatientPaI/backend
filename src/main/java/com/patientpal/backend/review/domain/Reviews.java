@@ -1,5 +1,6 @@
 package com.patientpal.backend.review.domain;
 
+import com.patientpal.backend.common.BaseEntity;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.UpdateReviewRequest;
 
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Reviews {
+public class Reviews extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

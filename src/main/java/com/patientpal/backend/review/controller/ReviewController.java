@@ -4,7 +4,9 @@ import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,7 +60,11 @@ public class ReviewController {
     @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @GetMapping
-    public ResponseEntity<Page<ReviewResponse>> getAllReviews(Pageable pageable) {
+    public ResponseEntity<Page<ReviewResponse>> getAllReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<ReviewResponse> reviews = reviewService.getAllReviews(pageable);
         return ResponseEntity.ok(reviews);
     }
@@ -67,7 +73,12 @@ public class ReviewController {
     @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @GetMapping("/written")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsWrittenByUser(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+    public ResponseEntity<Page<ReviewResponse>> getReviewsWrittenByUser(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<ReviewResponse> reviews = reviewService.getReviewsWrittenByUser(userDetails.getUsername(), pageable);
         return ResponseEntity.ok(reviews);
     }
@@ -76,7 +87,12 @@ public class ReviewController {
     @ApiResponse(responseCode = "200", description = "리뷰 조회 성공",
             content = @Content(schema = @Schema(implementation = ReviewResponse.class)))
     @GetMapping("/received")
-    public ResponseEntity<Page<ReviewResponse>> getReviewsReceivedByUser(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+    public ResponseEntity<Page<ReviewResponse>> getReviewsReceivedByUser(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<ReviewResponse> reviews = reviewService.getReviewsReceivedByUser(userDetails.getUsername(), pageable);
         return ResponseEntity.ok(reviews);
     }
