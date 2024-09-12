@@ -8,8 +8,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,12 +18,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
@@ -38,7 +36,6 @@ import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpResponse;
 import com.patientpal.backend.security.oauth.userinfo.CustomOauth2UserInfo;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,7 +43,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "인증", description = "인증 API")
@@ -155,19 +151,23 @@ public class OAuth2LoginController {
     @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
     @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
             content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
-    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(@Valid @RequestBody Oauth2SignUpRequest signupForm,
-                                                                    HttpSession session) {
-        String username = getUsername(signupForm, session);
-        Member member = memberService.getUserByUsername(username);
+    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+        String provider = (String) session.getAttribute("provider");
 
-        if(member != null) {
-            return createLoginResponse(signupForm, session, member);
+        Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
+        if(optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            return createLoginResponse(session, member);
         }
 
+        Oauth2SignUpRequest signupForm = new Oauth2SignUpRequest(email, name, provider, username);
         Long newMemberId = memberService.saveSocialUser(signupForm);
         Member newMember = memberService.getUserById(newMemberId);
 
-        return createSignupResponse(signupForm, session, newMember);
+        return createSignupResponse(signupForm,session, newMember);
     }
 
     private ResponseEntity<Oauth2SignUpResponse> createSignupResponse(Oauth2SignUpRequest signupForm,
@@ -182,15 +182,15 @@ public class OAuth2LoginController {
         return ResponseEntity.created(URI.create("/api/v1/members/" + newMember.getId())).body(response);
     }
 
-    private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(Oauth2SignUpRequest signupForm,
-                                                                                       HttpSession session,
-                                                                                       Member member) {
-        String token = generateToken(member, signupForm.getProvider(), signupForm.getEmail(),
-                signupForm.getName());
+    private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(HttpSession session, Member member) {
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+        String provider = (String) session.getAttribute("provider");
+
+        String token = generateToken(member, provider, email, name);
         session.setAttribute("token", token);
 
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, signupForm.getEmail(),
-                signupForm.getName(), member.getRole().name(), signupForm.getProvider(), token);
+        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, email, name, member.getRole().name(), provider, token);
         return ResponseEntity.ok(response);
     }
 
