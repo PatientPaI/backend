@@ -151,23 +151,47 @@ public class OAuth2LoginController {
         return ResponseEntity.ok(response);
     }
 
+    // @PostMapping("/oauth2/register-or-login")
+    // @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
+    // @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
+    //         content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
+    // public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(@Valid @RequestBody Oauth2SignUpRequest signupForm,
+    //                                                                 HttpSession session) {
+    //     String username = getUsername(signupForm, session);
+    //     Member member = memberService.getUserByUsername(username);
+    //
+    //     if(member != null) {
+    //         return createLoginResponse(signupForm, session, member);
+    //     }
+    //
+    //     Long newMemberId = memberService.saveSocialUser(signupForm);
+    //     Member newMember = memberService.getUserById(newMemberId);
+    //
+    //     return createSignupResponse(signupForm, session, newMember);
+    // }
+
     @PostMapping("/oauth2/register-or-login")
     @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
     @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
             content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
-    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(@Valid @RequestBody Oauth2SignUpRequest signupForm,
-                                                                    HttpSession session) {
-        String username = getUsername(signupForm, session);
-        Member member = memberService.getUserByUsername(username);
+    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+        String provider = (String) session.getAttribute("provider");
 
+        // 이미 가입된 사용자 처리
+        Member member = memberService.getUserByUsername(username);
         if(member != null) {
-            return createLoginResponse(signupForm, session, member);
+            return createLoginResponse(session, member);
         }
 
+        // 신규 사용자 등록 처리
+        Oauth2SignUpRequest signupForm = new Oauth2SignUpRequest(email, name, provider, username);
         Long newMemberId = memberService.saveSocialUser(signupForm);
         Member newMember = memberService.getUserById(newMemberId);
 
-        return createSignupResponse(signupForm, session, newMember);
+        return createSignupResponse(signupForm,session, newMember);
     }
 
     private ResponseEntity<Oauth2SignUpResponse> createSignupResponse(Oauth2SignUpRequest signupForm,
@@ -182,15 +206,15 @@ public class OAuth2LoginController {
         return ResponseEntity.created(URI.create("/api/v1/members/" + newMember.getId())).body(response);
     }
 
-    private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(Oauth2SignUpRequest signupForm,
-                                                                                       HttpSession session,
-                                                                                       Member member) {
-        String token = generateToken(member, signupForm.getProvider(), signupForm.getEmail(),
-                signupForm.getName());
+    private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(HttpSession session, Member member) {
+        String email = (String) session.getAttribute("email");
+        String name = (String) session.getAttribute("name");
+        String provider = (String) session.getAttribute("provider");
+
+        String token = generateToken(member, provider, email, name);
         session.setAttribute("token", token);
 
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, signupForm.getEmail(),
-                signupForm.getName(), member.getRole().name(), signupForm.getProvider(), token);
+        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, email, name, member.getRole().name(), provider, token);
         return ResponseEntity.ok(response);
     }
 

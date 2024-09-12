@@ -80,10 +80,10 @@ public class MemberService {
         try {
             String username = request.getUsername();
 
+
             if (request.getRole() == Role.CAREGIVER) {
                 Caregiver caregiver = Caregiver.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -91,7 +91,6 @@ public class MemberService {
             } else if (request.getRole() == Role.USER) {
                 Patient patient = Patient.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -99,7 +98,6 @@ public class MemberService {
             } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
                         .username(request.getUsername())
-                        .password(request.getPassword())
                         .role(Role.ADMIN)
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();

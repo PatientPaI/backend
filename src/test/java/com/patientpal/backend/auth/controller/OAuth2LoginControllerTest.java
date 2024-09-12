@@ -292,6 +292,9 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
         void setUp() {
             this.session = new MockHttpSession();
             session.setAttribute("username", MemberFixture.DEFAULT_USERNAME);
+            session.setAttribute("email", "test@example.com");
+            session.setAttribute("name", "Test User");
+            session.setAttribute("provider", "google");
         }
 
         @Test
@@ -301,24 +304,13 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
 
             when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(existingMember);
 
-
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
-
-            Oauth2SignUpRequest validSignUpRequest = new Oauth2SignUpRequest(
-                    "test@example.com",
-                    "Test User",
-                    "password",
-                    Role.USER,
-                    "google",
-                    MemberFixture.DEFAULT_USERNAME
-            );
 
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validSignUpRequest)))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))
@@ -342,21 +334,16 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
 
-            Oauth2SignUpRequest validSignUpRequest = new Oauth2SignUpRequest(
-                    "test@example.com",
-                    "Test User",
-                    "password",
-                    Role.USER,
-                    "google",
-                    MemberFixture.DEFAULT_USERNAME
-            );
+            session.setAttribute("username", MemberFixture.DEFAULT_USERNAME);
+            session.setAttribute("email", "test@example.com");
+            session.setAttribute("name", "Test User");
+            session.setAttribute("provider", "google");
 
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validSignUpRequest)))
-                    .andExpect(status().isCreated())
+                            .contentType(MediaType.APPLICATION_JSON))  // Oauth2SignUpRequest는 제거
+                    .andExpect(status().isCreated())  // 상태코드 201(Created)을 기대
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))
                     .andExpect(jsonPath("$.role").value("USER"))

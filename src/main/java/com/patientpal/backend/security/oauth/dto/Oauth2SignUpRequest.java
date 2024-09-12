@@ -19,9 +19,6 @@ public class Oauth2SignUpRequest {
     @NotBlank
     private String name;
 
-    @NotBlank
-    private String password;
-
     @NotNull
     private Role role;
 
@@ -32,13 +29,12 @@ public class Oauth2SignUpRequest {
     private String username;
 
     @Builder(toBuilder = true)
-    public Oauth2SignUpRequest(String email, String name, String password, Role role, String provider, String username) {
+    public Oauth2SignUpRequest(String email, String name, String provider, String username) {
         this.email = email;
         this.name = name;
-        this.password = password;
-        this.role = role;
         this.provider = provider;
         this.username = username;
+        this.role = Role.USER;
     }
 
 }
