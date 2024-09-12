@@ -16,6 +16,7 @@ import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -141,6 +142,11 @@ public class MemberService {
     public Member findMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> findOptionalByUsername(String username) {
+        return memberRepository.findByUsername(username);
     }
 
     private void validateUsername(String username) {
