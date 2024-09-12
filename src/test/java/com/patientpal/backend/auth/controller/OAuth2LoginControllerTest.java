@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,6 @@ import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.member.service.MemberService;
-import com.patientpal.backend.security.jwt.JwtTokenProvider;
-import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 
@@ -292,33 +291,25 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
         void setUp() {
             this.session = new MockHttpSession();
             session.setAttribute("username", MemberFixture.DEFAULT_USERNAME);
+            session.setAttribute("email", "test@example.com");
+            session.setAttribute("name", "Test User");
+            session.setAttribute("provider", "google");
         }
 
         @Test
         void 회원이_존재하면_로그인에_성공한다() throws Exception {
-            //given
+            // given
             Member existingMember = MemberFixture.createDefaultMember();
 
-            when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(existingMember);
-
+            when(memberService.findOptionalByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(Optional.of(existingMember));
 
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
 
-            Oauth2SignUpRequest validSignUpRequest = new Oauth2SignUpRequest(
-                    "test@example.com",
-                    "Test User",
-                    "password",
-                    Role.USER,
-                    "google",
-                    MemberFixture.DEFAULT_USERNAME
-            );
-
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validSignUpRequest)))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))
@@ -342,20 +333,15 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
 
-            Oauth2SignUpRequest validSignUpRequest = new Oauth2SignUpRequest(
-                    "test@example.com",
-                    "Test User",
-                    "password",
-                    Role.USER,
-                    "google",
-                    MemberFixture.DEFAULT_USERNAME
-            );
+            session.setAttribute("username", MemberFixture.DEFAULT_USERNAME);
+            session.setAttribute("email", "test@example.com");
+            session.setAttribute("name", "Test User");
+            session.setAttribute("provider", "google");
 
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validSignUpRequest)))
+                            .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))

@@ -16,6 +16,7 @@ import com.patientpal.backend.patient.domain.Patient;
 import com.patientpal.backend.patient.repository.PatientRepository;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,6 @@ public class MemberService {
             if (request.getRole() == Role.CAREGIVER) {
                 Caregiver caregiver = Caregiver.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -91,7 +91,6 @@ public class MemberService {
             } else if (request.getRole() == Role.USER) {
                 Patient patient = Patient.builder()
                         .username(username)
-                        .password(passwordEncoder.encode(request.getPassword()))
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -99,7 +98,6 @@ public class MemberService {
             } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
                         .username(request.getUsername())
-                        .password(request.getPassword())
                         .role(Role.ADMIN)
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
                         .build();
@@ -144,6 +142,12 @@ public class MemberService {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_EXIST));
     }
+
+    @Transactional(readOnly = true)
+    public Optional<Member> findOptionalByUsername(String username) {
+        return memberRepository.findByUsername(username);
+    }
+
 
     private void validateUsername(String username) {
         Pattern BASE_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9]*$");
