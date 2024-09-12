@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Optional;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
@@ -299,10 +300,10 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
 
         @Test
         void 회원이_존재하면_로그인에_성공한다() throws Exception {
-            //given
+            // given
             Member existingMember = MemberFixture.createDefaultMember();
 
-            when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(existingMember);
+            when(memberService.findOptionalByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(Optional.of(existingMember));
 
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
@@ -342,8 +343,8 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
-                            .contentType(MediaType.APPLICATION_JSON))  // Oauth2SignUpRequest는 제거
-                    .andExpect(status().isCreated())  // 상태코드 201(Created)을 기대
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))
                     .andExpect(jsonPath("$.role").value("USER"))

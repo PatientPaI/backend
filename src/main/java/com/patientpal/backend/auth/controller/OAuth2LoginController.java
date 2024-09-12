@@ -30,6 +30,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -157,13 +158,12 @@ public class OAuth2LoginController {
         String name = (String) session.getAttribute("name");
         String provider = (String) session.getAttribute("provider");
 
-        // 이미 가입된 사용자 처리
-        Member member = memberService.getUserByUsername(username);
-        if(member != null) {
+        Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
+        if(optionalMember.isPresent()) {
+            Member member = optionalMember.get();
             return createLoginResponse(session, member);
         }
 
-        // 신규 사용자 등록 처리
         Oauth2SignUpRequest signupForm = new Oauth2SignUpRequest(email, name, provider, username);
         Long newMemberId = memberService.saveSocialUser(signupForm);
         Member newMember = memberService.getUserById(newMemberId);
