@@ -1,9 +1,7 @@
 package com.patientpal.backend.review.domain;
 
-import com.patientpal.backend.common.BaseEntity;
 import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.review.dto.UpdateReviewRequest;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Reviews extends BaseEntity {
+public class Reviews{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
