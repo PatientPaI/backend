@@ -1,5 +1,7 @@
 package com.patientpal.backend.review.service;
 
+import static com.patientpal.backend.common.exception.ErrorCode.CAREGIVER_NOT_EXIST;
+
 import com.patientpal.backend.caregiver.domain.Caregiver;
 import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
 import com.patientpal.backend.caregiver.repository.CaregiverRepository;
@@ -39,7 +41,9 @@ public class ReviewService {
     public ReviewResponse createReview(CreateReviewRequest createReviewRequest, String token) {
         String username = jwtTokenProvider.getUsernameFromToken(token);
         Member reviewer = memberRepository.findByUsernameOrThrow(username);
-        Member reviewed = memberRepository.findByUsernameOrThrow(createReviewRequest.getReviewedName());
+        Caregiver reviewed = caregiverRepository.findByUsername(createReviewRequest.getReviewedName()).orElseThrow(
+                () -> new EntityNotFoundException(CAREGIVER_NOT_EXIST)
+        );
 
         checkIfReviewAlreadyExists(reviewer, reviewed);
         validateMatch(createReviewRequest.getMatchingId());
@@ -72,7 +76,10 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Page<ReviewResponse> getReviewsReceivedByUser(String username, Pageable pageable) {
-        Member reviewed = memberRepository.findByUsernameOrThrow(username);
+        Caregiver reviewed = caregiverRepository.findByUsername(username).orElseThrow(
+                () -> new EntityNotFoundException(CAREGIVER_NOT_EXIST)
+        );
+
         Page<Reviews> reviews = reviewRepository.findByReviewedId(reviewed.getId(), pageable);
         return reviews.map(ReviewResponse::fromReview);
     }
@@ -127,7 +134,7 @@ public class ReviewService {
                         "Review not found with id: " + id));
     }
 
-    private Reviews createNewReview(CreateReviewRequest createReviewRequest, Member reviewer, Member reviewed) {
+    private Reviews createNewReview(CreateReviewRequest createReviewRequest, Member reviewer, Caregiver reviewed) {
         return Reviews.builder()
                 .reviewer(reviewer)
                 .reviewed(reviewed)
@@ -143,14 +150,14 @@ public class ReviewService {
         }
     }
 
-    private void checkIfReviewAlreadyExists(Member reviewer, Member reviewed) {
+    private void checkIfReviewAlreadyExists(Member reviewer, Caregiver reviewed) {
         reviewRepository.findByReviewerIdAndReviewedId(reviewer.getId(), reviewed.getId())
                 .ifPresent(existingReview -> {
                     throw new IllegalArgumentException("이미 해당 사용자에 대한 리뷰가 작성되었습니다.");
                 });
     }
 
-    private Reviews saveReviewAndUpdateRating(Reviews review, Member reviewed) {
+    private Reviews saveReviewAndUpdateRating(Reviews review, Caregiver reviewed) {
         Reviews savedReviews = reviewRepository.save(review);
 
         reviewed.addReview(savedReviews);

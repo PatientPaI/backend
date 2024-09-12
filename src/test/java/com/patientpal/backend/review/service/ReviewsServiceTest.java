@@ -73,14 +73,14 @@ class ReviewsServiceTest {
     private Match match;
 
     private Member reviewer;
-    private Member reviewed;
+    private Caregiver reviewed;
 
 
 
     @BeforeEach
     void setUp() {
         reviewer = defaultRolePatient();
-        reviewed = defaultRoleCaregiver();
+        reviewed = defaultCaregiver();
         caregiver = defaultCaregiver();
         match = createMatchForPatient(defaultRolePatient(),defaultRoleCaregiver());
         reviews = createReview(reviewer, reviewed);
@@ -102,7 +102,7 @@ class ReviewsServiceTest {
 
             when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
             when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
-            when(memberRepository.findByUsernameOrThrow(reviewedName)).thenReturn(reviewed);
+            when(caregiverRepository.findByUsername(reviewedName)).thenReturn(Optional.ofNullable(reviewed));
             when(matchRepository.findById(matchingId)).thenReturn(Optional.of(match));
             when(reviewRepository.findByReviewerIdAndReviewedId(reviewer.getId(), reviewed.getId())).thenReturn(Optional.empty());
             when(reviewRepository.save(any(Reviews.class))).thenReturn(reviews);
@@ -121,7 +121,7 @@ class ReviewsServiceTest {
 
             verify(reviewRepository, times(1)).save(any(Reviews.class));
             verify(memberRepository, times(1)).findByUsernameOrThrow(username);
-            verify(memberRepository, times(1)).findByUsernameOrThrow(reviewedName);
+            verify(caregiverRepository, times(1)).findByUsername(reviewedName);
             verify(matchRepository, times(1)).findById(matchingId);
         }
 
@@ -136,7 +136,7 @@ class ReviewsServiceTest {
 
             when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
             when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
-            when(memberRepository.findByUsernameOrThrow(reviewedName)).thenReturn(reviewed);
+            when(caregiverRepository.findByUsername(reviewedName)).thenReturn(Optional.ofNullable(reviewed));
             when(matchRepository.findById(matchingId)).thenReturn(Optional.of(match));
             match.setMatchStatus(MatchStatus.PENDING);
 
@@ -160,7 +160,7 @@ class ReviewsServiceTest {
             // 이미 작성된 리뷰가 있는 경우
             when(jwtTokenProvider.getUsernameFromToken(token)).thenReturn(username);
             when(memberRepository.findByUsernameOrThrow(username)).thenReturn(reviewer);
-            when(memberRepository.findByUsernameOrThrow(reviewed.getName())).thenReturn(reviewed);
+            when(caregiverRepository.findByUsername(reviewed.getName())).thenReturn(Optional.ofNullable(reviewed));
             when(reviewRepository.findByReviewerIdAndReviewedId(reviewer.getId(), reviewed.getId())).thenReturn(Optional.of(reviews));
 
             CreateReviewRequest createReviewRequest = createCreateReviewRequest(reviewed, matchingId);
@@ -243,7 +243,7 @@ class ReviewsServiceTest {
             Pageable pageable = PageRequest.of(0, 10);
             Page<Reviews> reviewsPage = new PageImpl<>(List.of(reviews), pageable, 1);
 
-            when(memberRepository.findByUsernameOrThrow(reviewed.getUsername())).thenReturn(reviewed);
+            when(caregiverRepository.findByUsername(reviewed.getUsername())).thenReturn(Optional.ofNullable(reviewed));
             when(reviewRepository.findByReviewedId(reviewed.getId(), pageable)).thenReturn(reviewsPage);
 
             //when

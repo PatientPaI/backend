@@ -1,12 +1,35 @@
 package com.patientpal.backend.review.controller;
 
-import static com.patientpal.backend.fixtures.member.MemberFixture.*;
-import static com.patientpal.backend.fixtures.review.ReviewsFixture.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static com.patientpal.backend.fixtures.caregiver.CaregiverFixture.defaultCaregiver;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createCreateReviewRequest;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createReviewResponse;
+import static com.patientpal.backend.fixtures.review.ReviewsFixture.createUpdateReviewRequest;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.patientpal.backend.caregiver.domain.Caregiver;
+import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
+import com.patientpal.backend.common.exception.EntityNotFoundException;
+import com.patientpal.backend.common.exception.ErrorCode;
+import com.patientpal.backend.fixtures.review.ReviewsFixture;
+import com.patientpal.backend.member.repository.MemberRepository;
+import com.patientpal.backend.review.dto.CreateReviewRequest;
+import com.patientpal.backend.review.dto.ReviewResponse;
+import com.patientpal.backend.review.dto.UpdateReviewRequest;
+import com.patientpal.backend.review.service.ReviewService;
+import com.patientpal.backend.test.CommonControllerSliceTest;
+import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,18 +43,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import com.patientpal.backend.caregiver.dto.response.CaregiverRankingResponse;
-import com.patientpal.backend.common.exception.EntityNotFoundException;
-import com.patientpal.backend.common.exception.ErrorCode;
-import com.patientpal.backend.fixtures.review.ReviewsFixture;
-import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.member.repository.MemberRepository;
-import com.patientpal.backend.review.dto.CreateReviewRequest;
-import com.patientpal.backend.review.dto.ReviewResponse;
-import com.patientpal.backend.review.dto.UpdateReviewRequest;
-import com.patientpal.backend.review.service.ReviewService;
-import com.patientpal.backend.test.CommonControllerSliceTest;
-import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
 
 @AutoKoreanDisplayName
 @SuppressWarnings("NonAsciiCharacters")
@@ -43,7 +54,7 @@ class ReviewsControllerTest extends CommonControllerSliceTest {
     @MockBean
     private MemberRepository memberRepository;
 
-    private Member reviewed = defaultRoleCaregiver();
+    private Caregiver reviewed = defaultCaregiver();
 
     @Nested
     class 리뷰_생성 {
