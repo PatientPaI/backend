@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -138,6 +140,22 @@ public class OAuth2LoginController {
         return ResponseEntity.ok(userData);
     }
 
+    @PostMapping("/oauth2/register-or-login")
+    @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
+    @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
+            content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
+    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+
+        Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
+        if(optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            return createLoginResponse(session, member);
+        }
+
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/oauth2/register")).build();
+    }
+
     @GetMapping("/oauth2/register")
     @Operation(summary = "소셜 회원가입 정보 가져오기", description = "소셜 로그인 후 회원가입 페이지에서 필요한 정보를 가져온다.")
     @ApiResponse(responseCode = "200", description = "소셜 회원가입 정보 가져오기 성공",
@@ -147,27 +165,16 @@ public class OAuth2LoginController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/oauth2/register-or-login")
-    @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
-    @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
+    @PostMapping("/oauth2/register")
+    @Operation(summary = "소셜 회원가입", description = "소셜 로그인 후 추가 정보를 입력하여 회원가입을 처리한다.")
+    @ApiResponse(responseCode = "201", description = "회원가입 성공",
             content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
-    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(HttpSession session) {
-        String username = (String) session.getAttribute("username");
-        String email = (String) session.getAttribute("email");
-        String name = (String) session.getAttribute("name");
-        String provider = (String) session.getAttribute("provider");
+    public ResponseEntity<Oauth2SignUpResponse> registerUser(@RequestBody Oauth2SignUpRequest signupForm, HttpSession session) {
 
-        Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
-        if(optionalMember.isPresent()) {
-            Member member = optionalMember.get();
-            return createLoginResponse(session, member);
-        }
-
-        Oauth2SignUpRequest signupForm = new Oauth2SignUpRequest(email, name, provider, username);
         Long newMemberId = memberService.saveSocialUser(signupForm);
         Member newMember = memberService.getUserById(newMemberId);
 
-        return createSignupResponse(signupForm,session, newMember);
+        return createSignupResponse(signupForm, session, newMember);
     }
 
     private ResponseEntity<Oauth2SignUpResponse> createSignupResponse(Oauth2SignUpRequest signupForm,
@@ -177,27 +184,27 @@ public class OAuth2LoginController {
 
         session.setAttribute("token", token);
 
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(newMember, signupForm.getEmail(), signupForm.getName(), signupForm.getRole().name(), signupForm.getProvider(), token);
+        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(newMember, signupForm.getUsername(), signupForm.getEmail(), signupForm.getName(), signupForm.getRole().name(), signupForm.getProvider(), token);
 
         return ResponseEntity.created(URI.create("/api/v1/members/" + newMember.getId())).body(response);
     }
 
     private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(HttpSession session, Member member) {
         String email = (String) session.getAttribute("email");
+        String username = (String) session.getAttribute("username");
         String name = (String) session.getAttribute("name");
         String provider = (String) session.getAttribute("provider");
 
         String token = generateToken(member, provider, email, name);
         session.setAttribute("token", token);
 
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, email, name, member.getRole().name(), provider, token);
+        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, username,email, name, member.getRole().name(), provider, token);
         return ResponseEntity.ok(response);
     }
 
     private Oauth2SignUpResponse createOauth2SignUpResponse(HttpSession session) {
         String email = (String) session.getAttribute("email");
         String name = (String) session.getAttribute("name");
-        Role role = (Role) session.getAttribute("role");
         String provider = (String) session.getAttribute("provider");
         String username = (String) session.getAttribute("username");
         String token = (String) session.getAttribute("token");
@@ -212,7 +219,7 @@ public class OAuth2LoginController {
             throw new EntityNotFoundException(MEMBER_NOT_EXIST, "Member not found with username: " + username);
         }
 
-        return Oauth2SignUpResponse.fromMember(member, email, name, role.name(), provider, token);
+        return Oauth2SignUpResponse.fromMember(member,username, email, name, String.valueOf(Role.USER), provider, token);
     }
 
     private String generateToken(Member member, String provider, String email, String name) {

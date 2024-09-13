@@ -86,6 +86,12 @@ public class MemberService {
                         .username(username)
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .isProfilePublic(request.getIsProfilePublic())
+                        .profileImageUrl(request.getProfileImageUrl())
+                        .contact(request.getContact())
+                        .address(request.getAddress())
+                        .gender(request.getGender())
+                        .age(request.getAge())
                         .build();
                 return caregiverRepository.save(caregiver).getId();
             } else if (request.getRole() == Role.USER) {
@@ -93,13 +99,25 @@ public class MemberService {
                         .username(username)
                         .role(request.getRole())
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .isProfilePublic(request.getIsProfilePublic())
+                        .profileImageUrl(request.getProfileImageUrl())
+                        .contact(request.getContact())
+                        .address(request.getAddress())
+                        .gender(request.getGender())
+                        .age(request.getAge())
                         .build();
                 return patientRepository.save(patient).getId();
             } else if (request.getRole() == Role.ADMIN) {
                 Member member = Member.builder()
-                        .username(request.getUsername())
+                        .username(username)
                         .role(Role.ADMIN)
                         .provider(Provider.valueOf(request.getProvider().toUpperCase()))
+                        .isProfilePublic(request.getIsProfilePublic())
+                        .profileImageUrl(request.getProfileImageUrl())
+                        .contact(request.getContact())
+                        .address(request.getAddress())
+                        .gender(request.getGender())
+                        .age(request.getAge())
                         .build();
                 return memberRepository.save(member).getId();
             }
