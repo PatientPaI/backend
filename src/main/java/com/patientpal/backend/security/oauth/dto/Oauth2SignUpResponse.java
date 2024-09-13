@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Oauth2SignUpResponse {
     private String email;
+    private String username;
     private String name;
     private String role;
     private String provider;
@@ -28,9 +29,10 @@ public class Oauth2SignUpResponse {
     private int age;
 
 
-    public static Oauth2SignUpResponse fromMember(Member member, String email, String name, String role, String provider, String token) {
+    public static Oauth2SignUpResponse fromMember(Member member, String username, String email, String name, String role, String provider, String token) {
         return Oauth2SignUpResponse.builder()
                 .email(email)
+                .username(username)
                 .name(name)
                 .role(role)
                 .provider(provider)

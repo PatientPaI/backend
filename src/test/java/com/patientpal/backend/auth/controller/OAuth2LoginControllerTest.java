@@ -1,22 +1,15 @@
 package com.patientpal.backend.auth.controller;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
@@ -29,8 +22,19 @@ import com.patientpal.backend.member.domain.Member;
 import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.repository.MemberRepository;
 import com.patientpal.backend.member.service.MemberService;
+import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.test.CommonControllerSliceTest;
 import com.patientpal.backend.test.annotation.AutoKoreanDisplayName;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 
 @TestPropertySource(properties = {
         "spring.security.oauth2.client.registration.google.client-id=test-google-client-id",
@@ -294,6 +298,7 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             session.setAttribute("email", "test@example.com");
             session.setAttribute("name", "Test User");
             session.setAttribute("provider", "google");
+            session.setAttribute("token", "validToken");
         }
 
         @Test
@@ -301,7 +306,8 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             // given
             Member existingMember = MemberFixture.createDefaultMember();
 
-            when(memberService.findOptionalByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(Optional.of(existingMember));
+            when(memberService.findOptionalByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(
+                    Optional.of(existingMember));
 
             String validToken = "validToken";
             when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
@@ -320,35 +326,86 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
 
 
         @Test
-        void 회원이_존재하지_않으면_회원가입에_성공한다() throws Exception {
+        void 회원이_존재하지_않으면_회원가입_페이지로_리다이렉트된다() throws Exception {
             // given
             when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(null);
-
-            Long newMemberId = MemberFixture.DEFAULT_ID;
-            when(memberService.saveSocialUser(any())).thenReturn(newMemberId);
-
-            Member newMember = MemberFixture.defaultRolePatient();
-            when(memberService.getUserById(newMemberId)).thenReturn(newMember);
-
-            String validToken = "validToken";
-            when(jwtTokenProvider.createAccessToken(any())).thenReturn(validToken);
-
-            session.setAttribute("username", MemberFixture.DEFAULT_USERNAME);
-            session.setAttribute("email", "test@example.com");
-            session.setAttribute("name", "Test User");
-            session.setAttribute("provider", "google");
 
             // when & then
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
                             .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().is3xxRedirection())  // 리다이렉션 상태 확인
+                    .andExpect(header().string("Location", "/oauth2/register"));
+        }
+
+
+        @Test
+        void 소셜_회원가입_정보_가져오기_성공() throws Exception {
+            // given
+            Member member = MemberFixture.createDefaultMember();
+
+            when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(member);
+
+            // when & then
+            mockMvc.perform(get("/api/v1/auth/oauth2/register")
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.email").value("test@example.com"))
+                    .andExpect(jsonPath("$.name").value("Test User"))
+                    .andExpect(jsonPath("$.username").value(MemberFixture.DEFAULT_USERNAME))
+                    .andExpect(jsonPath("$.provider").value("google"))
+                    .andExpect(jsonPath("$.token").value("validToken"));
+        }
+
+        @Test
+        void 세션에_유저네임이_없으면_에러() throws Exception {
+            session.removeAttribute("username");
+
+            // when & then
+            mockMvc.perform(get("/api/v1/auth/oauth2/register")
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 유저가_존재하지_않으면_에러() throws Exception {
+            when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(null);
+
+            // when & then
+            mockMvc.perform(get("/api/v1/auth/oauth2/register")
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void 회원가입_성공() throws Exception {
+            // given
+            Oauth2SignUpRequest signupRequest = Oauth2SignUpRequest.builder()
+                    .email("test@example.com")
+                    .name("Test User")
+                    .provider("google")
+                    .username("testuser")
+                    .build();
+
+            Long newMemberId = 1L;
+            Member newMember = MemberFixture.defaultRolePatient();
+
+            when(memberService.saveSocialUser(any())).thenReturn(newMemberId);
+            when(memberService.getUserById(newMemberId)).thenReturn(newMember);
+
+            // when & then
+            mockMvc.perform(post("/api/v1/auth/oauth2/register")
+                            .session(session)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{ \"email\": \"test@example.com\", \"name\": \"Test User\", \"provider\": \"google\", \"username\": \"testuser\" }"))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.email").value("test@example.com"))
                     .andExpect(jsonPath("$.name").value("Test User"))
-                    .andExpect(jsonPath("$.role").value("USER"))
                     .andExpect(jsonPath("$.provider").value("google"))
-                    .andExpect(jsonPath("$.memberId").value(MemberFixture.DEFAULT_ID));
+                    .andExpect(jsonPath("$.memberId").value(1L));
         }
     }
-
 }
