@@ -1,29 +1,8 @@
 package com.patientpal.backend.auth.controller;
 
-import static com.patientpal.backend.common.exception.ErrorCode.*;
+import static com.patientpal.backend.common.exception.ErrorCode.INVALID_USERNAME;
+import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
@@ -43,9 +22,29 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Tag(name = "인증", description = "인증 API")
 @RestController
@@ -91,18 +90,22 @@ public class OAuth2LoginController {
     private String naverAuthorizationUri;
 
 
-    @Operation(summary = "소셜 로그인 리다이렉트", description = "사용자를 소셜 로그인 페이지로 리다이렉트합니다.")
-    @ApiResponse(responseCode = "302", description = "소셜 로그인 페이지로 리다이렉트")
+    @Operation(summary = "소셜 로그인 URL 가져오기", description = "소셜 로그인 페이지 URL을 JSON으로 응답합니다.")
+    @ApiResponse(responseCode = "200", description = "소셜 로그인 URL 반환 성공")
     @GetMapping("/oauth2/authorize/{provider}")
-    public void redirectToSocialLogin(@PathVariable String provider, HttpServletResponse response) throws IOException {
-         String loginUrl = switch (provider) {
-             case "google" -> buildLoginUrl(googleAuthorizationUri, googleClientId, googleRedirectUri, GOOGLE_SCOPE);
-             case "kakao" -> buildLoginUrl(kakaoAuthorizationUri, kakaoClientId, kakaoRedirectUri, KAKAO_SCOPE);
-             case "naver" -> buildLoginUrl(naverAuthorizationUri, naverClientId, naverRedirectUri, NAVER_SCOPE);
-             default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
-         };
-         response.sendRedirect(loginUrl);
+    public ResponseEntity<Map<String, String>> getSocialLoginUrl(@PathVariable String provider) {
+        String loginUrl = switch (provider) {
+            case "google" -> buildLoginUrl(googleAuthorizationUri, googleClientId, googleRedirectUri, GOOGLE_SCOPE);
+            case "kakao" -> buildLoginUrl(kakaoAuthorizationUri, kakaoClientId, kakaoRedirectUri, KAKAO_SCOPE);
+            case "naver" -> buildLoginUrl(naverAuthorizationUri, naverClientId, naverRedirectUri, NAVER_SCOPE);
+            default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
+        };
+
+        Map<String, String> response = new HashMap<>();
+        response.put("loginUrl", loginUrl);
+        return ResponseEntity.ok(response);
     }
+
 
     @Operation(summary = "구글 엑세스 토큰 요청", description = "구글 인가 코드를 사용하여 엑세스 토큰을 요청합니다.")
     @ApiResponse(responseCode = "200", description = "엑세스 토큰 요청 성공",
@@ -144,7 +147,7 @@ public class OAuth2LoginController {
     @Operation(summary = "소셜 회원가입 또는 로그인", description = "소셜 로그인 후 회원가입 또는 로그인 절차를 수행한다.")
     @ApiResponse(responseCode = "200", description = "회원가입 또는 로그인 성공",
             content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
-    public ResponseEntity<Oauth2SignUpResponse> processOauth2Signup(HttpSession session) {
+    public ResponseEntity<?> processOauth2Signup(HttpSession session) {
         String username = (String) session.getAttribute("username");
 
         Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
@@ -153,7 +156,9 @@ public class OAuth2LoginController {
             return createLoginResponse(session, member);
         }
 
-        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT).location(URI.create("/oauth2/register")).build();
+        Map<String, String> response = new HashMap<>();
+        response.put("redirectUrl", "/oauth2/register");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/oauth2/register")
@@ -253,7 +258,7 @@ public class OAuth2LoginController {
         return UriComponentsBuilder.fromUriString(authorizationUri)
                 .queryParam("client_id", clientId)
                 .queryParam("redirect_uri", URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))
-                .queryParam("response_type", RESPONSE_TYPE)
+                .queryParam("response_type", "code")
                 .queryParam("scope", scope)
                 .queryParam("state", generateState())
                 .build()
