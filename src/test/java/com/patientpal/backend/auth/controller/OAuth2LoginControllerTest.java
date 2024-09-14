@@ -334,7 +334,6 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             // given
             Member member = MemberFixture.createDefaultMember();
 
-            // memberService.getUserByUsername 호출 시 해당 멤버 반환하도록 설정
             when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(member);
 
             // when & then
@@ -351,7 +350,6 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
 
         @Test
         void 세션에_유저네임이_없으면_에러() throws Exception {
-            // 세션에서 username 제거
             session.removeAttribute("username");
 
             // when & then
@@ -363,7 +361,6 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
 
         @Test
         void 유저가_존재하지_않으면_에러() throws Exception {
-            // when memberService.getUserByUsername 호출 시 null 반환하도록 설정
             when(memberService.getUserByUsername(MemberFixture.DEFAULT_USERNAME)).thenReturn(null);
 
             // when & then
