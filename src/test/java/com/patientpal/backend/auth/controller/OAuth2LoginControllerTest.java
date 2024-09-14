@@ -1,12 +1,11 @@
 package com.patientpal.backend.auth.controller;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -62,43 +61,34 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
         @Test
         void 구글_로그인_페이지로_리다이렉트된다() throws Exception {
             mockMvc.perform(get("/api/v1/auth/oauth2/authorize/google"))
-                    .andExpect(status().is3xxRedirection())
-                    .andExpect(result -> {
-                        String redirectedUrl = result.getResponse().getRedirectedUrl();
-                        assertThat(redirectedUrl).contains("https://accounts.google.com/o/oauth2/auth");
-                        assertThat(redirectedUrl).contains("client_id=");
-                        assertThat(redirectedUrl).contains("redirect_uri=");
-                        assertThat(redirectedUrl).contains("response_type=code");
-                        assertThat(redirectedUrl).contains("scope=profile email");
-                    });
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.loginUrl", containsString("https://accounts.google.com/o/oauth2/auth")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("client_id=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("redirect_uri=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("response_type=code")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("scope=profile email")));
         }
 
         @Test
-        void 카카오_로그인_페이지로_리다이렉트된다() throws Exception {
+        void 카카오_로그인_URL을_반환한다() throws Exception {
             mockMvc.perform(get("/api/v1/auth/oauth2/authorize/kakao"))
-                    .andExpect(status().is3xxRedirection())
-                    .andExpect(result -> {
-                        String redirectedUrl = result.getResponse().getRedirectedUrl();
-                        assertThat(redirectedUrl).startsWith("https://kauth.kakao.com/oauth/authorize");
-                        assertThat(redirectedUrl).contains("client_id=");
-                        assertThat(redirectedUrl).contains("redirect_uri=");
-                        assertThat(redirectedUrl).contains("response_type=code");
-                        assertThat(redirectedUrl).contains("scope=");
-                    });
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.loginUrl", containsString("https://kauth.kakao.com/oauth/authorize")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("client_id=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("redirect_uri=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("response_type=code")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("scope=")));
         }
 
         @Test
-        void 네이버_로그인_페이지로_리다이렉트된다() throws Exception {
+        void 네이버_로그인_URL을_반환한다() throws Exception {
             mockMvc.perform(get("/api/v1/auth/oauth2/authorize/naver"))
-                    .andExpect(status().is3xxRedirection())
-                    .andExpect(result -> {
-                        String redirectedUrl = result.getResponse().getRedirectedUrl();
-                        assertThat(redirectedUrl).startsWith("https://nid.naver.com/oauth2.0/authorize");
-                        assertThat(redirectedUrl).contains("client_id=");
-                        assertThat(redirectedUrl).contains("redirect_uri=");
-                        assertThat(redirectedUrl).contains("response_type=code");
-                        assertThat(redirectedUrl).contains("state=");
-                    });
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.loginUrl", containsString("https://nid.naver.com/oauth2.0/authorize")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("client_id=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("redirect_uri=")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("response_type=code")))
+                    .andExpect(jsonPath("$.loginUrl", containsString("state=")));
         }
     }
 
@@ -334,8 +324,8 @@ class OAuth2LoginControllerTest extends CommonControllerSliceTest {
             mockMvc.perform(post("/api/v1/auth/oauth2/register-or-login")
                             .session(session)
                             .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().is3xxRedirection())  // 리다이렉션 상태 확인
-                    .andExpect(header().string("Location", "/oauth2/register"));
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.redirectUrl").value("/oauth2/register"));
         }
 
 
