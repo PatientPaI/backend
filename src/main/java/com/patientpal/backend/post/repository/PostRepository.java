@@ -20,8 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findAll(Pageable pageable);
 
-    @Modifying
-    @Query("update Post p set p.views = p.views + 1 where p.id = :id")
-    int updateView(@Param("id") Long id);
-
+    @Modifying(flushAutomatically = true)
+    @Query("UPDATE Post p SET p.views = p.views + :increment WHERE p.id = :id")
+    void incrementViewCountsById(@Param("id") Long postId, @Param("increment") Long increment);
 }

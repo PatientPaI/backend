@@ -15,7 +15,7 @@ public class SchedulerConfig {
 
     private final SyncViewCountService syncViewCountService;
 
-    @Scheduled(fixedRate = 21600000) //6시간마다
+    @Scheduled(fixedRate = 21_600_000) //6시간마다
     public void syncViewCountsTask() {
         final int maxAttempts = 5;
         int attempts = 0;
@@ -33,4 +33,24 @@ public class SchedulerConfig {
             }
         }
     }
+
+    @Scheduled(fixedRate = 1_800_000) // every 30 minute
+    public void syncPostViewCountTask() {
+        final int maxAttempts = 5;
+        int attempts = 0;
+
+        while (attempts < maxAttempts) {
+            try {
+                syncViewCountService.syncPostViewCountsBatch();
+                break;
+            } catch (Exception e) {
+                attempts++;
+                log.info("Redis 데이터 동기화 재시도: {}회, 오류: {}", attempts, e.getMessage());
+                if (attempts >= maxAttempts) {
+                    log.info("최대 재시도 횟수에 도달했습니다. Redis 데이터 동기화 작업에 실패했습니다.");
+                }
+            }
+        }
+    }
+
 }
