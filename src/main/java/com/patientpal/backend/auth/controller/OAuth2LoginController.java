@@ -1,11 +1,16 @@
 package com.patientpal.backend.auth.controller;
 
+import static com.patientpal.backend.auth.domain.SocialProvider.GOOGLE;
+import static com.patientpal.backend.auth.domain.SocialProvider.KAKAO;
+import static com.patientpal.backend.auth.domain.SocialProvider.NAVER;
 import static com.patientpal.backend.common.exception.ErrorCode.INVALID_USERNAME;
 import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
 
+import com.patientpal.backend.auth.domain.SocialProvider;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
+import com.patientpal.backend.auth.service.SocialLoginService;
 import com.patientpal.backend.common.exception.BusinessException;
 import com.patientpal.backend.common.exception.EntityNotFoundException;
 import com.patientpal.backend.common.exception.ErrorCode;
@@ -32,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,56 +56,21 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class OAuth2LoginController {
 
-    private final JwtTokenProvider jwtTokenProvider;
+
     private final JwtLoginService jwtLoginService;
     private final MemberService memberService;
     private final SocialDataService socialDataService;
-
-    private static final String RESPONSE_TYPE = "code";
-    private static final String GOOGLE_SCOPE = "profile email";
-    private static final String KAKAO_SCOPE = "profile_nickname account_email";
-    private static final String NAVER_SCOPE = "name email";
-
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
-
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    private String googleRedirectUri;
-
-    @Value("${spring.security.oauth2.client.provider.google.authorization-uri}")
-    private String googleAuthorizationUri;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String kakaoClientId;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String kakaoRedirectUri;
-
-    @Value("${spring.security.oauth2.client.provider.kakao.authorization-uri}")
-    private String kakaoAuthorizationUri;
-
-    @Value("${spring.security.oauth2.client.registration.naver.client-id}")
-    private String naverClientId;
-
-    @Value("${spring.security.oauth2.client.registration.naver.redirect-uri}")
-    private String naverRedirectUri;
-
-    @Value("${spring.security.oauth2.client.provider.naver.authorization-uri}")
-    private String naverAuthorizationUri;
+    private final SocialLoginService socialLoginService;
 
 
     @Operation(summary = "소셜 로그인 URL 가져오기", description = "소셜 로그인 페이지 URL을 JSON으로 응답합니다.")
     @ApiResponse(responseCode = "200", description = "소셜 로그인 URL 반환 성공")
     @GetMapping("/oauth2/authorize/{provider}")
-    public ResponseEntity<Map<String, String>> getSocialLoginUrl(@PathVariable String provider) {
-        String loginUrl = switch (provider) {
-            case "google" -> buildLoginUrl(googleAuthorizationUri, googleClientId, googleRedirectUri, GOOGLE_SCOPE);
-            case "kakao" -> buildLoginUrl(kakaoAuthorizationUri, kakaoClientId, kakaoRedirectUri, KAKAO_SCOPE);
-            case "naver" -> buildLoginUrl(naverAuthorizationUri, naverClientId, naverRedirectUri, NAVER_SCOPE);
-            default -> throw new IllegalArgumentException("Unsupported provider: " + provider);
-        };
+    public ResponseEntity<Map<String, String>> getSocialLoginUrl(@PathVariable SocialProvider provider) {
+        String loginUrl = socialLoginService.getLoginUrl(provider);
 
         Map<String, String> response = new HashMap<>();
         response.put("loginUrl", loginUrl);
@@ -153,7 +124,7 @@ public class OAuth2LoginController {
         Optional<Member> optionalMember = memberService.findOptionalByUsername(username);
         if(optionalMember.isPresent()) {
             Member member = optionalMember.get();
-            return createLoginResponse(session, member);
+            return socialLoginService.createLoginResponse(session, member);
         }
 
         Map<String, String> response = new HashMap<>();
@@ -166,7 +137,7 @@ public class OAuth2LoginController {
     @ApiResponse(responseCode = "200", description = "소셜 회원가입 정보 가져오기 성공",
             content = @Content(schema = @Schema(implementation = Oauth2SignUpResponse.class)))
     public ResponseEntity<Oauth2SignUpResponse> getOauth2UserInfo(HttpSession session) {
-        Oauth2SignUpResponse response = createOauth2SignUpResponse(session);
+        Oauth2SignUpResponse response = socialLoginService.createOauth2SignUpResponse(session);
         return ResponseEntity.ok(response);
     }
 
@@ -179,93 +150,6 @@ public class OAuth2LoginController {
         Long newMemberId = memberService.saveSocialUser(signupForm);
         Member newMember = memberService.getUserById(newMemberId);
 
-        return createSignupResponse(signupForm, session, newMember);
-    }
-
-    private ResponseEntity<Oauth2SignUpResponse> createSignupResponse(Oauth2SignUpRequest signupForm,
-                                                                                       HttpSession session,
-                                                                                       Member newMember) {
-        String token = generateToken(newMember, signupForm.getProvider(), signupForm.getEmail(), signupForm.getName());
-
-        session.setAttribute("token", token);
-
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(newMember, signupForm.getUsername(), signupForm.getEmail(), signupForm.getName(), signupForm.getRole().name(), signupForm.getProvider(), token);
-
-        return ResponseEntity.created(URI.create("/api/v1/members/" + newMember.getId())).body(response);
-    }
-
-    private ResponseEntity<Oauth2SignUpResponse> createLoginResponse(HttpSession session, Member member) {
-        String email = (String) session.getAttribute("email");
-        String username = (String) session.getAttribute("username");
-        String name = (String) session.getAttribute("name");
-        String provider = (String) session.getAttribute("provider");
-
-        String token = generateToken(member, provider, email, name);
-        session.setAttribute("token", token);
-
-        Oauth2SignUpResponse response = Oauth2SignUpResponse.fromMember(member, username,email, name, member.getRole().name(), provider, token);
-        return ResponseEntity.ok(response);
-    }
-
-    private Oauth2SignUpResponse createOauth2SignUpResponse(HttpSession session) {
-        String email = (String) session.getAttribute("email");
-        String name = (String) session.getAttribute("name");
-        String provider = (String) session.getAttribute("provider");
-        String username = (String) session.getAttribute("username");
-        String token = (String) session.getAttribute("token");
-
-        if (username == null || username.isEmpty()) {
-            throw new BusinessException(INVALID_USERNAME, "Username is not set in session");
-        }
-
-        Member member = memberService.getUserByUsername(username);
-
-        if (member == null) {
-            throw new EntityNotFoundException(MEMBER_NOT_EXIST, "Member not found with username: " + username);
-        }
-
-        return Oauth2SignUpResponse.fromMember(member,username, email, name, String.valueOf(Role.USER), provider, token);
-    }
-
-    private String generateToken(Member member, String provider, String email, String name) {
-        CustomOauth2UserInfo userInfo = CustomOauth2UserInfo.of(provider, Map.of("email", email, "name", name));
-        String password = member.getPassword() != null ? member.getPassword() : "DUMMY_PASSWORD";
-        CustomOauth2UserPrincipal principal = new CustomOauth2UserPrincipal(member.getUsername(), password, Collections.singletonList(new SimpleGrantedAuthority(member.getRole().name())));
-        principal.setUserInfo(userInfo);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
-        return jwtTokenProvider.createAccessToken(authentication);
-    }
-
-    private String getUsername(Oauth2SignUpRequest signupForm, HttpSession session) {
-        String username = (String) session.getAttribute("username");
-        signupForm
-                .toBuilder()
-                .username(username)
-                .build();
-        return username;
-    }
-
-    private Member getMember(String username) {
-        Member member = memberService.getUserByUsername(username);
-        if (member == null) {
-            throw new BusinessException(ErrorCode.MEMBER_NOT_EXIST, "Member not found with username: " + username);
-        }
-        return member;
-    }
-
-    private String buildLoginUrl(String authorizationUri, String clientId, String redirectUri, String scope) {
-        return UriComponentsBuilder.fromUriString(authorizationUri)
-                .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", URLEncoder.encode(redirectUri, StandardCharsets.UTF_8))
-                .queryParam("response_type", "code")
-                .queryParam("scope", scope)
-                .queryParam("state", generateState())
-                .build()
-                .toUriString();
-    }
-
-    private String generateState() {
-        return UUID.randomUUID().toString();
+        return socialLoginService.createSignupResponse(signupForm, session, newMember);
     }
 }
