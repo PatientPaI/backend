@@ -1,48 +1,26 @@
 package com.patientpal.backend.auth.controller;
 
-import static com.patientpal.backend.auth.domain.SocialProvider.GOOGLE;
-import static com.patientpal.backend.auth.domain.SocialProvider.KAKAO;
-import static com.patientpal.backend.auth.domain.SocialProvider.NAVER;
-import static com.patientpal.backend.common.exception.ErrorCode.INVALID_USERNAME;
-import static com.patientpal.backend.common.exception.ErrorCode.MEMBER_NOT_EXIST;
-
 import com.patientpal.backend.auth.domain.SocialProvider;
 import com.patientpal.backend.auth.dto.TokenDto;
 import com.patientpal.backend.auth.service.JwtLoginService;
 import com.patientpal.backend.auth.service.SocialDataService;
 import com.patientpal.backend.auth.service.SocialLoginService;
-import com.patientpal.backend.common.exception.BusinessException;
-import com.patientpal.backend.common.exception.EntityNotFoundException;
-import com.patientpal.backend.common.exception.ErrorCode;
 import com.patientpal.backend.member.domain.Member;
-import com.patientpal.backend.member.domain.Role;
 import com.patientpal.backend.member.service.MemberService;
-import com.patientpal.backend.security.jwt.JwtTokenProvider;
-import com.patientpal.backend.security.oauth.CustomOauth2UserPrincipal;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpRequest;
 import com.patientpal.backend.security.oauth.dto.Oauth2SignUpResponse;
-import com.patientpal.backend.security.oauth.userinfo.CustomOauth2UserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Tag(name = "인증", description = "인증 API")
 @RestController
