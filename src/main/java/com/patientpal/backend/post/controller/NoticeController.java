@@ -12,6 +12,7 @@ import com.patientpal.backend.post.dto.PostResponse;
 import com.patientpal.backend.post.dto.PostUpdateRequest;
 import com.patientpal.backend.post.libs.RoleType;
 import com.patientpal.backend.post.service.PostService;
+import com.patientpal.backend.post.service.PostViewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ public class NoticeController {
 
     private final PostService postService;
     private final MemberService memberService;
+    private final PostViewService postViewService;
 
     @GetMapping
     public Page<PostListResponse> list (@RequestParam(value = "page", defaultValue = "0") int page) {
@@ -46,7 +48,7 @@ public class NoticeController {
     @ResponseStatus(HttpStatus.OK)
     public PostResponse get(@PathVariable("id") Long id) {
         Post post = postService.getNoticePost(id);
-        postService.updateView(id);
+        postViewService.addPostView(id);
         return new PostResponse(post);
     }
 
